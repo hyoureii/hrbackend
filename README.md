@@ -10,8 +10,8 @@ To-do :
 - [ ] Figure out what im gonna do with db
 - [ ] Setup db and its dependencies (ORM, etc.)
 - [ ] Get auth working (prolly be using JWT)
-- [ ] Consider adding a REST gateway just for the sake of it
-    - [ ] Generate OpenAPI specs
+- [ ] Add a REST gateway
+- [ ] Generate OpenAPI specs
 - [ ] Consider adding support for TOTP
 - [ ] Dockerize the whole thing
 - [ ] Figure out some CI/CD pipeline that just works
