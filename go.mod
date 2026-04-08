@@ -1,3 +1,3 @@
-module repo.hyourei.xyz/dev/hrbackend
+module github.com/hyoureii/hrbackend
 
 go 1.26.1
