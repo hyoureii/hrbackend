@@ -1,0 +1,33 @@
+syntax = "proto3";
+package v1.leave;
+
+import "google/api/annotations.proto";
+
+option go_package = "github.com/hyoureii/hrbackend/gen/v1/leave;leavev1";
+
+message CreateRequest {}
+message CreateResponse {}
+message ApproveRequest {}
+message ApproveResponse {}
+message RejectRequest {}
+message RejectResponse {}
+
+service LeaveService {
+  rpc Create(CreateRequest) returns (CreateResponse) {
+    option (google.api.http) = {
+      get: "/v1/leave/"
+    };
+  }
+
+  rpc Approve(ApproveRequest) returns (ApproveResponse) {
+    option (google.api.http) = {
+      get: "/v1/me"
+    };
+  }
+
+  rpc Reject(RejectRequest) returns (RejectResponse) {
+    option (google.api.http) = {
+      get: "/v1/me"
+    };
+  }
+}

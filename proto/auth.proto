@@ -1,9 +1,9 @@
 syntax = "proto3";
-package auth.v1;
+package v1.auth;
 
 import "google/api/annotations.proto";
 
-option go_package = "github.com/hyoureii/hrbackend/gen/auth/v1;authv1";
+option go_package = "github.com/hyoureii/hrbackend/gen/v1/auth;authv1";
 
 enum Role {
   ROLE_STAFF = 0;
