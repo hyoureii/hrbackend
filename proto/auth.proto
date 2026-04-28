@@ -18,15 +18,14 @@ message RegisterRequest {
   string password = 2;
   string first_name = 3;
   string last_name = 4;
-  Role role = 5;
+  string avatar_url = 5;
+  Role role = 6;
 }
 message RegisterResponse {}
 message RefreshRequest {
   string refresh_token = 1;
 }
-message LogoutRequest {
-  string refresh_token = 1;
-}
+message LogoutRequest {}
 message LogoutResponse {}
 
 message LoginRequest {

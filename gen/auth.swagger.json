@@ -23,7 +23,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/v1LoginResponse"
+              "$ref": "#/definitions/authLoginResponse"
             }
           },
           "default": {
@@ -39,7 +39,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/v1LoginRequest"
+              "$ref": "#/definitions/authLoginRequest"
             }
           }
         ],
@@ -55,7 +55,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/v1LogoutResponse"
+              "$ref": "#/definitions/authLogoutResponse"
             }
           },
           "default": {
@@ -71,7 +71,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/v1LogoutRequest"
+              "$ref": "#/definitions/authLogoutRequest"
             }
           }
         ],
@@ -87,7 +87,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/v1LoginResponse"
+              "$ref": "#/definitions/authLoginResponse"
             }
           },
           "default": {
@@ -103,7 +103,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/v1RefreshRequest"
+              "$ref": "#/definitions/authRefreshRequest"
             }
           }
         ],
@@ -119,7 +119,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/v1RegisterResponse"
+              "$ref": "#/definitions/authRegisterResponse"
             }
           },
           "default": {
@@ -135,7 +135,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/v1RegisterRequest"
+              "$ref": "#/definitions/authRegisterRequest"
             }
           }
         ],
@@ -151,7 +151,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/v1Profile"
+              "$ref": "#/definitions/authProfile"
             }
           },
           "default": {
@@ -168,6 +168,91 @@
     }
   },
   "definitions": {
+    "authLoginRequest": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      }
+    },
+    "authLoginResponse": {
+      "type": "object",
+      "properties": {
+        "accessToken": {
+          "type": "string"
+        },
+        "refreshToken": {
+          "type": "string"
+        },
+        "expTime": {
+          "type": "string",
+          "format": "int64"
+        }
+      }
+    },
+    "authLogoutRequest": {
+      "type": "object"
+    },
+    "authLogoutResponse": {
+      "type": "object"
+    },
+    "authProfile": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "authRefreshRequest": {
+      "type": "object",
+      "properties": {
+        "refreshToken": {
+          "type": "string"
+        }
+      }
+    },
+    "authRegisterRequest": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "firstName": {
+          "type": "string"
+        },
+        "lastName": {
+          "type": "string"
+        },
+        "avatarUrl": {
+          "type": "string"
+        },
+        "role": {
+          "$ref": "#/definitions/authRole"
+        }
+      }
+    },
+    "authRegisterResponse": {
+      "type": "object"
+    },
+    "authRole": {
+      "type": "string",
+      "enum": [
+        "ROLE_STAFF",
+        "ROLE_ADMIN",
+        "ROLE_DIRECTOR",
+        "ROLE_MANAGER",
+        "ROLE_SUPERVISOR"
+      ],
+      "default": "ROLE_STAFF"
+    },
     "protobufAny": {
       "type": "object",
       "properties": {
@@ -195,93 +280,6 @@
           }
         }
       }
-    },
-    "v1LoginRequest": {
-      "type": "object",
-      "properties": {
-        "email": {
-          "type": "string"
-        },
-        "password": {
-          "type": "string"
-        }
-      }
-    },
-    "v1LoginResponse": {
-      "type": "object",
-      "properties": {
-        "accessToken": {
-          "type": "string"
-        },
-        "refreshToken": {
-          "type": "string"
-        },
-        "expTime": {
-          "type": "string",
-          "format": "int64"
-        }
-      }
-    },
-    "v1LogoutRequest": {
-      "type": "object",
-      "properties": {
-        "refreshToken": {
-          "type": "string"
-        }
-      }
-    },
-    "v1LogoutResponse": {
-      "type": "object"
-    },
-    "v1Profile": {
-      "type": "object",
-      "properties": {
-        "message": {
-          "type": "string"
-        }
-      }
-    },
-    "v1RefreshRequest": {
-      "type": "object",
-      "properties": {
-        "refreshToken": {
-          "type": "string"
-        }
-      }
-    },
-    "v1RegisterRequest": {
-      "type": "object",
-      "properties": {
-        "email": {
-          "type": "string"
-        },
-        "password": {
-          "type": "string"
-        },
-        "firstName": {
-          "type": "string"
-        },
-        "lastName": {
-          "type": "string"
-        },
-        "role": {
-          "$ref": "#/definitions/v1Role"
-        }
-      }
-    },
-    "v1RegisterResponse": {
-      "type": "object"
-    },
-    "v1Role": {
-      "type": "string",
-      "enum": [
-        "ROLE_STAFF",
-        "ROLE_ADMIN",
-        "ROLE_DIRECTOR",
-        "ROLE_MANAGER",
-        "ROLE_SUPERVISOR"
-      ],
-      "default": "ROLE_STAFF"
     }
   }
 }

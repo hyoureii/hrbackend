@@ -11,30 +11,40 @@ import (
 
 	pbAuth "github.com/hyoureii/hrbackend/gen"
 	"github.com/hyoureii/hrbackend/internal/config"
+	"github.com/hyoureii/hrbackend/internal/middleware"
 	"github.com/hyoureii/hrbackend/internal/service"
+	"github.com/hyoureii/hrbackend/models"
 	"github.com/hyoureii/hrbackend/static"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-	// "gorm.io/driver/postgres"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
 type Server struct {
 	db       *gorm.DB
+	authDb *gorm.DB
 	grpcAddr string
 	httpAddr string
 }
 
 func NewServer(conf *config.Config) (*Server, error) {
-	// db, err := gorm.Open(postgres.Open(conf.DbDsn), &gorm.Config{})
-	// log.Println("Database connection successful")
-	// if err != nil {
-	// 	return nil, err
-	// }
+	db, err := gorm.Open(postgres.Open(conf.DbDsn), &gorm.Config{})
+	if err != nil {
+		return nil, err
+	}
+	authDb, err := gorm.Open(postgres.Open(conf.AuthDbDsn), &gorm.Config{})
+	if err != nil {
+		return nil, err
+	}
+	log.Println("Database connection successful")
+	db.AutoMigrate(&models.User{}, &models.RefreshToken{})
+
 	return &Server{
-		// db:       db,
+		db:       db,
+		authDb: authDb,
 		grpcAddr: `:` + conf.GrpcPort,
 		httpAddr: `:` + conf.HttpGatewayPort,
 	}, nil
@@ -49,8 +59,8 @@ func (s *Server) Run() {
 		log.Fatalf("Failed to create listener: %s", err)
 	}
 
-	srv := grpc.NewServer()
-	pbAuth.RegisterAuthServiceServer(srv, service.AuthServiceServer{})
+	srv := grpc.NewServer(grpc.UnaryInterceptor(middleware.AuthUnaryInterceptor()))
+	pbAuth.RegisterAuthServiceServer(srv, service.NewAuthServiceServer(s.authDb))
 	go func() {
 		if err := srv.Serve(lis); err != nil {
 			log.Fatalf("Failed to serve gRPC: %s", err)

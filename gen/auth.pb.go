@@ -83,7 +83,8 @@ type RegisterRequest struct {
 	Password      string                 `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
 	FirstName     string                 `protobuf:"bytes,3,opt,name=first_name,json=firstName,proto3" json:"first_name,omitempty"`
 	LastName      string                 `protobuf:"bytes,4,opt,name=last_name,json=lastName,proto3" json:"last_name,omitempty"`
-	Role          Role                   `protobuf:"varint,5,opt,name=role,proto3,enum=auth.v1.Role" json:"role,omitempty"`
+	AvatarUrl     string                 `protobuf:"bytes,5,opt,name=avatar_url,json=avatarUrl,proto3" json:"avatar_url,omitempty"`
+	Role          Role                   `protobuf:"varint,6,opt,name=role,proto3,enum=v1.auth.Role" json:"role,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -142,6 +143,13 @@ func (x *RegisterRequest) GetFirstName() string {
 func (x *RegisterRequest) GetLastName() string {
 	if x != nil {
 		return x.LastName
+	}
+	return ""
+}
+
+func (x *RegisterRequest) GetAvatarUrl() string {
+	if x != nil {
+		return x.AvatarUrl
 	}
 	return ""
 }
@@ -235,7 +243,6 @@ func (x *RefreshRequest) GetRefreshToken() string {
 
 type LogoutRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	RefreshToken  string                 `protobuf:"bytes,1,opt,name=refresh_token,json=refreshToken,proto3" json:"refresh_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -268,13 +275,6 @@ func (x *LogoutRequest) ProtoReflect() protoreflect.Message {
 // Deprecated: Use LogoutRequest.ProtoReflect.Descriptor instead.
 func (*LogoutRequest) Descriptor() ([]byte, []int) {
 	return file_auth_proto_rawDescGZIP(), []int{3}
-}
-
-func (x *LogoutRequest) GetRefreshToken() string {
-	if x != nil {
-		return x.RefreshToken
-	}
-	return ""
 }
 
 type LogoutResponse struct {
@@ -510,19 +510,20 @@ var File_auth_proto protoreflect.FileDescriptor
 const file_auth_proto_rawDesc = "" +
 	"\n" +
 	"\n" +
-	"auth.proto\x12\aauth.v1\x1a\x1cgoogle/api/annotations.proto\"\xa2\x01\n" +
+	"auth.proto\x12\av1.auth\x1a\x1cgoogle/api/annotations.proto\"\xc1\x01\n" +
 	"\x0fRegisterRequest\x12\x14\n" +
 	"\x05email\x18\x01 \x01(\tR\x05email\x12\x1a\n" +
 	"\bpassword\x18\x02 \x01(\tR\bpassword\x12\x1d\n" +
 	"\n" +
 	"first_name\x18\x03 \x01(\tR\tfirstName\x12\x1b\n" +
-	"\tlast_name\x18\x04 \x01(\tR\blastName\x12!\n" +
-	"\x04role\x18\x05 \x01(\x0e2\r.auth.v1.RoleR\x04role\"\x12\n" +
+	"\tlast_name\x18\x04 \x01(\tR\blastName\x12\x1d\n" +
+	"\n" +
+	"avatar_url\x18\x05 \x01(\tR\tavatarUrl\x12!\n" +
+	"\x04role\x18\x06 \x01(\x0e2\r.v1.auth.RoleR\x04role\"\x12\n" +
 	"\x10RegisterResponse\"5\n" +
 	"\x0eRefreshRequest\x12#\n" +
-	"\rrefresh_token\x18\x01 \x01(\tR\frefreshToken\"4\n" +
-	"\rLogoutRequest\x12#\n" +
-	"\rrefresh_token\x18\x01 \x01(\tR\frefreshToken\"\x10\n" +
+	"\rrefresh_token\x18\x01 \x01(\tR\frefreshToken\"\x0f\n" +
+	"\rLogoutRequest\"\x10\n" +
 	"\x0eLogoutResponse\"@\n" +
 	"\fLoginRequest\x12\x14\n" +
 	"\x05email\x18\x01 \x01(\tR\x05email\x12\x1a\n" +
@@ -543,11 +544,11 @@ const file_auth_proto_rawDesc = "" +
 	"\fROLE_MANAGER\x10\x03\x12\x13\n" +
 	"\x0fROLE_SUPERVISOR\x10\x042\xb2\x03\n" +
 	"\vAuthService\x12]\n" +
-	"\bRegister\x12\x18.auth.v1.RegisterRequest\x1a\x19.auth.v1.RegisterResponse\"\x1c\x82\xd3\xe4\x93\x02\x16:\x01*\"\x11/v1/auth/register\x12Q\n" +
-	"\x05Login\x12\x15.auth.v1.LoginRequest\x1a\x16.auth.v1.LoginResponse\"\x19\x82\xd3\xe4\x93\x02\x13:\x01*\"\x0e/v1/auth/login\x12W\n" +
-	"\aRefresh\x12\x17.auth.v1.RefreshRequest\x1a\x16.auth.v1.LoginResponse\"\x1b\x82\xd3\xe4\x93\x02\x15:\x01*\"\x10/v1/auth/refresh\x12U\n" +
-	"\x06Logout\x12\x16.auth.v1.LogoutRequest\x1a\x17.auth.v1.LogoutResponse\"\x1a\x82\xd3\xe4\x93\x02\x14:\x01*\"\x0f/v1/auth/logout\x12A\n" +
-	"\x02Me\x12\x19.auth.v1.ProtectedRequest\x1a\x10.auth.v1.Profile\"\x0e\x82\xd3\xe4\x93\x02\b\x12\x06/v1/meB2Z0github.com/hyoureii/hrbackend/gen/auth/v1;authv1b\x06proto3"
+	"\bRegister\x12\x18.v1.auth.RegisterRequest\x1a\x19.v1.auth.RegisterResponse\"\x1c\x82\xd3\xe4\x93\x02\x16:\x01*\"\x11/v1/auth/register\x12Q\n" +
+	"\x05Login\x12\x15.v1.auth.LoginRequest\x1a\x16.v1.auth.LoginResponse\"\x19\x82\xd3\xe4\x93\x02\x13:\x01*\"\x0e/v1/auth/login\x12W\n" +
+	"\aRefresh\x12\x17.v1.auth.RefreshRequest\x1a\x16.v1.auth.LoginResponse\"\x1b\x82\xd3\xe4\x93\x02\x15:\x01*\"\x10/v1/auth/refresh\x12U\n" +
+	"\x06Logout\x12\x16.v1.auth.LogoutRequest\x1a\x17.v1.auth.LogoutResponse\"\x1a\x82\xd3\xe4\x93\x02\x14:\x01*\"\x0f/v1/auth/logout\x12A\n" +
+	"\x02Me\x12\x19.v1.auth.ProtectedRequest\x1a\x10.v1.auth.Profile\"\x0e\x82\xd3\xe4\x93\x02\b\x12\x06/v1/meB2Z0github.com/hyoureii/hrbackend/gen/v1/auth;authv1b\x06proto3"
 
 var (
 	file_auth_proto_rawDescOnce sync.Once
@@ -564,29 +565,29 @@ func file_auth_proto_rawDescGZIP() []byte {
 var file_auth_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_auth_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_auth_proto_goTypes = []any{
-	(Role)(0),                // 0: auth.v1.Role
-	(*RegisterRequest)(nil),  // 1: auth.v1.RegisterRequest
-	(*RegisterResponse)(nil), // 2: auth.v1.RegisterResponse
-	(*RefreshRequest)(nil),   // 3: auth.v1.RefreshRequest
-	(*LogoutRequest)(nil),    // 4: auth.v1.LogoutRequest
-	(*LogoutResponse)(nil),   // 5: auth.v1.LogoutResponse
-	(*LoginRequest)(nil),     // 6: auth.v1.LoginRequest
-	(*LoginResponse)(nil),    // 7: auth.v1.LoginResponse
-	(*ProtectedRequest)(nil), // 8: auth.v1.ProtectedRequest
-	(*Profile)(nil),          // 9: auth.v1.Profile
+	(Role)(0),                // 0: v1.auth.Role
+	(*RegisterRequest)(nil),  // 1: v1.auth.RegisterRequest
+	(*RegisterResponse)(nil), // 2: v1.auth.RegisterResponse
+	(*RefreshRequest)(nil),   // 3: v1.auth.RefreshRequest
+	(*LogoutRequest)(nil),    // 4: v1.auth.LogoutRequest
+	(*LogoutResponse)(nil),   // 5: v1.auth.LogoutResponse
+	(*LoginRequest)(nil),     // 6: v1.auth.LoginRequest
+	(*LoginResponse)(nil),    // 7: v1.auth.LoginResponse
+	(*ProtectedRequest)(nil), // 8: v1.auth.ProtectedRequest
+	(*Profile)(nil),          // 9: v1.auth.Profile
 }
 var file_auth_proto_depIdxs = []int32{
-	0, // 0: auth.v1.RegisterRequest.role:type_name -> auth.v1.Role
-	1, // 1: auth.v1.AuthService.Register:input_type -> auth.v1.RegisterRequest
-	6, // 2: auth.v1.AuthService.Login:input_type -> auth.v1.LoginRequest
-	3, // 3: auth.v1.AuthService.Refresh:input_type -> auth.v1.RefreshRequest
-	4, // 4: auth.v1.AuthService.Logout:input_type -> auth.v1.LogoutRequest
-	8, // 5: auth.v1.AuthService.Me:input_type -> auth.v1.ProtectedRequest
-	2, // 6: auth.v1.AuthService.Register:output_type -> auth.v1.RegisterResponse
-	7, // 7: auth.v1.AuthService.Login:output_type -> auth.v1.LoginResponse
-	7, // 8: auth.v1.AuthService.Refresh:output_type -> auth.v1.LoginResponse
-	5, // 9: auth.v1.AuthService.Logout:output_type -> auth.v1.LogoutResponse
-	9, // 10: auth.v1.AuthService.Me:output_type -> auth.v1.Profile
+	0, // 0: v1.auth.RegisterRequest.role:type_name -> v1.auth.Role
+	1, // 1: v1.auth.AuthService.Register:input_type -> v1.auth.RegisterRequest
+	6, // 2: v1.auth.AuthService.Login:input_type -> v1.auth.LoginRequest
+	3, // 3: v1.auth.AuthService.Refresh:input_type -> v1.auth.RefreshRequest
+	4, // 4: v1.auth.AuthService.Logout:input_type -> v1.auth.LogoutRequest
+	8, // 5: v1.auth.AuthService.Me:input_type -> v1.auth.ProtectedRequest
+	2, // 6: v1.auth.AuthService.Register:output_type -> v1.auth.RegisterResponse
+	7, // 7: v1.auth.AuthService.Login:output_type -> v1.auth.LoginResponse
+	7, // 8: v1.auth.AuthService.Refresh:output_type -> v1.auth.LoginResponse
+	5, // 9: v1.auth.AuthService.Logout:output_type -> v1.auth.LogoutResponse
+	9, // 10: v1.auth.AuthService.Me:output_type -> v1.auth.Profile
 	6, // [6:11] is the sub-list for method output_type
 	1, // [1:6] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name

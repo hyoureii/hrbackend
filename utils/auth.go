@@ -2,23 +2,28 @@ package utils
 
 import (
 	"crypto/rand"
+	"crypto/sha256"
 	"encoding/base64"
+	"encoding/hex"
+	"errors"
+	"fmt"
 	"log"
+	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 )
 
+type ClaimType string
+
+const (
+	ClaimAccess  ClaimType = "access"
+	ClaimRefresh ClaimType = "refresh"
+)
+
 type Claims struct {
 	jwt.RegisteredClaims
-	DeviceID string `json="device_id"`
-	Message string `json=message`
-}
-
-func NewClaims() Claims {
-	claim := &Claims{}
-	claim.DeviceID = "apalah"
-	return *claim
+	Scope ClaimType `json:"scope"`
 }
 
 func HashPassword(password string) ([]byte, error) {
@@ -34,7 +39,12 @@ func ComparePassword(password string, hash []byte) bool {
 	return err == nil
 }
 
-func GenerateJWTSecret() string {
+func HashToken(token string) string {
+	hash := sha256.Sum256([]byte(token))
+	return hex.EncodeToString(hash[:])
+}
+
+func generateJWTSecret() string {
 		b := make([]byte, 32)
 		_, err := rand.Read(b)
 		if err != nil {
@@ -43,11 +53,30 @@ func GenerateJWTSecret() string {
 		return base64.StdEncoding.EncodeToString(b)
 }
 
-func GenerateJWT() string {
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, NewClaims())
-	tokenStr, err := token.SignedString([]byte(GetEnv("JWT_SECRET", GenerateJWTSecret())))
+func GenerateJWT(scope ClaimType, userId uint, exp time.Time) string {
+	claims := &Claims{
+		Scope: scope,
+	}
+	claims.Subject = fmt.Sprint(userId)
+	claims.ExpiresAt = jwt.NewNumericDate(exp)
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	tokenStr, err := token.SignedString([]byte(GetEnv("JWT_SECRET", generateJWTSecret())))
 	if err != nil {
 		log.Fatalf("Failed to generate JWT token: %s", err)
 	}
 	return tokenStr
+}
+
+func ValidateJWT(tokenString string) (*Claims, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(t *jwt.Token) (any, error) {
+		return []byte(GetEnv("JWT_SECRET", generateJWTSecret())), nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	claims, ok := token.Claims.(*Claims)
+	if !ok || !token.Valid {
+		return nil, errors.New("Invalid token")
+	}
+	return claims, nil
 }

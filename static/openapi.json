@@ -1,6 +1,91 @@
 {
   "components": {
     "schemas": {
+      "authLoginRequest": {
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "authLoginResponse": {
+        "properties": {
+          "accessToken": {
+            "type": "string"
+          },
+          "expTime": {
+            "format": "int64",
+            "type": "string"
+          },
+          "refreshToken": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "authLogoutRequest": {
+        "type": "object"
+      },
+      "authLogoutResponse": {
+        "type": "object"
+      },
+      "authProfile": {
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "authRefreshRequest": {
+        "properties": {
+          "refreshToken": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "authRegisterRequest": {
+        "properties": {
+          "avatarUrl": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "role": {
+            "$ref": "#/components/schemas/authRole"
+          }
+        },
+        "type": "object"
+      },
+      "authRegisterResponse": {
+        "type": "object"
+      },
+      "authRole": {
+        "default": "ROLE_STAFF",
+        "enum": [
+          "ROLE_STAFF",
+          "ROLE_ADMIN",
+          "ROLE_DIRECTOR",
+          "ROLE_MANAGER",
+          "ROLE_SUPERVISOR"
+        ],
+        "type": "string"
+      },
       "protobufAny": {
         "additionalProperties": {},
         "properties": {
@@ -27,93 +112,6 @@
           }
         },
         "type": "object"
-      },
-      "v1LoginRequest": {
-        "properties": {
-          "email": {
-            "type": "string"
-          },
-          "password": {
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
-      "v1LoginResponse": {
-        "properties": {
-          "accessToken": {
-            "type": "string"
-          },
-          "expTime": {
-            "format": "int64",
-            "type": "string"
-          },
-          "refreshToken": {
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
-      "v1LogoutRequest": {
-        "properties": {
-          "refresh": {
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
-      "v1LogoutResponse": {
-        "type": "object"
-      },
-      "v1Profile": {
-        "properties": {
-          "message": {
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
-      "v1RefreshRequest": {
-        "properties": {
-          "refresh": {
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
-      "v1RegisterRequest": {
-        "properties": {
-          "email": {
-            "type": "string"
-          },
-          "firstName": {
-            "type": "string"
-          },
-          "lastName": {
-            "type": "string"
-          },
-          "password": {
-            "type": "string"
-          },
-          "role": {
-            "$ref": "#/components/schemas/v1Role"
-          }
-        },
-        "type": "object"
-      },
-      "v1RegisterResponse": {
-        "type": "object"
-      },
-      "v1Role": {
-        "default": "ROLE_STAFF",
-        "enum": [
-          "ROLE_STAFF",
-          "ROLE_ADMIN",
-          "ROLE_DIRECTOR",
-          "ROLE_MANAGER",
-          "ROLE_SUPERVISOR"
-        ],
-        "type": "string"
       }
     }
   },
@@ -130,7 +128,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/v1LoginRequest"
+                "$ref": "#/components/schemas/authLoginRequest"
               }
             }
           },
@@ -142,7 +140,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/v1LoginResponse"
+                  "$ref": "#/components/schemas/authLoginResponse"
                 }
               }
             },
@@ -171,7 +169,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/v1LogoutRequest"
+                "$ref": "#/components/schemas/authLogoutRequest"
               }
             }
           },
@@ -183,7 +181,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/v1LogoutResponse"
+                  "$ref": "#/components/schemas/authLogoutResponse"
                 }
               }
             },
@@ -212,7 +210,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/v1RefreshRequest"
+                "$ref": "#/components/schemas/authRefreshRequest"
               }
             }
           },
@@ -224,7 +222,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/v1LoginResponse"
+                  "$ref": "#/components/schemas/authLoginResponse"
                 }
               }
             },
@@ -253,7 +251,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/v1RegisterRequest"
+                "$ref": "#/components/schemas/authRegisterRequest"
               }
             }
           },
@@ -265,7 +263,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/v1RegisterResponse"
+                  "$ref": "#/components/schemas/authRegisterResponse"
                 }
               }
             },
@@ -295,7 +293,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/v1Profile"
+                  "$ref": "#/components/schemas/authProfile"
                 }
               }
             },
