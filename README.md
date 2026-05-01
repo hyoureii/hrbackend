@@ -5,12 +5,12 @@
 To-do :
 
 - [X] Write protobuf definitions for the api
-- [ ] Write go implementations
+- [X] Write go implementations
 - [ ] If possible do typesafety checks/validation
 - [X] Figure out what im gonna do with db
 - [ ] Figure out what im gonna do with file storage (probably S3)
-- [ ] Setup db and its dependencies (ORM, etc.)
-- [ ] Get auth working (probably be using JWT)
+- [X] Setup db and its dependencies (ORM, etc.)
+- [X] Get auth working (probably be using JWT)
 - [X] Add a REST gateway
 - [X] Generate OpenAPI specs
 - [ ] Consider adding support for TOTP
@@ -27,13 +27,27 @@ get the dependencies
 ```shell
 go mod download
 ```
-optionally, set the environment variables from [the example](./.env.example)\
+install the tools
+> this will not install the tools as a binary that you can use from your $PATH, if you wanna do that do `go install tool`
+
+```shell
+go get tool
+```
+
+\
+you can setup your own [Postgres](https://www.postgresql.org/) instance or,\
+i included a [docker-compose file](./docker-compose.yaml) that you can use to spin up the db
+
+\
+set the environment variables from [the example](./.env.example) (optional)\
+
 then, run the app
 
 ```shell
-go run ./cmd
+go tool air
 ```
-or if you have [Air](https://github.com/air-verse/air):
+\
+or if you already have [Air](https://github.com/air-verse/air) installed on your $PATH:
 
 ```shell
 air

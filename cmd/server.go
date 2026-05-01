@@ -13,7 +13,6 @@ import (
 	"github.com/hyoureii/hrbackend/internal/config"
 	"github.com/hyoureii/hrbackend/internal/middleware"
 	"github.com/hyoureii/hrbackend/internal/service"
-	"github.com/hyoureii/hrbackend/models"
 	"github.com/hyoureii/hrbackend/static"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
@@ -40,7 +39,6 @@ func NewServer(conf *config.Config) (*Server, error) {
 		return nil, err
 	}
 	log.Println("Database connection successful")
-	db.AutoMigrate(&models.User{}, &models.RefreshToken{})
 
 	return &Server{
 		db:       db,

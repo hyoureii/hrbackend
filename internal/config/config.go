@@ -25,9 +25,9 @@ func Load() *Config {
 
 func buildDBDsn() (string, string) {
 	host := utils.GetEnv("POSTGRES_HOST", "localhost")
-	user := utils.GetEnv("POSTGRES_USER", "postgres")
-	pw := utils.GetEnv("POSTGRES_PASSWORD", "admin")
-	port := utils.GetEnv("POSTGRES_PORT", "5432")
+	user := utils.GetEnv("POSTGRES_USER", "hrconnect")
+	pw := utils.GetEnv("POSTGRES_PASSWORD", "hrbackenddb")
+	port := utils.GetEnv("POSTGRES_PORT", "9002")
 
 	authDbUrl := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
 		host,
@@ -40,7 +40,7 @@ func buildDBDsn() (string, string) {
 		host,
 		user,
 		pw,
-		utils.GetEnv("POSTGRES_AUTH_DBNAME", "db"),
+		utils.GetEnv("POSTGRES_AUTH_DBNAME", "hr"),
 		port,
 	)
 
