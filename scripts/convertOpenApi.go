@@ -10,10 +10,9 @@ import (
 )
 
 func main() {
-	inputFile := os.Args[1]
-	outputFile := os.Args[2]
+	input, output := os.Args[1], os.Args[2]
 
-	data, err := os.ReadFile(inputFile)
+	data, err := os.ReadFile(input)
 	if err != nil {
 		panic(err)
 	}
@@ -33,7 +32,7 @@ func main() {
 		panic(err)
 	}
 
-	err = os.WriteFile(outputFile, out, 0644)
+	err = os.WriteFile(output, out, 0644)
 	if err != nil {
 		panic(err)
 	}
