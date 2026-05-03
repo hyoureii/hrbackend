@@ -9,7 +9,7 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 
-	"github.com/hyoureii/hrbackend/utils"
+	"github.com/hyoureii/hrbackend/internal/lib"
 )
 
 type contextKey = string
@@ -37,7 +37,7 @@ func AuthUnaryInterceptor() grpc.UnaryServerInterceptor {
 
 		tokenStr := strings.TrimPrefix(accToken[0], "Bearer ")
 
-		claims, err := utils.ValidateJWT(tokenStr)
+		claims, err := lib.ValidateJWT(tokenStr)
 		if err != nil {
 			return nil, status.Error(codes.Unauthenticated, "Invalid token")
 		}

@@ -9,7 +9,7 @@ import (
 	pb "github.com/hyoureii/hrbackend/gen"
 	"github.com/hyoureii/hrbackend/internal/middleware"
 	"github.com/hyoureii/hrbackend/models"
-	"github.com/hyoureii/hrbackend/utils"
+	"github.com/hyoureii/hrbackend/internal/lib"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
@@ -35,7 +35,7 @@ func (srv AuthServiceServer) Login(c context.Context, r *pb.LoginRequest) (*pb.L
 		if errors.Is(err, gorm.ErrRecordNotFound) { return nil, status.Error(codes.NotFound, "User not found")}
 		return nil, err
 	}
-	ok := utils.ComparePassword(r.Password, []byte(user.Password))
+	ok := lib.ComparePassword(r.Password, []byte(user.Password))
 	if !ok {
 		return nil, status.Error(codes.Unauthenticated, "Incorrect Password")
 	}
@@ -45,7 +45,7 @@ func (srv AuthServiceServer) Login(c context.Context, r *pb.LoginRequest) (*pb.L
 
 func (srv AuthServiceServer) Refresh(c context.Context, r *pb.RefreshRequest) (*pb.LoginResponse, error) {
 	token := r.RefreshToken
-	claims, err := utils.ValidateJWT(token)
+	claims, err := lib.ValidateJWT(token)
 	if err != nil {
 		return nil, status.Error(codes.Unauthenticated, "Invalid refresh token")
 	}
@@ -58,7 +58,7 @@ func (srv AuthServiceServer) Refresh(c context.Context, r *pb.RefreshRequest) (*
 }
 
 func (srv AuthServiceServer) Logout(c context.Context, r *pb.LogoutRequest) (*pb.LogoutResponse, error) {
-	claims := c.Value(middleware.ClaimsKey).(*utils.Claims)
+	claims := c.Value(middleware.ClaimsKey).(*lib.Claims)
 	token, err := gorm.G[models.RefreshToken](srv.db).Where("user_id = ?", claims.Subject).Find(c)
 	if err != nil {
 		return nil, err
@@ -89,8 +89,8 @@ func rotateRefreshToken(c context.Context, db *gorm.DB, userId uint, refreshing 
 	accessExp := time.Now().Add(time.Minute * 5)
 	refreshExp := time.Now().Add(time.Hour * 24 * 7)
 
-	refreshToken := utils.GenerateJWT(utils.ClaimRefresh, userId, refreshExp)
-	hashStr := utils.HashToken(refreshToken)
+	refreshToken := lib.GenerateJWT(lib.ClaimRefresh, userId, refreshExp)
+	hashStr := lib.HashToken(refreshToken)
 	token, err := gorm.G[models.RefreshToken](db).Where("user_id = ?", userId).Find(c)
 	if refreshing {
 		latest := token[0]
@@ -132,7 +132,7 @@ func rotateRefreshToken(c context.Context, db *gorm.DB, userId uint, refreshing 
 	}
 
 	return &pb.LoginResponse{
-		AccessToken:  utils.GenerateJWT(utils.ClaimAccess, userId, accessExp),
+		AccessToken:  lib.GenerateJWT(lib.ClaimAccess, userId, accessExp),
 		RefreshToken: refreshToken,
 		ExpTime: accessExp.Unix(),
 	}, nil

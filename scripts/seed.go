@@ -7,7 +7,7 @@ import (
 
 	"github.com/hyoureii/hrbackend/internal/config"
 	"github.com/hyoureii/hrbackend/models"
-	"github.com/hyoureii/hrbackend/utils"
+	"github.com/hyoureii/hrbackend/internal/lib"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -66,7 +66,7 @@ func main() {
 }
 
 func hash(p string) string {
-	h, err := utils.HashPassword(p)
+	h, err := lib.HashPassword(p)
 	if err != nil {
 		log.Fatalf("Failed to hash password: %s", err)
 	}
