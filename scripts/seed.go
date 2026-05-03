@@ -1,13 +1,15 @@
 //go:build ignore
+
 package main
 
 import (
 	"context"
 	"log"
 
+	authv1 "github.com/hyoureii/hrbackend/gen"
 	"github.com/hyoureii/hrbackend/internal/config"
-	"github.com/hyoureii/hrbackend/models"
 	"github.com/hyoureii/hrbackend/internal/lib"
+	"github.com/hyoureii/hrbackend/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -23,35 +25,35 @@ func main() {
 		{
 			FirstName: "Hafizryandin Haykal",
 			LastName: "Matondang",
-			Role: models.Admin,
+			Role: authv1.Role_ROLE_ADMIN,
 			Email: "admin@hrconnect.org",
 			Password: hash("admin123"),
 		},
 		{
 			FirstName: "Fathir",
 			LastName: "RIH",
-			Role: models.Director,
+			Role: authv1.Role_ROLE_DIRECTOR,
 			Email: "director@hrconnect.org",
 			Password: hash("director123"),
 		},
 		{
 			FirstName: "Nopal",
 			LastName: "Pradana",
-			Role: models.Manager,
+			Role: authv1.Role_ROLE_MANAGER,
 			Email: "manager@hrconnect.org",
 			Password: hash("manager123"),
 		},
 		{
 			FirstName: "Haidar",
 			LastName: "Zahran",
-			Role: models.Supervisor,
+			Role: authv1.Role_ROLE_SUPERVISOR,
 			Email: "supervisor@hrconnect.org",
 			Password: hash("supervisor123"),
 		},
 		{
 			FirstName: "Cecep",
 			LastName: "Wijaya",
-			Role: models.Staff,
+			Role: authv1.Role_ROLE_STAFF,
 			Email: "staff@hrconnect.org",
 			Password: hash("staff123"),
 		},

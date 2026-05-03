@@ -9,7 +9,7 @@ import (
 	"syscall"
 	"time"
 
-	pbAuth "github.com/hyoureii/hrbackend/gen"
+	authv1 "github.com/hyoureii/hrbackend/gen"
 	"github.com/hyoureii/hrbackend/internal/config"
 	"github.com/hyoureii/hrbackend/internal/middleware"
 	"github.com/hyoureii/hrbackend/internal/service"
@@ -58,7 +58,7 @@ func (s *Server) Run() {
 	}
 
 	srv := grpc.NewServer(grpc.UnaryInterceptor(middleware.AuthUnaryInterceptor()))
-	pbAuth.RegisterAuthServiceServer(srv, service.NewAuthServiceServer(s.authDb))
+	authv1.RegisterAuthServiceServer(srv, service.NewAuthServiceServer(s.authDb))
 	go func() {
 		if err := srv.Serve(lis); err != nil {
 			log.Fatalf("Failed to serve gRPC: %s", err)
@@ -67,7 +67,7 @@ func (s *Server) Run() {
 	log.Printf("Serving gRPC in %s", s.grpcAddr)
 
 	gwMux := runtime.NewServeMux()
-	if err := pbAuth.RegisterAuthServiceHandlerFromEndpoint(
+	if err := authv1.RegisterAuthServiceHandlerFromEndpoint(
 		ctx,
 		gwMux,
 		s.grpcAddr,

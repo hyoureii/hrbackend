@@ -6,10 +6,10 @@ import (
 	"strconv"
 	"time"
 
-	pb "github.com/hyoureii/hrbackend/gen"
+	authv1 "github.com/hyoureii/hrbackend/gen"
+	"github.com/hyoureii/hrbackend/internal/lib"
 	"github.com/hyoureii/hrbackend/internal/middleware"
 	"github.com/hyoureii/hrbackend/models"
-	"github.com/hyoureii/hrbackend/internal/lib"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
@@ -17,19 +17,37 @@ import (
 
 type AuthServiceServer struct {
 	db *gorm.DB
-	pb.UnimplementedAuthServiceServer
+	authv1.UnimplementedAuthServiceServer
 }
 
 func NewAuthServiceServer(db *gorm.DB) *AuthServiceServer {
 	return &AuthServiceServer{db: db}
 }
 
-func (srv AuthServiceServer) Register(c context.Context, r *pb.RegisterRequest) (*pb.RegisterResponse, error) {
-	// TODO: implement
-	return &pb.RegisterResponse{}, nil
+func (srv AuthServiceServer) Register(c context.Context, r *authv1.RegisterRequest) (*authv1.RegisterResponse, error) {
+	hash, err := lib.HashPassword(r.Password)
+	if err != nil {
+		return nil, err
+	}
+
+	newUser := &models.User{
+		FirstName: r.FirstName,
+		LastName: r.LastName,
+		Role: r.Role,
+		AvatarURL: r.AvatarUrl,
+		Email: r.Email,
+		Password: string(hash),
+	}
+	err = gorm.G[models.User](srv.db).Create(c, newUser)
+	if err != nil {
+		if errors.Is(err, gorm.ErrDuplicatedKey) { return nil, status.Error(codes.AlreadyExists, "User already exists")}
+		return nil, err
+	}
+
+	return &authv1.RegisterResponse{}, nil
 }
 
-func (srv AuthServiceServer) Login(c context.Context, r *pb.LoginRequest) (*pb.LoginResponse, error) {
+func (srv AuthServiceServer) Login(c context.Context, r *authv1.LoginRequest) (*authv1.LoginResponse, error) {
 	user, err := gorm.G[models.User](srv.db).Where("email = ?", r.Email).First(c)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) { return nil, status.Error(codes.NotFound, "User not found")}
@@ -43,7 +61,7 @@ func (srv AuthServiceServer) Login(c context.Context, r *pb.LoginRequest) (*pb.L
 	return rotateRefreshToken(c, srv.db, user.ID, false)
 }
 
-func (srv AuthServiceServer) Refresh(c context.Context, r *pb.RefreshRequest) (*pb.LoginResponse, error) {
+func (srv AuthServiceServer) Refresh(c context.Context, r *authv1.RefreshRequest) (*authv1.LoginResponse, error) {
 	token := r.RefreshToken
 	claims, err := lib.ValidateJWT(token)
 	if err != nil {
@@ -57,7 +75,7 @@ func (srv AuthServiceServer) Refresh(c context.Context, r *pb.RefreshRequest) (*
 	return rotateRefreshToken(c, srv.db, uint(userId), true)
 }
 
-func (srv AuthServiceServer) Logout(c context.Context, r *pb.LogoutRequest) (*pb.LogoutResponse, error) {
+func (srv AuthServiceServer) Logout(c context.Context, r *authv1.LogoutRequest) (*authv1.LogoutResponse, error) {
 	claims := c.Value(middleware.ClaimsKey).(*lib.Claims)
 	token, err := gorm.G[models.RefreshToken](srv.db).Where("user_id = ?", claims.Subject).Find(c)
 	if err != nil {
@@ -77,15 +95,15 @@ func (srv AuthServiceServer) Logout(c context.Context, r *pb.LogoutRequest) (*pb
 		return nil, err
 	}
 
-	return &pb.LogoutResponse{}, nil
+	return &authv1.LogoutResponse{}, nil
 }
 
-func (srv AuthServiceServer) Me(c context.Context, r *pb.ProtectedRequest) (*pb.Profile, error) {
+func (srv AuthServiceServer) Me(c context.Context, r *authv1.ProtectedRequest) (*authv1.Profile, error) {
 	// TODO: implement
-	return &pb.Profile{}, nil
+	return &authv1.Profile{}, nil
 }
 
-func rotateRefreshToken(c context.Context, db *gorm.DB, userId uint, refreshing bool) (*pb.LoginResponse, error) {
+func rotateRefreshToken(c context.Context, db *gorm.DB, userId uint, refreshing bool) (*authv1.LoginResponse, error) {
 	accessExp := time.Now().Add(time.Minute * 5)
 	refreshExp := time.Now().Add(time.Hour * 24 * 7)
 
@@ -131,7 +149,7 @@ func rotateRefreshToken(c context.Context, db *gorm.DB, userId uint, refreshing 
 		return nil, err
 	}
 
-	return &pb.LoginResponse{
+	return &authv1.LoginResponse{
 		AccessToken:  lib.GenerateJWT(lib.ClaimAccess, userId, accessExp),
 		RefreshToken: refreshToken,
 		ExpTime: accessExp.Unix(),

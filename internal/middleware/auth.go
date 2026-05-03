@@ -17,6 +17,7 @@ const ClaimsKey contextKey = "claims"
 
 var publicRoutes = map[string]bool{
 	"/v1.auth.AuthService/Login":    true,
+	"/v1.auth.AuthService/Refresh":    true,
 }
 
 func AuthUnaryInterceptor() grpc.UnaryServerInterceptor {
