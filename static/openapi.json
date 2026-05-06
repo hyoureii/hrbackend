@@ -1,91 +1,6 @@
 {
   "components": {
     "schemas": {
-      "authLoginRequest": {
-        "properties": {
-          "email": {
-            "type": "string"
-          },
-          "password": {
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
-      "authLoginResponse": {
-        "properties": {
-          "accessToken": {
-            "type": "string"
-          },
-          "expTime": {
-            "format": "int64",
-            "type": "string"
-          },
-          "refreshToken": {
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
-      "authLogoutRequest": {
-        "type": "object"
-      },
-      "authLogoutResponse": {
-        "type": "object"
-      },
-      "authProfile": {
-        "properties": {
-          "message": {
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
-      "authRefreshRequest": {
-        "properties": {
-          "refreshToken": {
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
-      "authRegisterRequest": {
-        "properties": {
-          "avatarUrl": {
-            "type": "string"
-          },
-          "email": {
-            "type": "string"
-          },
-          "firstName": {
-            "type": "string"
-          },
-          "lastName": {
-            "type": "string"
-          },
-          "password": {
-            "type": "string"
-          },
-          "role": {
-            "$ref": "#/components/schemas/authRole"
-          }
-        },
-        "type": "object"
-      },
-      "authRegisterResponse": {
-        "type": "object"
-      },
-      "authRole": {
-        "default": "ROLE_STAFF",
-        "enum": [
-          "ROLE_STAFF",
-          "ROLE_ADMIN",
-          "ROLE_DIRECTOR",
-          "ROLE_MANAGER",
-          "ROLE_SUPERVISOR"
-        ],
-        "type": "string"
-      },
       "protobufAny": {
         "additionalProperties": {},
         "properties": {
@@ -112,23 +27,246 @@
           }
         },
         "type": "object"
+      },
+      "v1ChangePasswordRequest": {
+        "properties": {
+          "newPassword": {
+            "type": "string"
+          },
+          "oldPassword": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "v1ChangePasswordResponse": {
+        "type": "object"
+      },
+      "v1DeleteResponse": {
+        "type": "object"
+      },
+      "v1GetByIdResponse": {
+        "properties": {
+          "user": {
+            "$ref": "#/components/schemas/v1UserFull"
+          }
+        },
+        "type": "object"
+      },
+      "v1ListAllResponse": {
+        "properties": {
+          "user": {
+            "items": {
+              "$ref": "#/components/schemas/v1UserFull"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "v1LoginRequest": {
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "v1LoginResponse": {
+        "properties": {
+          "accessToken": {
+            "type": "string"
+          },
+          "expTime": {
+            "format": "int64",
+            "type": "string"
+          },
+          "refreshToken": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "v1LogoutResponse": {
+        "type": "object"
+      },
+      "v1MeResponse": {
+        "properties": {
+          "user": {
+            "$ref": "#/components/schemas/v1UserFull"
+          }
+        },
+        "type": "object"
+      },
+      "v1RefreshRequest": {
+        "properties": {
+          "refreshToken": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "v1RefreshResponse": {
+        "properties": {
+          "accessToken": {
+            "type": "string"
+          },
+          "expTime": {
+            "format": "int64",
+            "type": "string"
+          },
+          "refreshToken": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "v1RegisterRequest": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/v1User"
+          },
+          "password": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "v1RegisterResponse": {
+        "type": "object"
+      },
+      "v1ResetPasswordRequest": {
+        "properties": {
+          "id": {
+            "format": "int64",
+            "type": "string"
+          },
+          "newPassword": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "v1ResetPasswordResponse": {
+        "type": "object"
+      },
+      "v1Role": {
+        "default": "ROLE_STAFF_UNSPECIFIED",
+        "enum": [
+          "ROLE_STAFF_UNSPECIFIED",
+          "ROLE_ADMIN",
+          "ROLE_DIRECTOR",
+          "ROLE_MANAGER",
+          "ROLE_SUPERVISOR"
+        ],
+        "type": "string"
+      },
+      "v1UpdateResponse": {
+        "type": "object"
+      },
+      "v1User": {
+        "properties": {
+          "avatarUrl": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "role": {
+            "$ref": "#/components/schemas/v1Role"
+          }
+        },
+        "type": "object"
+      },
+      "v1UserFull": {
+        "properties": {
+          "createdAt": {
+            "format": "int64",
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/v1User"
+          },
+          "id": {
+            "format": "int64",
+            "type": "string"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "updatedAt": {
+            "format": "int64",
+            "type": "string"
+          }
+        },
+        "type": "object"
       }
     }
   },
   "info": {
-    "title": "auth.proto",
-    "version": "version not set"
+    "title": "HRConnect REST Gateway to gRPC",
+    "version": "v1"
   },
   "openapi": "3.0.3",
   "paths": {
-    "/v1/auth/login": {
+    "/auth/change": {
+      "post": {
+        "operationId": "AuthService_ChangePassword",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/v1ChangePasswordRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-originalParamName": "body"
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/v1ChangePasswordResponse"
+                }
+              }
+            },
+            "description": "A successful response."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            },
+            "description": "An unexpected error response."
+          }
+        },
+        "tags": [
+          "AuthService"
+        ]
+      }
+    },
+    "/auth/login": {
       "post": {
         "operationId": "AuthService_Login",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/authLoginRequest"
+                "$ref": "#/components/schemas/v1LoginRequest"
               }
             }
           },
@@ -140,7 +278,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/authLoginResponse"
+                  "$ref": "#/components/schemas/v1LoginResponse"
                 }
               }
             },
@@ -162,26 +300,15 @@
         ]
       }
     },
-    "/v1/auth/logout": {
+    "/auth/logout": {
       "post": {
         "operationId": "AuthService_Logout",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/authLogoutRequest"
-              }
-            }
-          },
-          "required": true,
-          "x-originalParamName": "body"
-        },
         "responses": {
           "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/authLogoutResponse"
+                  "$ref": "#/components/schemas/v1LogoutResponse"
                 }
               }
             },
@@ -203,14 +330,14 @@
         ]
       }
     },
-    "/v1/auth/refresh": {
+    "/auth/refresh": {
       "post": {
         "operationId": "AuthService_Refresh",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/authRefreshRequest"
+                "$ref": "#/components/schemas/v1RefreshRequest"
               }
             }
           },
@@ -222,7 +349,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/authLoginResponse"
+                  "$ref": "#/components/schemas/v1RefreshResponse"
                 }
               }
             },
@@ -244,14 +371,14 @@
         ]
       }
     },
-    "/v1/auth/register": {
+    "/auth/reset": {
       "post": {
-        "operationId": "AuthService_Register",
+        "operationId": "AuthService_ResetPassword",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/authRegisterRequest"
+                "$ref": "#/components/schemas/v1ResetPasswordRequest"
               }
             }
           },
@@ -263,7 +390,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/authRegisterResponse"
+                  "$ref": "#/components/schemas/v1ResetPasswordResponse"
                 }
               }
             },
@@ -285,15 +412,15 @@
         ]
       }
     },
-    "/v1/me": {
+    "/me": {
       "get": {
-        "operationId": "AuthService_Me",
+        "operationId": "UsersService_Me",
         "responses": {
           "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/authProfile"
+                  "$ref": "#/components/schemas/v1MeResponse"
                 }
               }
             },
@@ -311,14 +438,255 @@
           }
         },
         "tags": [
-          "AuthService"
+          "UsersService"
+        ]
+      }
+    },
+    "/users": {
+      "get": {
+        "operationId": "UsersService_ListAll",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/v1ListAllResponse"
+                }
+              }
+            },
+            "description": "A successful response."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            },
+            "description": "An unexpected error response."
+          }
+        },
+        "tags": [
+          "UsersService"
+        ]
+      }
+    },
+    "/users/register": {
+      "post": {
+        "operationId": "UsersService_Register",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/v1RegisterRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-originalParamName": "body"
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/v1RegisterResponse"
+                }
+              }
+            },
+            "description": "A successful response."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            },
+            "description": "An unexpected error response."
+          }
+        },
+        "tags": [
+          "UsersService"
+        ]
+      }
+    },
+    "/users/{id}": {
+      "delete": {
+        "operationId": "UsersService_Delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "int64",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/v1DeleteResponse"
+                }
+              }
+            },
+            "description": "A successful response."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            },
+            "description": "An unexpected error response."
+          }
+        },
+        "tags": [
+          "UsersService"
+        ]
+      },
+      "get": {
+        "operationId": "UsersService_GetById",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "int64",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/v1GetByIdResponse"
+                }
+              }
+            },
+            "description": "A successful response."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            },
+            "description": "An unexpected error response."
+          }
+        },
+        "tags": [
+          "UsersService"
+        ]
+      },
+      "put": {
+        "operationId": "UsersService_Update",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "int64",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "data.email",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "data.firstName",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "data.lastName",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "data.role",
+            "schema": {
+              "default": "ROLE_STAFF_UNSPECIFIED",
+              "enum": [
+                "ROLE_STAFF_UNSPECIFIED",
+                "ROLE_ADMIN",
+                "ROLE_DIRECTOR",
+                "ROLE_MANAGER",
+                "ROLE_SUPERVISOR"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "data.avatarUrl",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/v1UpdateResponse"
+                }
+              }
+            },
+            "description": "A successful response."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            },
+            "description": "An unexpected error response."
+          }
+        },
+        "tags": [
+          "UsersService"
         ]
       }
     }
   },
+  "servers": [
+    {
+      "url": "/api/v1"
+    }
+  ],
   "tags": [
     {
       "name": "AuthService"
+    },
+    {
+      "name": "UsersService"
     }
   ]
 }

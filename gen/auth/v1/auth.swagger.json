@@ -1,7 +1,7 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "auth.proto",
+    "title": "auth/v1/auth.proto",
     "version": "version not set"
   },
   "tags": [
@@ -16,14 +16,46 @@
     "application/json"
   ],
   "paths": {
-    "/v1/auth/login": {
+    "/auth/change": {
+      "post": {
+        "operationId": "AuthService_ChangePassword",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ChangePasswordResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1ChangePasswordRequest"
+            }
+          }
+        ],
+        "tags": [
+          "AuthService"
+        ]
+      }
+    },
+    "/auth/login": {
       "post": {
         "operationId": "AuthService_Login",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/authLoginResponse"
+              "$ref": "#/definitions/v1LoginResponse"
             }
           },
           "default": {
@@ -39,7 +71,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/authLoginRequest"
+              "$ref": "#/definitions/v1LoginRequest"
             }
           }
         ],
@@ -48,14 +80,14 @@
         ]
       }
     },
-    "/v1/auth/logout": {
+    "/auth/logout": {
       "post": {
         "operationId": "AuthService_Logout",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/authLogoutResponse"
+              "$ref": "#/definitions/v1LogoutResponse"
             }
           },
           "default": {
@@ -65,29 +97,19 @@
             }
           }
         },
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/authLogoutRequest"
-            }
-          }
-        ],
         "tags": [
           "AuthService"
         ]
       }
     },
-    "/v1/auth/refresh": {
+    "/auth/refresh": {
       "post": {
         "operationId": "AuthService_Refresh",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/authLoginResponse"
+              "$ref": "#/definitions/v1RefreshResponse"
             }
           },
           "default": {
@@ -103,7 +125,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/authRefreshRequest"
+              "$ref": "#/definitions/v1RefreshRequest"
             }
           }
         ],
@@ -112,14 +134,14 @@
         ]
       }
     },
-    "/v1/auth/register": {
+    "/auth/reset": {
       "post": {
-        "operationId": "AuthService_Register",
+        "operationId": "AuthService_ResetPassword",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/authRegisterResponse"
+              "$ref": "#/definitions/v1ResetPasswordResponse"
             }
           },
           "default": {
@@ -135,32 +157,10 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/authRegisterRequest"
+              "$ref": "#/definitions/v1ResetPasswordRequest"
             }
           }
         ],
-        "tags": [
-          "AuthService"
-        ]
-      }
-    },
-    "/v1/me": {
-      "get": {
-        "operationId": "AuthService_Me",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/authProfile"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
         "tags": [
           "AuthService"
         ]
@@ -168,91 +168,6 @@
     }
   },
   "definitions": {
-    "authLoginRequest": {
-      "type": "object",
-      "properties": {
-        "email": {
-          "type": "string"
-        },
-        "password": {
-          "type": "string"
-        }
-      }
-    },
-    "authLoginResponse": {
-      "type": "object",
-      "properties": {
-        "accessToken": {
-          "type": "string"
-        },
-        "refreshToken": {
-          "type": "string"
-        },
-        "expTime": {
-          "type": "string",
-          "format": "int64"
-        }
-      }
-    },
-    "authLogoutRequest": {
-      "type": "object"
-    },
-    "authLogoutResponse": {
-      "type": "object"
-    },
-    "authProfile": {
-      "type": "object",
-      "properties": {
-        "message": {
-          "type": "string"
-        }
-      }
-    },
-    "authRefreshRequest": {
-      "type": "object",
-      "properties": {
-        "refreshToken": {
-          "type": "string"
-        }
-      }
-    },
-    "authRegisterRequest": {
-      "type": "object",
-      "properties": {
-        "email": {
-          "type": "string"
-        },
-        "password": {
-          "type": "string"
-        },
-        "firstName": {
-          "type": "string"
-        },
-        "lastName": {
-          "type": "string"
-        },
-        "avatarUrl": {
-          "type": "string"
-        },
-        "role": {
-          "$ref": "#/definitions/authRole"
-        }
-      }
-    },
-    "authRegisterResponse": {
-      "type": "object"
-    },
-    "authRole": {
-      "type": "string",
-      "enum": [
-        "ROLE_STAFF",
-        "ROLE_ADMIN",
-        "ROLE_DIRECTOR",
-        "ROLE_MANAGER",
-        "ROLE_SUPERVISOR"
-      ],
-      "default": "ROLE_STAFF"
-    },
     "protobufAny": {
       "type": "object",
       "properties": {
@@ -280,6 +195,87 @@
           }
         }
       }
+    },
+    "v1ChangePasswordRequest": {
+      "type": "object",
+      "properties": {
+        "oldPassword": {
+          "type": "string"
+        },
+        "newPassword": {
+          "type": "string"
+        }
+      }
+    },
+    "v1ChangePasswordResponse": {
+      "type": "object"
+    },
+    "v1LoginRequest": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      }
+    },
+    "v1LoginResponse": {
+      "type": "object",
+      "properties": {
+        "accessToken": {
+          "type": "string"
+        },
+        "refreshToken": {
+          "type": "string"
+        },
+        "expTime": {
+          "type": "string",
+          "format": "int64"
+        }
+      }
+    },
+    "v1LogoutResponse": {
+      "type": "object"
+    },
+    "v1RefreshRequest": {
+      "type": "object",
+      "properties": {
+        "refreshToken": {
+          "type": "string"
+        }
+      }
+    },
+    "v1RefreshResponse": {
+      "type": "object",
+      "properties": {
+        "accessToken": {
+          "type": "string"
+        },
+        "refreshToken": {
+          "type": "string"
+        },
+        "expTime": {
+          "type": "string",
+          "format": "int64"
+        }
+      }
+    },
+    "v1ResetPasswordRequest": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "int64"
+        },
+        "newPassword": {
+          "type": "string"
+        }
+      }
+    },
+    "v1ResetPasswordResponse": {
+      "type": "object"
     }
   }
 }
