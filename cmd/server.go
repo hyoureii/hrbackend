@@ -79,6 +79,10 @@ func (s *Server) Run() {
 	handleStatic(gwMux, "/openapi.json", "application/json", static.OpenApiSpec)
 
 	mux := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if !strings.HasPrefix(r.URL.Path, "/api/v1") {
+			http.NotFound(w, r)
+			return
+		}
 		r.URL.Path = strings.TrimPrefix(r.URL.Path, "/api/v1")
 		gwMux.ServeHTTP(w, r)
 	})
