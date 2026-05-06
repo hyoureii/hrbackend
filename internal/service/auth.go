@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"time"
 
-	authv1 "github.com/hyoureii/hrbackend/gen"
+	authv1 "github.com/hyoureii/hrbackend/gen/auth/v1"
 	"github.com/hyoureii/hrbackend/internal/lib"
 	"github.com/hyoureii/hrbackend/internal/middleware"
 	"github.com/hyoureii/hrbackend/models"
@@ -14,6 +14,12 @@ import (
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
 )
+
+type tokenResponse struct {
+	AccessToken string
+	RefreshToken string
+	ExpTime int64
+}
 
 type AuthServiceServer struct {
 	db *gorm.DB
@@ -24,44 +30,28 @@ func NewAuthServiceServer(db *gorm.DB) *AuthServiceServer {
 	return &AuthServiceServer{db: db}
 }
 
-func (srv AuthServiceServer) Register(c context.Context, r *authv1.RegisterRequest) (*authv1.RegisterResponse, error) {
-	hash, err := lib.HashPassword(r.Password)
-	if err != nil {
-		return nil, err
-	}
-
-	newUser := &models.User{
-		FirstName: r.FirstName,
-		LastName: r.LastName,
-		Role: r.Role,
-		AvatarURL: r.AvatarUrl,
-		Email: r.Email,
-		Password: string(hash),
-	}
-	err = gorm.G[models.User](srv.db).Create(c, newUser)
-	if err != nil {
-		if errors.Is(err, gorm.ErrDuplicatedKey) { return nil, status.Error(codes.AlreadyExists, "User already exists")}
-		return nil, err
-	}
-
-	return &authv1.RegisterResponse{}, nil
-}
-
 func (srv AuthServiceServer) Login(c context.Context, r *authv1.LoginRequest) (*authv1.LoginResponse, error) {
 	user, err := gorm.G[models.User](srv.db).Where("email = ?", r.Email).First(c)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) { return nil, status.Error(codes.NotFound, "User not found")}
 		return nil, err
 	}
-	ok := lib.ComparePassword(r.Password, []byte(user.Password))
-	if !ok {
-		return nil, status.Error(codes.Unauthenticated, "Incorrect Password")
+	
+	if !lib.ComparePassword(r.Password, []byte(user.Password)) {
+		return nil, status.Error(codes.Unauthenticated, "Incorrect password")
 	}
 
-	return rotateRefreshToken(c, srv.db, user.ID, false)
+	t, err := rotateRefreshToken(c, srv.db, user.ID, false)
+	if err != nil { return nil, err }
+
+	return &authv1.LoginResponse{
+		AccessToken: t.AccessToken,
+		RefreshToken: t.RefreshToken,
+		ExpTime: t.ExpTime,
+	}, nil
 }
 
-func (srv AuthServiceServer) Refresh(c context.Context, r *authv1.RefreshRequest) (*authv1.LoginResponse, error) {
+func (srv AuthServiceServer) Refresh(c context.Context, r *authv1.RefreshRequest) (*authv1.RefreshResponse, error) {
 	token := r.RefreshToken
 	claims, err := lib.ValidateJWT(token)
 	if err != nil {
@@ -72,7 +62,12 @@ func (srv AuthServiceServer) Refresh(c context.Context, r *authv1.RefreshRequest
 		return nil, err
 	}
 
-	return rotateRefreshToken(c, srv.db, uint(userId), true)
+	t, err := rotateRefreshToken(c, srv.db, uint(userId), true)
+	return &authv1.RefreshResponse{
+		AccessToken: t.AccessToken,
+		RefreshToken: t.RefreshToken,
+		ExpTime: t.ExpTime,
+	}, nil
 }
 
 func (srv AuthServiceServer) Logout(c context.Context, r *authv1.LogoutRequest) (*authv1.LogoutResponse, error) {
@@ -98,12 +93,52 @@ func (srv AuthServiceServer) Logout(c context.Context, r *authv1.LogoutRequest) 
 	return &authv1.LogoutResponse{}, nil
 }
 
-func (srv AuthServiceServer) Me(c context.Context, r *authv1.ProtectedRequest) (*authv1.Profile, error) {
-	// TODO: implement
-	return &authv1.Profile{}, nil
+func (srv AuthServiceServer) ChangePassword(c context.Context, r *authv1.ChangePasswordRequest) (*authv1.ChangePasswordResponse, error) {
+	claims := c.Value(middleware.ClaimsKey).(*lib.Claims)
+	user, err := gorm.G[models.User](srv.db).Where("id = ?", claims.Subject).First(c)
+	if err != nil {
+		return nil, err
+	}
+
+	if !lib.ComparePassword(r.OldPassword, []byte(user.Password)) {
+		return nil, status.Error(codes.Unauthenticated, "Incorrect password")
+	}
+
+	hash, err := lib.HashPassword(r.NewPassword)
+	if err != nil {
+		return nil, err
+	}
+	rows, err := gorm.G[models.User](srv.db).Where("id = ?", user.ID).Update(c, "password", hash)
+	if err != nil {
+		return nil, err
+	}
+
+	println("affected ", rows)
+
+	return &authv1.ChangePasswordResponse{}, nil
 }
 
-func rotateRefreshToken(c context.Context, db *gorm.DB, userId uint, refreshing bool) (*authv1.LoginResponse, error) {
+func (srv AuthServiceServer) ResetPassword(c context.Context, r *authv1.ResetPasswordRequest) (*authv1.ResetPasswordResponse, error) {
+	user, err := gorm.G[models.User](srv.db).Where("id = ?", r.Id).First(c)
+	if err != nil {
+		return nil, err
+	}
+
+	hash, err := lib.HashPassword(r.NewPassword)
+	if err != nil {
+		return nil, err
+	}
+	rows, err := gorm.G[models.User](srv.db).Where("id = ?", user.ID).Update(c, "password", hash)
+	if err != nil {
+		return nil, err
+	}
+
+	println("affected ", rows)
+
+	return &authv1.ResetPasswordResponse{}, nil
+}
+
+func rotateRefreshToken(c context.Context, db *gorm.DB, userId uint, refreshing bool) (*tokenResponse, error) {
 	accessExp := time.Now().Add(time.Minute * 5)
 	refreshExp := time.Now().Add(time.Hour * 24 * 7)
 
@@ -149,7 +184,7 @@ func rotateRefreshToken(c context.Context, db *gorm.DB, userId uint, refreshing 
 		return nil, err
 	}
 
-	return &authv1.LoginResponse{
+	return &tokenResponse{
 		AccessToken:  lib.GenerateJWT(lib.ClaimAccess, userId, accessExp),
 		RefreshToken: refreshToken,
 		ExpTime: accessExp.Unix(),

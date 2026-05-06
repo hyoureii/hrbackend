@@ -6,7 +6,7 @@ import (
 	"context"
 	"log"
 
-	authv1 "github.com/hyoureii/hrbackend/gen"
+	usersv1 "github.com/hyoureii/hrbackend/gen/users/v1"
 	"github.com/hyoureii/hrbackend/internal/config"
 	"github.com/hyoureii/hrbackend/internal/lib"
 	"github.com/hyoureii/hrbackend/models"
@@ -25,35 +25,35 @@ func main() {
 		{
 			FirstName: "Hafizryandin Haykal",
 			LastName: "Matondang",
-			Role: authv1.Role_ROLE_ADMIN,
+			Role: usersv1.Role_ROLE_ADMIN,
 			Email: "admin@hrconnect.org",
 			Password: hash("admin123"),
 		},
 		{
 			FirstName: "Fathir",
 			LastName: "RIH",
-			Role: authv1.Role_ROLE_DIRECTOR,
+			Role: usersv1.Role_ROLE_DIRECTOR,
 			Email: "director@hrconnect.org",
 			Password: hash("director123"),
 		},
 		{
 			FirstName: "Nopal",
 			LastName: "Pradana",
-			Role: authv1.Role_ROLE_MANAGER,
+			Role: usersv1.Role_ROLE_MANAGER,
 			Email: "manager@hrconnect.org",
 			Password: hash("manager123"),
 		},
 		{
 			FirstName: "Haidar",
 			LastName: "Zahran",
-			Role: authv1.Role_ROLE_SUPERVISOR,
+			Role: usersv1.Role_ROLE_SUPERVISOR,
 			Email: "supervisor@hrconnect.org",
 			Password: hash("supervisor123"),
 		},
 		{
 			FirstName: "Cecep",
 			LastName: "Wijaya",
-			Role: authv1.Role_ROLE_STAFF,
+			Role: usersv1.Role_ROLE_STAFF_UNSPECIFIED,
 			Email: "staff@hrconnect.org",
 			Password: hash("staff123"),
 		},

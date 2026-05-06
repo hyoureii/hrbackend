@@ -16,11 +16,11 @@ type contextKey = string
 const ClaimsKey contextKey = "claims"
 
 var publicRoutes = map[string]bool{
-	"/v1.auth.AuthService/Login":    true,
-	"/v1.auth.AuthService/Refresh":    true,
+	"/auth.v1.AuthService/Login":    true,
+	"/auth.v1.AuthService/Refresh":    true,
 }
 
-func AuthUnaryInterceptor() grpc.UnaryServerInterceptor {
+func UseAuth() grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
 		if publicRoutes[info.FullMethod] {
 			return handler(ctx, req)

@@ -1,5 +1,18 @@
 {
   "components": {
+      "parameters": {
+          "authHeader": {
+              "name": "authorization",
+              "in": "header"
+          }
+      },
+      "securitySchemes": {
+          "jwt": {
+              "type": "http",
+              "scheme": "bearer",
+              "bearerFormat": "JWT"
+          }
+      },
     "schemas": {
       "protobufAny": {
         "additionalProperties": {},
@@ -437,6 +450,9 @@
             "description": "An unexpected error response."
           }
         },
+        "parameters": [
+            { "$ref": "#/components/parameters/authHeader" }
+        ],
         "tags": [
           "UsersService"
         ]

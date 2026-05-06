@@ -3,7 +3,7 @@ package models
 import (
 	"time"
 
-	authv1 "github.com/hyoureii/hrbackend/gen"
+	usersv1 "github.com/hyoureii/hrbackend/gen/users/v1"
 	"gorm.io/gorm"
 )
 
@@ -11,7 +11,7 @@ type User struct {
 	gorm.Model
 	FirstName string  `gorm:"not null"`
 	LastName  string  `gorm:"not null"`
-	Role      authv1.Role `gorm:"not null;default:0"`
+	Role      usersv1.Role `gorm:"not null;default:0"`
 	AvatarURL string
 	IsActive  bool   `gorm:"not null;default:true"`
 	Email     string `gorm:"not null;unique"`
