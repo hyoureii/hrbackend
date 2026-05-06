@@ -6,6 +6,7 @@ import (
 
 	usersv1 "github.com/hyoureii/hrbackend/gen/users/v1"
 	"github.com/hyoureii/hrbackend/internal/lib"
+	"github.com/hyoureii/hrbackend/internal/middleware"
 	"github.com/hyoureii/hrbackend/models"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -55,8 +56,27 @@ func (srv UsersServiceServer) GetById(c context.Context, r *usersv1.GetByIdReque
 }
 
 func (srv UsersServiceServer) Me(c context.Context, r *usersv1.MeRequest) (*usersv1.MeResponse, error) {
-	// TODO: implement
-	return &usersv1.MeResponse{}, nil
+	claims := c.Value(middleware.ClaimsKey).(*lib.Claims)
+	user, err := gorm.G[models.User](srv.db).Where("id = ?", claims.Subject).First(c)
+	if err != nil {
+		return nil, err
+	}
+
+	return &usersv1.MeResponse{
+		User: &usersv1.UserFull{
+			Id: int64(user.ID),
+			Data: &usersv1.User{
+				Email: user.Email,
+				FirstName: user.FirstName,
+				LastName: user.LastName,
+				Role: user.Role,
+				AvatarUrl: &user.AvatarURL,
+			},
+			IsActive: user.IsActive,
+			CreatedAt: user.CreatedAt.Unix(),
+			UpdatedAt: user.UpdatedAt.Unix(),
+		},
+	}, nil
 }
 
 func (srv UsersServiceServer) Update(c context.Context, r *usersv1.UpdateRequest) (*usersv1.UpdateResponse, error) {
