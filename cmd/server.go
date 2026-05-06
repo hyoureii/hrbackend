@@ -6,10 +6,12 @@ import (
 	"net"
 	"net/http"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
-	authv1 "github.com/hyoureii/hrbackend/gen"
+	authv1 "github.com/hyoureii/hrbackend/gen/auth/v1"
+	usersv1 "github.com/hyoureii/hrbackend/gen/users/v1"
 	"github.com/hyoureii/hrbackend/internal/config"
 	"github.com/hyoureii/hrbackend/internal/middleware"
 	"github.com/hyoureii/hrbackend/internal/service"
@@ -57,8 +59,9 @@ func (s *Server) Run() {
 		log.Fatalf("Failed to create listener: %s", err)
 	}
 
-	srv := grpc.NewServer(grpc.UnaryInterceptor(middleware.AuthUnaryInterceptor()))
+	srv := grpc.NewServer(grpc.UnaryInterceptor(middleware.UseAuth()))
 	authv1.RegisterAuthServiceServer(srv, service.NewAuthServiceServer(s.authDb))
+	usersv1.RegisterUsersServiceServer(srv, service.NewUsersServiceServer(s.authDb))
 	go func() {
 		if err := srv.Serve(lis); err != nil {
 			log.Fatalf("Failed to serve gRPC: %s", err)
@@ -67,42 +70,27 @@ func (s *Server) Run() {
 	log.Printf("Serving gRPC in %s", s.grpcAddr)
 
 	gwMux := runtime.NewServeMux()
-	if err := authv1.RegisterAuthServiceHandlerFromEndpoint(
-		ctx,
-		gwMux,
-		s.grpcAddr,
-		[]grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())},
-	); err != nil {
-		log.Fatalf("Failed to register REST gateway: %s", err)
-	}
 
-	gwMux.HandlePath("GET", "/api/v1/docs", func(w http.ResponseWriter, r *http.Request, p map[string]string) {
-		w.Header().Set("Content-Type", "text/html")
-		_, err := w.Write(static.ScalarHtml)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-		}
+	registerGateway(ctx, gwMux, s.grpcAddr, authv1.RegisterAuthServiceHandlerFromEndpoint)
+	registerGateway(ctx, gwMux, s.grpcAddr, usersv1.RegisterUsersServiceHandlerFromEndpoint)
+
+	handleStatic(gwMux, "/docs", "text/html", static.ScalarHtml)
+	handleStatic(gwMux, "/scalar.js", "application/javascript", static.ScalarJS)
+	handleStatic(gwMux, "/openapi.json", "application/json", static.OpenApiSpec)
+
+	mux := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		r.URL.Path = strings.TrimPrefix(r.URL.Path, "/api/v1")
+		gwMux.ServeHTTP(w, r)
 	})
 
-	gwMux.HandlePath("GET", "/api/v1/scalar.js", func(w http.ResponseWriter, r *http.Request, p map[string]string) {
-		w.Header().Set("Content-Type", "application/javascript")
-		_, err := w.Write(static.ScalarJS)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-		}
-	})
-
-	gwMux.HandlePath("GET", "/api/gen/openapi.json", func(w http.ResponseWriter, r *http.Request, p map[string]string) {
-		w.Header().Set("Content-Type", "application/json")
-		_, err := w.Write(static.OpenApiSpec)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-		}
+	logMux := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Printf("[GATEWAY] Incoming %s %s", r.Method, r.RequestURI)
+		mux.ServeHTTP(w, r)
 	})
 
 	gateway := &http.Server{
 		Addr:    s.httpAddr,
-		Handler: gwMux,
+		Handler: logMux,
 	}
 
 	go func() {
@@ -123,4 +111,25 @@ func (s *Server) Run() {
 	}
 	srv.GracefulStop()
 	log.Println("Server stopped")
+}
+
+func handleStatic(srv *runtime.ServeMux, path, contentType string, data []byte) {
+	srv.HandlePath("GET", path, func(w http.ResponseWriter, r *http.Request, p map[string]string) {
+		w.Header().Set("Content-Type", contentType)
+		_, err := w.Write(data)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+		}
+	})
+}
+
+func registerGateway(ctx context.Context, r *runtime.ServeMux, address string, registerFunc func(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error)) {
+	if err := registerFunc(
+		ctx,
+		r,
+		address,
+		[]grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())},
+	); err != nil {
+		log.Fatalf("Failed to register REST gateway: %s", err)
+	}
 }
