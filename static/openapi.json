@@ -1,18 +1,14 @@
 {
   "components": {
-      "parameters": {
-          "authHeader": {
-              "name": "authorization",
-              "in": "header"
-          }
-      },
-      "securitySchemes": {
-          "jwt": {
-              "type": "http",
-              "scheme": "bearer",
-              "bearerFormat": "JWT"
-          }
-      },
+    "parameters": {
+      "authHeader": {
+        "in": "header",
+        "name": "authorization",
+        "schema": {
+          "$ref": "string"
+        }
+      }
+    },
     "schemas": {
       "protobufAny": {
         "additionalProperties": {},
@@ -234,6 +230,11 @@
     "/auth/change": {
       "post": {
         "operationId": "AuthService_ChangePassword",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/authHeader"
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -275,6 +276,11 @@
     "/auth/login": {
       "post": {
         "operationId": "AuthService_Login",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/authHeader"
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -316,6 +322,11 @@
     "/auth/logout": {
       "post": {
         "operationId": "AuthService_Logout",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/authHeader"
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -346,6 +357,11 @@
     "/auth/refresh": {
       "post": {
         "operationId": "AuthService_Refresh",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/authHeader"
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -387,6 +403,11 @@
     "/auth/reset": {
       "post": {
         "operationId": "AuthService_ResetPassword",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/authHeader"
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -428,6 +449,11 @@
     "/me": {
       "get": {
         "operationId": "UsersService_Me",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/authHeader"
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -450,9 +476,6 @@
             "description": "An unexpected error response."
           }
         },
-        "parameters": [
-            { "$ref": "#/components/parameters/authHeader" }
-        ],
         "tags": [
           "UsersService"
         ]
@@ -461,6 +484,11 @@
     "/users": {
       "get": {
         "operationId": "UsersService_ListAll",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/authHeader"
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -491,6 +519,11 @@
     "/users/register": {
       "post": {
         "operationId": "UsersService_Register",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/authHeader"
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -541,6 +574,9 @@
               "format": "int64",
               "type": "string"
             }
+          },
+          {
+            "$ref": "#/components/parameters/authHeader"
           }
         ],
         "responses": {
@@ -580,6 +616,9 @@
               "format": "int64",
               "type": "string"
             }
+          },
+          {
+            "$ref": "#/components/parameters/authHeader"
           }
         ],
         "responses": {
@@ -662,6 +701,9 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "$ref": "#/components/parameters/authHeader"
           }
         ],
         "responses": {

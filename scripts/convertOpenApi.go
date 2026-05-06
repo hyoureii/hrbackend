@@ -55,7 +55,24 @@ func main() {
 			Type: &openapi3.Types{"string"},
 		}),
 	}
-	doc.Components.Parameters = append(doc.Components.Parameters, authHeader)
+	if doc.Components == nil {
+		doc.Components = &openapi3.Components{}
+	}
+	if doc.Components.Parameters == nil {
+		doc.Components.Parameters = make(map[string]*openapi3.ParameterRef)
+	}
+
+	doc.Components.Parameters["authHeader"] = &openapi3.ParameterRef{
+		Value: &authHeader,
+	}
+
+	for _, pathItem := range doc.Paths.Map() {
+		for _, operation := range pathItem.Operations() {
+			operation.Parameters = append(operation.Parameters, &openapi3.ParameterRef{
+				Ref: "#/components/parameters/authHeader",
+			})
+		}
+	}
 
 	out, err := json.MarshalIndent(doc, "", "  ")
 	if err != nil { panic(err) }
