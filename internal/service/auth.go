@@ -108,12 +108,10 @@ func (srv AuthServiceServer) ChangePassword(c context.Context, r *authv1.ChangeP
 	if err != nil {
 		return nil, err
 	}
-	rows, err := gorm.G[models.User](srv.db).Where("id = ?", user.ID).Update(c, "password", hash)
+	_, err = gorm.G[models.User](srv.db).Where("id = ?", user.ID).Update(c, "password", hash)
 	if err != nil {
 		return nil, err
 	}
-
-	println("affected ", rows)
 
 	return &authv1.ChangePasswordResponse{}, nil
 }
@@ -128,12 +126,10 @@ func (srv AuthServiceServer) ResetPassword(c context.Context, r *authv1.ResetPas
 	if err != nil {
 		return nil, err
 	}
-	rows, err := gorm.G[models.User](srv.db).Where("id = ?", user.ID).Update(c, "password", hash)
+	_, err = gorm.G[models.User](srv.db).Where("id = ?", user.ID).Update(c, "password", hash)
 	if err != nil {
 		return nil, err
 	}
-
-	println("affected ", rows)
 
 	return &authv1.ResetPasswordResponse{}, nil
 }

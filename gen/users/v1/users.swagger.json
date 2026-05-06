@@ -176,42 +176,12 @@
             "format": "int64"
           },
           {
-            "name": "data.email",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "data.firstName",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "data.lastName",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "data.role",
-            "in": "query",
-            "required": false,
-            "type": "string",
-            "enum": [
-              "ROLE_STAFF_UNSPECIFIED",
-              "ROLE_ADMIN",
-              "ROLE_DIRECTOR",
-              "ROLE_MANAGER",
-              "ROLE_SUPERVISOR"
-            ],
-            "default": "ROLE_STAFF_UNSPECIFIED"
-          },
-          {
-            "name": "data.avatarUrl",
-            "in": "query",
-            "required": false,
-            "type": "string"
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UsersServiceUpdateBody"
+            }
           }
         ],
         "tags": [
@@ -221,6 +191,14 @@
     }
   },
   "definitions": {
+    "UsersServiceUpdateBody": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "$ref": "#/definitions/v1User"
+        }
+      }
+    },
     "protobufAny": {
       "type": "object",
       "properties": {

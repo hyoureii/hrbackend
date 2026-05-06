@@ -65,32 +65,25 @@ service UsersService {
   }
 
   rpc ListAll(ListAllRequest) returns (ListAllResponse) {
-    option (google.api.http) = {
-      get: "/users"
-    };
+    option (google.api.http) = {get: "/users"};
   }
 
   rpc GetById(GetByIdRequest) returns (GetByIdResponse) {
-    option (google.api.http) = {
-      get: "/users/{id}"
-    };
+    option (google.api.http) = {get: "/users/{id}"};
   }
 
   rpc Me(MeRequest) returns (MeResponse) {
-    option (google.api.http) = {
-      get: "/me"
-    };
+    option (google.api.http) = {get: "/me"};
   }
 
   rpc Update(UpdateRequest) returns (UpdateResponse) {
     option (google.api.http) = {
       put: "/users/{id}"
+      body: "*"
     };
   }
 
   rpc Delete(DeleteRequest) returns (DeleteResponse) {
-    option (google.api.http) = {
-      delete: "/users/{id}"
-    };
+    option (google.api.http) = {delete: "/users/{id}"};
   }
 }

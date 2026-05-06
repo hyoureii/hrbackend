@@ -783,13 +783,13 @@ const file_users_v1_users_proto_rawDesc = "" +
 	"ROLE_ADMIN\x10\x01\x12\x11\n" +
 	"\rROLE_DIRECTOR\x10\x02\x12\x10\n" +
 	"\fROLE_MANAGER\x10\x03\x12\x13\n" +
-	"\x0fROLE_SUPERVISOR\x10\x042\xf4\x03\n" +
+	"\x0fROLE_SUPERVISOR\x10\x042\xf7\x03\n" +
 	"\fUsersService\x12]\n" +
 	"\bRegister\x12\x19.users.v1.RegisterRequest\x1a\x1a.users.v1.RegisterResponse\"\x1a\x82\xd3\xe4\x93\x02\x14:\x01*\"\x0f/users/register\x12N\n" +
 	"\aListAll\x12\x18.users.v1.ListAllRequest\x1a\x19.users.v1.ListAllResponse\"\x0e\x82\xd3\xe4\x93\x02\b\x12\x06/users\x12S\n" +
 	"\aGetById\x12\x18.users.v1.GetByIdRequest\x1a\x19.users.v1.GetByIdResponse\"\x13\x82\xd3\xe4\x93\x02\r\x12\v/users/{id}\x12<\n" +
-	"\x02Me\x12\x13.users.v1.MeRequest\x1a\x14.users.v1.MeResponse\"\v\x82\xd3\xe4\x93\x02\x05\x12\x03/me\x12P\n" +
-	"\x06Update\x12\x17.users.v1.UpdateRequest\x1a\x18.users.v1.UpdateResponse\"\x13\x82\xd3\xe4\x93\x02\r\x1a\v/users/{id}\x12P\n" +
+	"\x02Me\x12\x13.users.v1.MeRequest\x1a\x14.users.v1.MeResponse\"\v\x82\xd3\xe4\x93\x02\x05\x12\x03/me\x12S\n" +
+	"\x06Update\x12\x17.users.v1.UpdateRequest\x1a\x18.users.v1.UpdateResponse\"\x16\x82\xd3\xe4\x93\x02\x10:\x01*\x1a\v/users/{id}\x12P\n" +
 	"\x06Delete\x12\x17.users.v1.DeleteRequest\x1a\x18.users.v1.DeleteResponse\"\x13\x82\xd3\xe4\x93\x02\r*\v/users/{id}B4Z2github.com/hyoureii/hrbackend/gen/users/v1;usersv1b\x06proto3"
 
 var (

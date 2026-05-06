@@ -46,13 +46,52 @@ func (srv UsersServiceServer) Register(c context.Context, r *usersv1.RegisterReq
 }
 
 func (srv UsersServiceServer) ListAll(c context.Context, r *usersv1.ListAllRequest) (*usersv1.ListAllResponse, error) {
-	// TODO: implement
-	return &usersv1.ListAllResponse{}, nil
+	users, err := gorm.G[models.User](srv.db).Find(c)
+	if err != nil {
+		return nil, err
+	}
+
+	userList := make([]*usersv1.UserFull, len(users))
+	for i, user := range users {
+		userList[i] = &usersv1.UserFull{
+			Id: int64(user.ID),
+			Data: &usersv1.User{
+				Email:     user.Email,
+				FirstName: user.FirstName,
+				LastName:  user.LastName,
+				Role:      user.Role,
+				AvatarUrl: &user.AvatarURL,
+			},
+			IsActive:  user.IsActive,
+			CreatedAt: user.CreatedAt.Unix(),
+			UpdatedAt: user.UpdatedAt.Unix(),
+		}
+	}
+
+	return &usersv1.ListAllResponse{ User: userList }, nil
 }
 
 func (srv UsersServiceServer) GetById(c context.Context, r *usersv1.GetByIdRequest) (*usersv1.GetByIdResponse, error) {
-	// TODO: implement
-	return &usersv1.GetByIdResponse{}, nil
+	user, err := gorm.G[models.User](srv.db).Where("id = ?", r.Id).First(c)
+	if err != nil {
+		return nil, err
+	}
+
+	return &usersv1.GetByIdResponse{
+		User: &usersv1.UserFull{
+			Id: int64(user.ID),
+			Data: &usersv1.User{
+				Email: user.Email,
+				FirstName: user.FirstName,
+				LastName: user.LastName,
+				Role: user.Role,
+				AvatarUrl: &user.AvatarURL,
+			},
+			IsActive: user.IsActive,
+			CreatedAt: user.CreatedAt.Unix(),
+			UpdatedAt: user.UpdatedAt.Unix(),
+		},
+	}, nil
 }
 
 func (srv UsersServiceServer) Me(c context.Context, r *usersv1.MeRequest) (*usersv1.MeResponse, error) {
@@ -80,11 +119,25 @@ func (srv UsersServiceServer) Me(c context.Context, r *usersv1.MeRequest) (*user
 }
 
 func (srv UsersServiceServer) Update(c context.Context, r *usersv1.UpdateRequest) (*usersv1.UpdateResponse, error) {
-	// TODO: implement
+	_, err := gorm.G[models.User](srv.db).Where("id = ?", r.Id).Select("email", "first_name", "last_name", "avatar_url", "role").Updates(c, models.User{
+		Email: r.Data.Email,
+		FirstName: r.Data.FirstName,
+		LastName: r.Data.LastName,
+		AvatarURL: *r.Data.AvatarUrl,
+		Role: r.Data.Role,
+	})
+	if err != nil {
+		return nil, err
+	}
+
 	return &usersv1.UpdateResponse{}, nil
 }
 
 func (srv UsersServiceServer) Delete(c context.Context, r *usersv1.DeleteRequest) (*usersv1.DeleteResponse, error) {
-	// TODO: implement
+	_, err := gorm.G[models.User](srv.db).Where("id = ?", r.Id).Delete(c)
+	if err != nil {
+		return nil, err
+	}
+
 	return &usersv1.DeleteResponse{}, nil
 }

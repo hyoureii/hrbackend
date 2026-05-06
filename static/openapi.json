@@ -10,6 +10,14 @@
       }
     },
     "schemas": {
+      "UsersServiceUpdateBody": {
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/v1User"
+          }
+        },
+        "type": "object"
+      },
       "protobufAny": {
         "additionalProperties": {},
         "properties": {
@@ -660,52 +668,20 @@
             }
           },
           {
-            "in": "query",
-            "name": "data.email",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "query",
-            "name": "data.firstName",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "query",
-            "name": "data.lastName",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "query",
-            "name": "data.role",
-            "schema": {
-              "default": "ROLE_STAFF_UNSPECIFIED",
-              "enum": [
-                "ROLE_STAFF_UNSPECIFIED",
-                "ROLE_ADMIN",
-                "ROLE_DIRECTOR",
-                "ROLE_MANAGER",
-                "ROLE_SUPERVISOR"
-              ],
-              "type": "string"
-            }
-          },
-          {
-            "in": "query",
-            "name": "data.avatarUrl",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
             "$ref": "#/components/parameters/authHeader"
           }
         ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UsersServiceUpdateBody"
+              }
+            }
+          },
+          "required": true,
+          "x-originalParamName": "body"
+        },
         "responses": {
           "200": {
             "content": {
