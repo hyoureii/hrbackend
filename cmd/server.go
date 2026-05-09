@@ -2,9 +2,11 @@ package main
 
 import (
 	"context"
+	"errors"
 	"log"
 	"net"
 	"net/http"
+	"os"
 	"os/signal"
 	"strings"
 	"syscall"
@@ -26,7 +28,6 @@ import (
 
 type Server struct {
 	db       *gorm.DB
-	authDb *gorm.DB
 	grpcAddr string
 	httpAddr string
 }
@@ -36,85 +37,105 @@ func NewServer(conf *config.Config) (*Server, error) {
 	if err != nil {
 		return nil, err
 	}
-	authDb, err := gorm.Open(postgres.Open(conf.AuthDbDsn), &gorm.Config{})
-	if err != nil {
-		return nil, err
-	}
 	log.Println("Database connection successful")
 
 	return &Server{
 		db:       db,
-		authDb: authDb,
 		grpcAddr: `:` + conf.GrpcPort,
 		httpAddr: `:` + conf.HttpGatewayPort,
 	}, nil
 }
 
-func (s *Server) Run() {
-	ctx, shCancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
-	defer shCancel()
+func (s *Server) Run(c context.Context, shutdownTimeout time.Duration) error {
 
-	lis, err := net.Listen("tcp", s.grpcAddr)
-	if err != nil {
-		log.Fatalf("Failed to create listener: %s", err)
-	}
+	gs := grpc.NewServer(
+		grpc.UnaryInterceptor(middleware.UseAuth()),
+	)
 
-	srv := grpc.NewServer(grpc.UnaryInterceptor(middleware.UseAuth()))
-	authv1.RegisterAuthServiceServer(srv, service.NewAuthServiceServer(s.authDb))
-	usersv1.RegisterUsersServiceServer(srv, service.NewUsersServiceServer(s.authDb))
-	go func() {
-		if err := srv.Serve(lis); err != nil {
-			log.Fatalf("Failed to serve gRPC: %s", err)
-		}
-	}()
-	log.Printf("Serving gRPC in %s", s.grpcAddr)
+	authv1.RegisterAuthServiceServer(gs, service.NewAuthServiceServer(s.db))
+	usersv1.RegisterUsersServiceServer(gs, service.NewUsersServiceServer(s.db))
 
 	gwMux := runtime.NewServeMux()
 
-	registerGateway(ctx, gwMux, s.grpcAddr, authv1.RegisterAuthServiceHandlerFromEndpoint)
-	registerGateway(ctx, gwMux, s.grpcAddr, usersv1.RegisterUsersServiceHandlerFromEndpoint)
+	registerGateway(c, gwMux, s.grpcAddr, authv1.RegisterAuthServiceHandlerFromEndpoint)
+	registerGateway(c, gwMux, s.grpcAddr, usersv1.RegisterUsersServiceHandlerFromEndpoint)
 
 	handleStatic(gwMux, "/docs", "text/html", static.ScalarHtml)
 	handleStatic(gwMux, "/scalar.js", "application/javascript", static.ScalarJS)
 	handleStatic(gwMux, "/openapi.json", "application/json", static.OpenApiSpec)
 
 	mux := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if !strings.HasPrefix(r.URL.Path, "/api/v1") {
+		log.Printf("[GATEWAY] Incoming %s %s", r.Method, r.RequestURI)
+
+		if after, ok := strings.CutPrefix(r.URL.Path, "/api/v1"); ok {
+			r.URL.Path = after
+			gwMux.ServeHTTP(w, r)
+		} else {
 			http.NotFound(w, r)
 			return
 		}
-		r.URL.Path = strings.TrimPrefix(r.URL.Path, "/api/v1")
-		gwMux.ServeHTTP(w, r)
 	})
 
-	logMux := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Printf("[GATEWAY] Incoming %s %s", r.Method, r.RequestURI)
-		mux.ServeHTTP(w, r)
-	})
-
-	gateway := &http.Server{
+	gw := &http.Server{
 		Addr:    s.httpAddr,
-		Handler: logMux,
+		Handler: mux,
 	}
 
+	lis, err := net.Listen("tcp", s.grpcAddr)
+	if err != nil {
+		log.Fatalf("Failed to create listener: %s", err)
+	}
+
+	gsError := make(chan error, 1)
 	go func() {
-		if err := gateway.ListenAndServe(); err != nil {
-			log.Fatalf("Failed to serve REST gateway: %s", err)
+		log.Println("Starting gRPC server...")
+		if err := gs.Serve(lis); !errors.Is(err, grpc.ErrServerStopped) {
+			gsError <- err
 		}
+		close(gsError)
 	}()
-	log.Printf("Serving REST gateway in %s", gateway.Addr)
+	log.Printf("Serving gRPC in %s", s.grpcAddr)
 
-	<-ctx.Done()
-	log.Println("Shutting down gracefully..")
+	gwError := make(chan error, 1)
+	go func() {
+		log.Println("Starting REST gateway server...")
+		if err := gw.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
+			gwError <- err
+		}
+		close(gwError)
+	}()
+	log.Printf("Serving REST gateway in %s", gw.Addr)
 
-	shCtx, shCancel := context.WithTimeout(context.Background(), time.Second*10)
-	defer shCancel()
+	shutdown := make(chan os.Signal, 1)
+	signal.Notify(shutdown, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 
-	if err := gateway.Shutdown(shCtx); err != nil {
-		log.Printf("Failed to gracefully shutdown REST gateway: %s", err)
+	select {
+	case err := <-gsError:
+		if err != nil {
+			return err
+		}
+	case err := <-gwError:
+		if err != nil {
+			return err
+		}
+	case <-c.Done():
+		log.Println("Main context cancelled")
+	case <-shutdown:
+		log.Println("Shutdown signal received, shutting down server gracefully")
 	}
-	srv.GracefulStop()
-	log.Println("Server stopped")
+
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
+	defer cancel()
+
+	if err = gw.Shutdown(shutdownCtx); err != nil {
+		if closeErr := gw.Close(); closeErr != nil {
+			return errors.Join(err, closeErr)
+		}
+		return err
+	}
+
+	log.Println("Server closed gracefully")
+	return nil
 }
 
 func handleStatic(srv *runtime.ServeMux, path, contentType string, data []byte) {
@@ -127,7 +148,11 @@ func handleStatic(srv *runtime.ServeMux, path, contentType string, data []byte) 
 	})
 }
 
-func registerGateway(ctx context.Context, r *runtime.ServeMux, address string, registerFunc func(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error)) {
+func registerGateway(
+	ctx context.Context,
+	r *runtime.ServeMux,
+	address string,
+	registerFunc func(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error)) {
 	if err := registerFunc(
 		ctx,
 		r,
