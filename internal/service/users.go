@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	"github.com/google/uuid"
 	usersv1 "github.com/hyoureii/hrbackend/gen/users/v1"
 	"github.com/hyoureii/hrbackend/internal/lib"
 	"github.com/hyoureii/hrbackend/internal/middleware"
@@ -22,120 +23,138 @@ func NewUsersServiceServer(db *gorm.DB) *UsersServiceServer {
 	return &UsersServiceServer{db: db}
 }
 
-func (srv UsersServiceServer) Register(c context.Context, r *usersv1.RegisterRequest) (*usersv1.RegisterResponse, error) {
+func (s UsersServiceServer) Register(c context.Context, r *usersv1.RegisterRequest) (*usersv1.RegisterResponse, error) {
 	hash, err := lib.HashPassword(r.Password)
 	if err != nil {
 		return nil, err
 	}
 
-	newUser := &models.User{
-		FirstName: r.Data.FirstName,
-		LastName: r.Data.LastName,
-		Role: r.Data.Role,
-		AvatarURL: *r.Data.AvatarUrl,
-		Email: r.Data.Email,
-		Password: string(hash),
-	}
-	err = gorm.G[models.User](srv.db).Create(c, newUser)
+	id, err := uuid.NewRandom()
 	if err != nil {
-		if errors.Is(err, gorm.ErrDuplicatedKey) { return nil, status.Error(codes.AlreadyExists, "User already exists")}
+		return nil, err
+	}
+	newUser := &models.User{
+		Base: models.Base{
+			ID: id.String(),
+		},
+		FirstName: r.Data.FirstName,
+		LastName:  r.Data.LastName,
+		Role:      r.Data.Role,
+		AvatarURL: r.Data.AvatarUrl,
+		Email:     r.Data.Email,
+		Password:  string(hash),
+	}
+	err = gorm.G[models.User](s.db).Create(c, newUser)
+	if err != nil {
+		if errors.Is(err, gorm.ErrDuplicatedKey) {
+			return nil, status.Error(codes.AlreadyExists, "User already exists")
+		}
 		return nil, err
 	}
 
 	return &usersv1.RegisterResponse{}, nil
 }
 
-func (srv UsersServiceServer) ListAll(c context.Context, r *usersv1.ListAllRequest) (*usersv1.ListAllResponse, error) {
-	users, err := gorm.G[models.User](srv.db).Find(c)
+func (s UsersServiceServer) GetAllUsers(c context.Context, r *usersv1.GetAllUsersRequest) (*usersv1.GetAllUsersResponse, error) {
+	users, err := gorm.G[models.User](s.db).Find(c)
 	if err != nil {
 		return nil, err
 	}
 
-	userList := make([]*usersv1.UserFull, len(users))
+	userList := make([]*usersv1.User, len(users))
 	for i, user := range users {
-		userList[i] = &usersv1.UserFull{
-			Id: int64(user.ID),
-			Data: &usersv1.User{
+		userList[i] = &usersv1.User{
+			Id: user.ID,
+			Data: &usersv1.User_Data{
 				Email:     user.Email,
 				FirstName: user.FirstName,
 				LastName:  user.LastName,
 				Role:      user.Role,
-				AvatarUrl: &user.AvatarURL,
+				AvatarUrl: user.AvatarURL,
 			},
 			IsActive:  user.IsActive,
-			CreatedAt: user.CreatedAt.Unix(),
-			UpdatedAt: user.UpdatedAt.Unix(),
+			CreatedAt: user.CreatedAt,
+			UpdatedAt: user.UpdatedAt,
 		}
 	}
 
-	return &usersv1.ListAllResponse{ User: userList }, nil
+	return &usersv1.GetAllUsersResponse{User: userList}, nil
 }
 
-func (srv UsersServiceServer) GetById(c context.Context, r *usersv1.GetByIdRequest) (*usersv1.GetByIdResponse, error) {
-	user, err := gorm.G[models.User](srv.db).Where("id = ?", r.Id).First(c)
+func (s UsersServiceServer) GetUserById(c context.Context, r *usersv1.GetUserByIdRequest) (*usersv1.GetUserByIdResponse, error) {
+	user, err := gorm.G[models.User](s.db).Where("id = ?", r.Id).First(c)
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, status.Error(codes.NotFound, "User not found")
+		}
 		return nil, err
 	}
 
-	return &usersv1.GetByIdResponse{
-		User: &usersv1.UserFull{
-			Id: int64(user.ID),
-			Data: &usersv1.User{
-				Email: user.Email,
+	return &usersv1.GetUserByIdResponse{
+		User: &usersv1.User{
+			Id: user.ID,
+			Data: &usersv1.User_Data{
+				Email:     user.Email,
 				FirstName: user.FirstName,
-				LastName: user.LastName,
-				Role: user.Role,
-				AvatarUrl: &user.AvatarURL,
+				LastName:  user.LastName,
+				Role:      user.Role,
+				AvatarUrl: user.AvatarURL,
 			},
-			IsActive: user.IsActive,
-			CreatedAt: user.CreatedAt.Unix(),
-			UpdatedAt: user.UpdatedAt.Unix(),
+			IsActive:  user.IsActive,
+			CreatedAt: user.CreatedAt,
+			UpdatedAt: user.UpdatedAt,
 		},
 	}, nil
 }
 
-func (srv UsersServiceServer) Me(c context.Context, r *usersv1.MeRequest) (*usersv1.MeResponse, error) {
+func (s UsersServiceServer) Me(c context.Context, r *usersv1.MeRequest) (*usersv1.MeResponse, error) {
 	claims := c.Value(middleware.ClaimsKey).(*lib.Claims)
-	user, err := gorm.G[models.User](srv.db).Where("id = ?", claims.Subject).First(c)
+	user, err := gorm.G[models.User](s.db).Where("id = ?", claims.Subject).First(c)
 	if err != nil {
 		return nil, err
 	}
 
 	return &usersv1.MeResponse{
-		User: &usersv1.UserFull{
-			Id: int64(user.ID),
-			Data: &usersv1.User{
-				Email: user.Email,
+		User: &usersv1.User{
+			Id: user.ID,
+			Data: &usersv1.User_Data{
+				Email:     user.Email,
 				FirstName: user.FirstName,
-				LastName: user.LastName,
-				Role: user.Role,
-				AvatarUrl: &user.AvatarURL,
+				LastName:  user.LastName,
+				Role:      user.Role,
+				AvatarUrl: user.AvatarURL,
 			},
-			IsActive: user.IsActive,
-			CreatedAt: user.CreatedAt.Unix(),
-			UpdatedAt: user.UpdatedAt.Unix(),
+			IsActive:  user.IsActive,
+			CreatedAt: user.CreatedAt,
+			UpdatedAt: user.UpdatedAt,
 		},
 	}, nil
 }
 
-func (srv UsersServiceServer) Update(c context.Context, r *usersv1.UpdateRequest) (*usersv1.UpdateResponse, error) {
-	_, err := gorm.G[models.User](srv.db).Where("id = ?", r.Id).Select("email", "first_name", "last_name", "avatar_url", "role").Updates(c, models.User{
-		Email: r.Data.Email,
+func (s UsersServiceServer) Update(c context.Context, r *usersv1.UpdateRequest) (*usersv1.UpdateResponse, error) {
+	_, err := gorm.G[models.User](s.db).Where("id = ?", r.Id).Select("email", "first_name", "last_name", "avatar_url", "role").Updates(c, models.User{
+		Email:     r.Data.Email,
 		FirstName: r.Data.FirstName,
-		LastName: r.Data.LastName,
-		AvatarURL: *r.Data.AvatarUrl,
-		Role: r.Data.Role,
+		LastName:  r.Data.LastName,
+		AvatarURL: r.Data.AvatarUrl,
+		Role:      r.Data.Role,
 	})
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, status.Error(codes.NotFound, "User not found")
+		}
 		return nil, err
 	}
 
 	return &usersv1.UpdateResponse{}, nil
 }
 
-func (srv UsersServiceServer) Delete(c context.Context, r *usersv1.DeleteRequest) (*usersv1.DeleteResponse, error) {
-	_, err := gorm.G[models.User](srv.db).Where("id = ?", r.Id).Delete(c)
+func (s UsersServiceServer) Delete(c context.Context, r *usersv1.DeleteRequest) (*usersv1.DeleteResponse, error) {
+	_, err := gorm.G[models.User](s.db).Where("id = ?", r.Id).Delete(c)
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, status.Error(codes.NotFound, "User not found")
+		}
 		return nil, err
 	}
 

@@ -1,9 +1,7 @@
 package lib
 
 import (
-	"crypto/rand"
 	"crypto/sha256"
-	"encoding/base64"
 	"encoding/hex"
 	"errors"
 	"fmt"
@@ -20,6 +18,8 @@ const (
 	ClaimAccess  ClaimType = "access"
 	ClaimRefresh ClaimType = "refresh"
 )
+
+var jwtSecret []byte = []byte(GetEnv("JWT_SECRET"))
 
 type Claims struct {
 	jwt.RegisteredClaims
@@ -44,23 +44,14 @@ func HashToken(token string) string {
 	return hex.EncodeToString(hash[:])
 }
 
-func generateJWTSecret() string {
-		b := make([]byte, 32)
-		_, err := rand.Read(b)
-		if err != nil {
-			log.Fatalf("Failed to generate jwt secret: %s\nPlease set JWT_SECRET in environment variable", err)
-		}
-		return base64.StdEncoding.EncodeToString(b)
-}
-
-func GenerateJWT(scope ClaimType, userId uint, exp time.Time) string {
+func GenerateJWT(scope ClaimType, userId string, exp time.Time) string {
 	claims := &Claims{
 		Scope: scope,
 	}
 	claims.Subject = fmt.Sprint(userId)
 	claims.ExpiresAt = jwt.NewNumericDate(exp)
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenStr, err := token.SignedString([]byte(GetEnv("JWT_SECRET", generateJWTSecret())))
+	tokenStr, err := token.SignedString(jwtSecret)
 	if err != nil {
 		log.Fatalf("Failed to generate JWT token: %s", err)
 	}
@@ -69,7 +60,7 @@ func GenerateJWT(scope ClaimType, userId uint, exp time.Time) string {
 
 func ValidateJWT(tokenString string) (*Claims, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(t *jwt.Token) (any, error) {
-		return []byte(GetEnv("JWT_SECRET", generateJWTSecret())), nil
+		return jwtSecret, nil
 	})
 	if err != nil {
 		return nil, err

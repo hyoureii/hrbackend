@@ -23,7 +23,7 @@ func main() {
 	cmd := os.Args[1]
 
 	cfg := config.Load()
-	db, err := gorm.Open(postgres.Open(cfg.AuthDbDsn), &gorm.Config{})
+	db, err := gorm.Open(postgres.Open(cfg.DbDsn), &gorm.Config{})
 	if err != nil {
 		panic(err)
 	}
@@ -45,14 +45,11 @@ func main() {
 			}
 		}
 
-		err = m.CreateTable(&models.User{})
+		err = m.CreateTable(&models.User{}, &models.RefreshToken{}, &models.Attendance{})
 		if err != nil {
 			panic(err)
 		}
-		err = m.CreateTable(&models.RefreshToken{})
-		if err != nil {
-			panic(err)
-		}
+
 	default:
 		panic(help)
 	}

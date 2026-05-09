@@ -400,7 +400,7 @@ func (*ChangePasswordResponse) Descriptor() ([]byte, []int) {
 
 type ResetPasswordRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	NewPassword   string                 `protobuf:"bytes,2,opt,name=new_password,json=newPassword,proto3" json:"new_password,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -436,11 +436,11 @@ func (*ResetPasswordRequest) Descriptor() ([]byte, []int) {
 	return file_auth_v1_auth_proto_rawDescGZIP(), []int{8}
 }
 
-func (x *ResetPasswordRequest) GetId() int64 {
+func (x *ResetPasswordRequest) GetId() string {
 	if x != nil {
 		return x.Id
 	}
-	return 0
+	return ""
 }
 
 func (x *ResetPasswordRequest) GetNewPassword() string {
@@ -511,7 +511,7 @@ const file_auth_v1_auth_proto_rawDesc = "" +
 	"\fnew_password\x18\x02 \x01(\tR\vnewPassword\"\x18\n" +
 	"\x16ChangePasswordResponse\"I\n" +
 	"\x14ResetPasswordRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\x03R\x02id\x12!\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12!\n" +
 	"\fnew_password\x18\x02 \x01(\tR\vnewPassword\"\x17\n" +
 	"\x15ResetPasswordResponse2\xda\x03\n" +
 	"\vAuthService\x12N\n" +

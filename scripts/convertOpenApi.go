@@ -29,10 +29,14 @@ func main() {
 
 	for i, input := range inputs {
 		data, err := os.ReadFile(input)
-		if err != nil { panic(err) }
+		if err != nil {
+			panic(err)
+		}
 
 		var doc openapi2.T
-		if err := json.Unmarshal(data, &doc); err != nil { panic(err) }
+		if err := json.Unmarshal(data, &doc); err != nil {
+			panic(err)
+		}
 		if i == 0 {
 			merged = doc
 		} else {
@@ -41,16 +45,18 @@ func main() {
 	}
 
 	doc, err := conv.ToV3(&merged)
-	if err != nil { panic(err) }
+	if err != nil {
+		panic(err)
+	}
 
 	doc.Info = &openapi3.Info{
-		Title: "HRConnect REST Gateway to gRPC",
+		Title:   "HRConnect REST Gateway to gRPC",
 		Version: "v1",
 	}
-	doc.AddServer(&openapi3.Server{ URL: "/api/v1", })
+	doc.AddServer(&openapi3.Server{URL: "/api/v1"})
 	authHeader := openapi3.Parameter{
 		Name: "authorization",
-		In: "header",
+		In:   "header",
 		Schema: openapi3.NewSchemaRef("string", &openapi3.Schema{
 			Type: &openapi3.Types{"string"},
 		}),
@@ -75,10 +81,14 @@ func main() {
 	}
 
 	out, err := json.MarshalIndent(doc, "", "  ")
-	if err != nil { panic(err) }
+	if err != nil {
+		panic(err)
+	}
 
 	err = os.WriteFile(output, out, 0644)
-	if err != nil { panic(err) }
+	if err != nil {
+		panic(err)
+	}
 }
 
 func mergeSpec(target, source *openapi2.T) {

@@ -14,46 +14,46 @@ enum Role {
 }
 
 message User {
-  string email = 1;
-  string first_name = 2;
-  string last_name = 3;
-  Role role = 4;
-  optional string avatar_url = 5;
-}
-message UserFull {
-  int64 id = 1;
-  User data = 2;
+  message Data {
+    string email = 1;
+    string first_name = 2;
+    string last_name = 3;
+    Role role = 4;
+    optional string avatar_url = 5;
+  }
+  string id = 1;
+  Data data = 2;
   bool is_active = 3;
   int64 created_at = 4;
   int64 updated_at = 5;
 }
 message RegisterRequest {
-  User data = 1;
+  User.Data data = 1;
   string password = 2;
 }
 message RegisterResponse {}
-message ListAllRequest {}
-message ListAllResponse {
-  repeated UserFull user = 1;
+message GetAllUsersRequest {}
+message GetAllUsersResponse {
+  repeated User user = 1;
 }
-message GetByIdRequest {
-  int64 id = 1;
+message GetUserByIdRequest {
+  string id = 1;
 }
-message GetByIdResponse {
-  UserFull user = 1;
+message GetUserByIdResponse {
+  User user = 1;
 }
 message UpdateRequest {
-  int64 id = 1;
-  User data = 2;
+  string id = 1;
+  User.Data data = 2;
 }
 message UpdateResponse {}
 message DeleteRequest {
-  int64 id = 1;
+  string id = 1;
 }
 message DeleteResponse {}
 message MeRequest {}
 message MeResponse {
-  UserFull user = 1;
+  User user = 1;
 }
 
 service UsersService {
@@ -64,11 +64,11 @@ service UsersService {
     };
   }
 
-  rpc ListAll(ListAllRequest) returns (ListAllResponse) {
+  rpc GetAllUsers(GetAllUsersRequest) returns (GetAllUsersResponse) {
     option (google.api.http) = {get: "/users"};
   }
 
-  rpc GetById(GetByIdRequest) returns (GetByIdResponse) {
+  rpc GetUserById(GetUserByIdRequest) returns (GetUserByIdResponse) {
     option (google.api.http) = {get: "/users/{id}"};
   }
 

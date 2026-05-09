@@ -1,0 +1,73 @@
+syntax = "proto3";
+package attendance.v1;
+
+import "google/api/annotations.proto";
+
+option go_package = "github.com/hyoureii/hrbackend/gen/attendance/v1;attendancev1";
+
+message Attendance {
+  int64 scanned_at = 1;
+}
+
+message CheckInRequest {
+  string payload = 1;
+}
+message CheckInResponse {}
+message CheckOutRequest {
+  string payload = 1;
+}
+message CheckOutResponse {}
+message GenerateRequest {}
+message GenerateResponse {
+  string url = 1;
+}
+message GetAllAttendanceRequest {}
+message GetAllAttendanceResponse {
+  message UserAttendance {
+    string user_id = 1;
+    repeated Attendance attendance = 2;
+  }
+  repeated UserAttendance user_attendance = 1;
+}
+message GetAttendanceByIdRequest {
+  string id = 1;
+}
+message GetAttendanceByIdResponse {
+  repeated Attendance attendance = 1;
+}
+message GetCurrentRequest {}
+message GetCurrentResponse {
+  repeated Attendance attendance = 1;
+}
+
+service AttendanceService {
+  rpc CheckIn(CheckInRequest) returns (CheckInResponse) {
+    option (google.api.http) = {
+      post: "/attendance/checkin"
+      body: "*"
+    };
+  }
+
+  rpc CheckOut(CheckOutRequest) returns (CheckOutResponse) {
+    option (google.api.http) = {
+      post: "/attendance/checkout"
+      body: "*"
+    };
+  }
+
+  rpc Generate(GenerateRequest) returns (GenerateResponse) {
+    option (google.api.http) = {post: "/attendance/generate"};
+  }
+
+  rpc GetAllAttendance(GetAllAttendanceRequest) returns (GetAllAttendanceResponse) {
+    option (google.api.http) = {get: "/attendance"};
+  }
+
+  rpc GetAttendanceById(GetAttendanceByIdRequest) returns (GetAttendanceByIdResponse) {
+    option (google.api.http) = {get: "/attendance/{id}"};
+  }
+
+  rpc GetCurrent(GetCurrentRequest) returns (GetCurrentResponse) {
+    option (google.api.http) = {get: "/attendance/me"};
+  }
+}

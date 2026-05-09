@@ -10,10 +10,47 @@
       }
     },
     "schemas": {
+      "GetAllAttendanceResponseUserAttendance": {
+        "properties": {
+          "attendance": {
+            "items": {
+              "$ref": "#/components/schemas/v1Attendance"
+            },
+            "type": "array"
+          },
+          "userId": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "LeaveReqsServiceUpdateBody": {
+        "type": "object"
+      },
+      "UserData": {
+        "properties": {
+          "avatarUrl": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "role": {
+            "$ref": "#/components/schemas/v1Role"
+          }
+        },
+        "type": "object"
+      },
       "UsersServiceUpdateBody": {
         "properties": {
           "data": {
-            "$ref": "#/components/schemas/v1User"
+            "$ref": "#/components/schemas/UserData"
           }
         },
         "type": "object"
@@ -45,6 +82,18 @@
         },
         "type": "object"
       },
+      "v1ApproveResponse": {
+        "type": "object"
+      },
+      "v1Attendance": {
+        "properties": {
+          "scannedAt": {
+            "format": "int64",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "v1ChangePasswordRequest": {
         "properties": {
           "newPassword": {
@@ -59,26 +108,95 @@
       "v1ChangePasswordResponse": {
         "type": "object"
       },
+      "v1CheckInRequest": {
+        "properties": {
+          "payload": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "v1CheckInResponse": {
+        "type": "object"
+      },
+      "v1CheckOutRequest": {
+        "properties": {
+          "payload": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "v1CheckOutResponse": {
+        "type": "object"
+      },
       "v1DeleteResponse": {
         "type": "object"
       },
-      "v1GetByIdResponse": {
+      "v1GenerateResponse": {
+        "properties": {
+          "url": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "v1GetAllAttendanceResponse": {
+        "properties": {
+          "userAttendance": {
+            "items": {
+              "$ref": "#/components/schemas/GetAllAttendanceResponseUserAttendance"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "v1GetAllUsersResponse": {
         "properties": {
           "user": {
-            "$ref": "#/components/schemas/v1UserFull"
+            "items": {
+              "$ref": "#/components/schemas/v1User"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "v1GetAttendanceByIdResponse": {
+        "properties": {
+          "attendance": {
+            "items": {
+              "$ref": "#/components/schemas/v1Attendance"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "v1GetByIdResponse": {
+        "type": "object"
+      },
+      "v1GetCurrentResponse": {
+        "properties": {
+          "attendance": {
+            "items": {
+              "$ref": "#/components/schemas/v1Attendance"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "v1GetUserByIdResponse": {
+        "properties": {
+          "user": {
+            "$ref": "#/components/schemas/v1User"
           }
         },
         "type": "object"
       },
       "v1ListAllResponse": {
-        "properties": {
-          "user": {
-            "items": {
-              "$ref": "#/components/schemas/v1UserFull"
-            },
-            "type": "array"
-          }
-        },
         "type": "object"
       },
       "v1LoginRequest": {
@@ -113,9 +231,15 @@
       "v1MeResponse": {
         "properties": {
           "user": {
-            "$ref": "#/components/schemas/v1UserFull"
+            "$ref": "#/components/schemas/v1User"
           }
         },
+        "type": "object"
+      },
+      "v1NewRequest": {
+        "type": "object"
+      },
+      "v1NewResponse": {
         "type": "object"
       },
       "v1RefreshRequest": {
@@ -144,7 +268,7 @@
       "v1RegisterRequest": {
         "properties": {
           "data": {
-            "$ref": "#/components/schemas/v1User"
+            "$ref": "#/components/schemas/UserData"
           },
           "password": {
             "type": "string"
@@ -155,10 +279,12 @@
       "v1RegisterResponse": {
         "type": "object"
       },
+      "v1RejectResponse": {
+        "type": "object"
+      },
       "v1ResetPasswordRequest": {
         "properties": {
           "id": {
-            "format": "int64",
             "type": "string"
           },
           "newPassword": {
@@ -186,35 +312,14 @@
       },
       "v1User": {
         "properties": {
-          "avatarUrl": {
-            "type": "string"
-          },
-          "email": {
-            "type": "string"
-          },
-          "firstName": {
-            "type": "string"
-          },
-          "lastName": {
-            "type": "string"
-          },
-          "role": {
-            "$ref": "#/components/schemas/v1Role"
-          }
-        },
-        "type": "object"
-      },
-      "v1UserFull": {
-        "properties": {
           "createdAt": {
             "format": "int64",
             "type": "string"
           },
           "data": {
-            "$ref": "#/components/schemas/v1User"
+            "$ref": "#/components/schemas/UserData"
           },
           "id": {
-            "format": "int64",
             "type": "string"
           },
           "isActive": {
@@ -235,6 +340,246 @@
   },
   "openapi": "3.0.3",
   "paths": {
+    "/attendance": {
+      "get": {
+        "operationId": "AttendanceService_GetAllAttendance",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/authHeader"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/v1GetAllAttendanceResponse"
+                }
+              }
+            },
+            "description": "A successful response."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            },
+            "description": "An unexpected error response."
+          }
+        },
+        "tags": [
+          "AttendanceService"
+        ]
+      }
+    },
+    "/attendance/checkin": {
+      "post": {
+        "operationId": "AttendanceService_CheckIn",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/authHeader"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/v1CheckInRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-originalParamName": "body"
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/v1CheckInResponse"
+                }
+              }
+            },
+            "description": "A successful response."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            },
+            "description": "An unexpected error response."
+          }
+        },
+        "tags": [
+          "AttendanceService"
+        ]
+      }
+    },
+    "/attendance/checkout": {
+      "post": {
+        "operationId": "AttendanceService_CheckOut",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/authHeader"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/v1CheckOutRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-originalParamName": "body"
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/v1CheckOutResponse"
+                }
+              }
+            },
+            "description": "A successful response."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            },
+            "description": "An unexpected error response."
+          }
+        },
+        "tags": [
+          "AttendanceService"
+        ]
+      }
+    },
+    "/attendance/generate": {
+      "post": {
+        "operationId": "AttendanceService_Generate",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/authHeader"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/v1GenerateResponse"
+                }
+              }
+            },
+            "description": "A successful response."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            },
+            "description": "An unexpected error response."
+          }
+        },
+        "tags": [
+          "AttendanceService"
+        ]
+      }
+    },
+    "/attendance/me": {
+      "get": {
+        "operationId": "AttendanceService_GetCurrent",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/authHeader"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/v1GetCurrentResponse"
+                }
+              }
+            },
+            "description": "A successful response."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            },
+            "description": "An unexpected error response."
+          }
+        },
+        "tags": [
+          "AttendanceService"
+        ]
+      }
+    },
+    "/attendance/{id}": {
+      "get": {
+        "operationId": "AttendanceService_GetAttendanceById",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/authHeader"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/v1GetAttendanceByIdResponse"
+                }
+              }
+            },
+            "description": "A successful response."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            },
+            "description": "An unexpected error response."
+          }
+        },
+        "tags": [
+          "AttendanceService"
+        ]
+      }
+    },
     "/auth/change": {
       "post": {
         "operationId": "AuthService_ChangePassword",
@@ -454,6 +799,268 @@
         ]
       }
     },
+    "/leavereqs": {
+      "get": {
+        "operationId": "LeaveReqsService_ListAll",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/authHeader"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/v1ListAllResponse"
+                }
+              }
+            },
+            "description": "A successful response."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            },
+            "description": "An unexpected error response."
+          }
+        },
+        "tags": [
+          "LeaveReqsService"
+        ]
+      }
+    },
+    "/leavereqs/new": {
+      "post": {
+        "operationId": "LeaveReqsService_New",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/authHeader"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/v1NewRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-originalParamName": "body"
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/v1NewResponse"
+                }
+              }
+            },
+            "description": "A successful response."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            },
+            "description": "An unexpected error response."
+          }
+        },
+        "tags": [
+          "LeaveReqsService"
+        ]
+      }
+    },
+    "/leavereqs/{id}": {
+      "get": {
+        "operationId": "LeaveReqsService_GetById",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/authHeader"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/v1GetByIdResponse"
+                }
+              }
+            },
+            "description": "A successful response."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            },
+            "description": "An unexpected error response."
+          }
+        },
+        "tags": [
+          "LeaveReqsService"
+        ]
+      },
+      "put": {
+        "operationId": "LeaveReqsService_Update",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/authHeader"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LeaveReqsServiceUpdateBody"
+              }
+            }
+          },
+          "required": true,
+          "x-originalParamName": "body"
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/v1UpdateResponse"
+                }
+              }
+            },
+            "description": "A successful response."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            },
+            "description": "An unexpected error response."
+          }
+        },
+        "tags": [
+          "LeaveReqsService"
+        ]
+      }
+    },
+    "/leavereqs/{id}/approve": {
+      "patch": {
+        "operationId": "LeaveReqsService_Approve",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/authHeader"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/v1ApproveResponse"
+                }
+              }
+            },
+            "description": "A successful response."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            },
+            "description": "An unexpected error response."
+          }
+        },
+        "tags": [
+          "LeaveReqsService"
+        ]
+      }
+    },
+    "/leavereqs/{id}/reject": {
+      "patch": {
+        "operationId": "LeaveReqsService_Reject",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/authHeader"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/v1RejectResponse"
+                }
+              }
+            },
+            "description": "A successful response."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            },
+            "description": "An unexpected error response."
+          }
+        },
+        "tags": [
+          "LeaveReqsService"
+        ]
+      }
+    },
     "/me": {
       "get": {
         "operationId": "UsersService_Me",
@@ -491,7 +1098,7 @@
     },
     "/users": {
       "get": {
-        "operationId": "UsersService_ListAll",
+        "operationId": "UsersService_GetAllUsers",
         "parameters": [
           {
             "$ref": "#/components/parameters/authHeader"
@@ -502,7 +1109,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/v1ListAllResponse"
+                  "$ref": "#/components/schemas/v1GetAllUsersResponse"
                 }
               }
             },
@@ -579,7 +1186,6 @@
             "name": "id",
             "required": true,
             "schema": {
-              "format": "int64",
               "type": "string"
             }
           },
@@ -614,14 +1220,13 @@
         ]
       },
       "get": {
-        "operationId": "UsersService_GetById",
+        "operationId": "UsersService_GetUserById",
         "parameters": [
           {
             "in": "path",
             "name": "id",
             "required": true,
             "schema": {
-              "format": "int64",
               "type": "string"
             }
           },
@@ -634,7 +1239,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/v1GetByIdResponse"
+                  "$ref": "#/components/schemas/v1GetUserByIdResponse"
                 }
               }
             },
@@ -663,7 +1268,6 @@
             "name": "id",
             "required": true,
             "schema": {
-              "format": "int64",
               "type": "string"
             }
           },
@@ -721,6 +1325,12 @@
     },
     {
       "name": "UsersService"
+    },
+    {
+      "name": "LeaveReqsService"
+    },
+    {
+      "name": "AttendanceService"
     }
   ]
 }

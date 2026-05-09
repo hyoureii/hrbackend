@@ -1,12 +1,12 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "users/v1/users.proto",
+    "title": "attendance/v1/attendance.proto",
     "version": "version not set"
   },
   "tags": [
     {
-      "name": "UsersService"
+      "name": "AttendanceService"
     }
   ],
   "consumes": [
@@ -16,14 +16,14 @@
     "application/json"
   ],
   "paths": {
-    "/me": {
+    "/attendance": {
       "get": {
-        "operationId": "UsersService_Me",
+        "operationId": "AttendanceService_GetAllAttendance",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/v1MeResponse"
+              "$ref": "#/definitions/v1GetAllAttendanceResponse"
             }
           },
           "default": {
@@ -34,40 +34,18 @@
           }
         },
         "tags": [
-          "UsersService"
+          "AttendanceService"
         ]
       }
     },
-    "/users": {
-      "get": {
-        "operationId": "UsersService_GetAllUsers",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1GetAllUsersResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "tags": [
-          "UsersService"
-        ]
-      }
-    },
-    "/users/register": {
+    "/attendance/checkin": {
       "post": {
-        "operationId": "UsersService_Register",
+        "operationId": "AttendanceService_CheckIn",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/v1RegisterResponse"
+              "$ref": "#/definitions/v1CheckInResponse"
             }
           },
           "default": {
@@ -83,23 +61,23 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/v1RegisterRequest"
+              "$ref": "#/definitions/v1CheckInRequest"
             }
           }
         ],
         "tags": [
-          "UsersService"
+          "AttendanceService"
         ]
       }
     },
-    "/users/{id}": {
-      "get": {
-        "operationId": "UsersService_GetUserById",
+    "/attendance/checkout": {
+      "post": {
+        "operationId": "AttendanceService_CheckOut",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/v1GetUserByIdResponse"
+              "$ref": "#/definitions/v1CheckOutResponse"
             }
           },
           "default": {
@@ -110,109 +88,108 @@
           }
         },
         "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "tags": [
-          "UsersService"
-        ]
-      },
-      "delete": {
-        "operationId": "UsersService_Delete",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1DeleteResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "tags": [
-          "UsersService"
-        ]
-      },
-      "put": {
-        "operationId": "UsersService_Update",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1UpdateResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
           {
             "name": "body",
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/UsersServiceUpdateBody"
+              "$ref": "#/definitions/v1CheckOutRequest"
             }
           }
         ],
         "tags": [
-          "UsersService"
+          "AttendanceService"
+        ]
+      }
+    },
+    "/attendance/generate": {
+      "post": {
+        "operationId": "AttendanceService_Generate",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GenerateResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "AttendanceService"
+        ]
+      }
+    },
+    "/attendance/me": {
+      "get": {
+        "operationId": "AttendanceService_GetCurrent",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetCurrentResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "AttendanceService"
+        ]
+      }
+    },
+    "/attendance/{id}": {
+      "get": {
+        "operationId": "AttendanceService_GetAttendanceById",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetAttendanceByIdResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "AttendanceService"
         ]
       }
     }
   },
   "definitions": {
-    "UserData": {
+    "GetAllAttendanceResponseUserAttendance": {
       "type": "object",
       "properties": {
-        "email": {
+        "userId": {
           "type": "string"
         },
-        "firstName": {
-          "type": "string"
-        },
-        "lastName": {
-          "type": "string"
-        },
-        "role": {
-          "$ref": "#/definitions/v1Role"
-        },
-        "avatarUrl": {
-          "type": "string"
-        }
-      }
-    },
-    "UsersServiceUpdateBody": {
-      "type": "object",
-      "properties": {
-        "data": {
-          "$ref": "#/definitions/UserData"
+        "attendance": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Attendance"
+          }
         }
       }
     },
@@ -244,84 +221,78 @@
         }
       }
     },
-    "v1DeleteResponse": {
-      "type": "object"
-    },
-    "v1GetAllUsersResponse": {
+    "v1Attendance": {
       "type": "object",
       "properties": {
-        "user": {
+        "scannedAt": {
+          "type": "string",
+          "format": "int64"
+        }
+      }
+    },
+    "v1CheckInRequest": {
+      "type": "object",
+      "properties": {
+        "payload": {
+          "type": "string"
+        }
+      }
+    },
+    "v1CheckInResponse": {
+      "type": "object"
+    },
+    "v1CheckOutRequest": {
+      "type": "object",
+      "properties": {
+        "payload": {
+          "type": "string"
+        }
+      }
+    },
+    "v1CheckOutResponse": {
+      "type": "object"
+    },
+    "v1GenerateResponse": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string"
+        }
+      }
+    },
+    "v1GetAllAttendanceResponse": {
+      "type": "object",
+      "properties": {
+        "userAttendance": {
           "type": "array",
           "items": {
             "type": "object",
-            "$ref": "#/definitions/v1User"
+            "$ref": "#/definitions/GetAllAttendanceResponseUserAttendance"
           }
         }
       }
     },
-    "v1GetUserByIdResponse": {
+    "v1GetAttendanceByIdResponse": {
       "type": "object",
       "properties": {
-        "user": {
-          "$ref": "#/definitions/v1User"
+        "attendance": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Attendance"
+          }
         }
       }
     },
-    "v1MeResponse": {
+    "v1GetCurrentResponse": {
       "type": "object",
       "properties": {
-        "user": {
-          "$ref": "#/definitions/v1User"
-        }
-      }
-    },
-    "v1RegisterRequest": {
-      "type": "object",
-      "properties": {
-        "data": {
-          "$ref": "#/definitions/UserData"
-        },
-        "password": {
-          "type": "string"
-        }
-      }
-    },
-    "v1RegisterResponse": {
-      "type": "object"
-    },
-    "v1Role": {
-      "type": "string",
-      "enum": [
-        "ROLE_STAFF_UNSPECIFIED",
-        "ROLE_ADMIN",
-        "ROLE_DIRECTOR",
-        "ROLE_MANAGER",
-        "ROLE_SUPERVISOR"
-      ],
-      "default": "ROLE_STAFF_UNSPECIFIED"
-    },
-    "v1UpdateResponse": {
-      "type": "object"
-    },
-    "v1User": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "data": {
-          "$ref": "#/definitions/UserData"
-        },
-        "isActive": {
-          "type": "boolean"
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "int64"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "int64"
+        "attendance": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Attendance"
+          }
         }
       }
     }

@@ -30,7 +30,7 @@ message ChangePasswordRequest {
 }
 message ChangePasswordResponse {}
 message ResetPasswordRequest {
-  int64 id = 1;
+  string id = 1;
   string new_password = 2;
 }
 message ResetPasswordResponse {}

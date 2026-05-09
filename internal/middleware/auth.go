@@ -13,11 +13,12 @@ import (
 )
 
 type contextKey = string
+
 const ClaimsKey contextKey = "claims"
 
 var publicRoutes = map[string]bool{
-	"/auth.v1.AuthService/Login":    true,
-	"/auth.v1.AuthService/Refresh":    true,
+	"/auth.v1.AuthService/Login":   true,
+	"/auth.v1.AuthService/Refresh": true,
 }
 
 func UseAuth() grpc.UnaryServerInterceptor {

@@ -266,8 +266,7 @@
       "type": "object",
       "properties": {
         "id": {
-          "type": "string",
-          "format": "int64"
+          "type": "string"
         },
         "newPassword": {
           "type": "string"

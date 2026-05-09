@@ -19,12 +19,12 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	UsersService_Register_FullMethodName = "/users.v1.UsersService/Register"
-	UsersService_ListAll_FullMethodName  = "/users.v1.UsersService/ListAll"
-	UsersService_GetById_FullMethodName  = "/users.v1.UsersService/GetById"
-	UsersService_Me_FullMethodName       = "/users.v1.UsersService/Me"
-	UsersService_Update_FullMethodName   = "/users.v1.UsersService/Update"
-	UsersService_Delete_FullMethodName   = "/users.v1.UsersService/Delete"
+	UsersService_Register_FullMethodName    = "/users.v1.UsersService/Register"
+	UsersService_GetAllUsers_FullMethodName = "/users.v1.UsersService/GetAllUsers"
+	UsersService_GetUserById_FullMethodName = "/users.v1.UsersService/GetUserById"
+	UsersService_Me_FullMethodName          = "/users.v1.UsersService/Me"
+	UsersService_Update_FullMethodName      = "/users.v1.UsersService/Update"
+	UsersService_Delete_FullMethodName      = "/users.v1.UsersService/Delete"
 )
 
 // UsersServiceClient is the client API for UsersService service.
@@ -32,8 +32,8 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type UsersServiceClient interface {
 	Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error)
-	ListAll(ctx context.Context, in *ListAllRequest, opts ...grpc.CallOption) (*ListAllResponse, error)
-	GetById(ctx context.Context, in *GetByIdRequest, opts ...grpc.CallOption) (*GetByIdResponse, error)
+	GetAllUsers(ctx context.Context, in *GetAllUsersRequest, opts ...grpc.CallOption) (*GetAllUsersResponse, error)
+	GetUserById(ctx context.Context, in *GetUserByIdRequest, opts ...grpc.CallOption) (*GetUserByIdResponse, error)
 	Me(ctx context.Context, in *MeRequest, opts ...grpc.CallOption) (*MeResponse, error)
 	Update(ctx context.Context, in *UpdateRequest, opts ...grpc.CallOption) (*UpdateResponse, error)
 	Delete(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*DeleteResponse, error)
@@ -57,20 +57,20 @@ func (c *usersServiceClient) Register(ctx context.Context, in *RegisterRequest, 
 	return out, nil
 }
 
-func (c *usersServiceClient) ListAll(ctx context.Context, in *ListAllRequest, opts ...grpc.CallOption) (*ListAllResponse, error) {
+func (c *usersServiceClient) GetAllUsers(ctx context.Context, in *GetAllUsersRequest, opts ...grpc.CallOption) (*GetAllUsersResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListAllResponse)
-	err := c.cc.Invoke(ctx, UsersService_ListAll_FullMethodName, in, out, cOpts...)
+	out := new(GetAllUsersResponse)
+	err := c.cc.Invoke(ctx, UsersService_GetAllUsers_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *usersServiceClient) GetById(ctx context.Context, in *GetByIdRequest, opts ...grpc.CallOption) (*GetByIdResponse, error) {
+func (c *usersServiceClient) GetUserById(ctx context.Context, in *GetUserByIdRequest, opts ...grpc.CallOption) (*GetUserByIdResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetByIdResponse)
-	err := c.cc.Invoke(ctx, UsersService_GetById_FullMethodName, in, out, cOpts...)
+	out := new(GetUserByIdResponse)
+	err := c.cc.Invoke(ctx, UsersService_GetUserById_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -112,8 +112,8 @@ func (c *usersServiceClient) Delete(ctx context.Context, in *DeleteRequest, opts
 // for forward compatibility.
 type UsersServiceServer interface {
 	Register(context.Context, *RegisterRequest) (*RegisterResponse, error)
-	ListAll(context.Context, *ListAllRequest) (*ListAllResponse, error)
-	GetById(context.Context, *GetByIdRequest) (*GetByIdResponse, error)
+	GetAllUsers(context.Context, *GetAllUsersRequest) (*GetAllUsersResponse, error)
+	GetUserById(context.Context, *GetUserByIdRequest) (*GetUserByIdResponse, error)
 	Me(context.Context, *MeRequest) (*MeResponse, error)
 	Update(context.Context, *UpdateRequest) (*UpdateResponse, error)
 	Delete(context.Context, *DeleteRequest) (*DeleteResponse, error)
@@ -130,11 +130,11 @@ type UnimplementedUsersServiceServer struct{}
 func (UnimplementedUsersServiceServer) Register(context.Context, *RegisterRequest) (*RegisterResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Register not implemented")
 }
-func (UnimplementedUsersServiceServer) ListAll(context.Context, *ListAllRequest) (*ListAllResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method ListAll not implemented")
+func (UnimplementedUsersServiceServer) GetAllUsers(context.Context, *GetAllUsersRequest) (*GetAllUsersResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetAllUsers not implemented")
 }
-func (UnimplementedUsersServiceServer) GetById(context.Context, *GetByIdRequest) (*GetByIdResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method GetById not implemented")
+func (UnimplementedUsersServiceServer) GetUserById(context.Context, *GetUserByIdRequest) (*GetUserByIdResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetUserById not implemented")
 }
 func (UnimplementedUsersServiceServer) Me(context.Context, *MeRequest) (*MeResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Me not implemented")
@@ -184,38 +184,38 @@ func _UsersService_Register_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
-func _UsersService_ListAll_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListAllRequest)
+func _UsersService_GetAllUsers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAllUsersRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UsersServiceServer).ListAll(ctx, in)
+		return srv.(UsersServiceServer).GetAllUsers(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: UsersService_ListAll_FullMethodName,
+		FullMethod: UsersService_GetAllUsers_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UsersServiceServer).ListAll(ctx, req.(*ListAllRequest))
+		return srv.(UsersServiceServer).GetAllUsers(ctx, req.(*GetAllUsersRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _UsersService_GetById_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetByIdRequest)
+func _UsersService_GetUserById_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserByIdRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UsersServiceServer).GetById(ctx, in)
+		return srv.(UsersServiceServer).GetUserById(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: UsersService_GetById_FullMethodName,
+		FullMethod: UsersService_GetUserById_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UsersServiceServer).GetById(ctx, req.(*GetByIdRequest))
+		return srv.(UsersServiceServer).GetUserById(ctx, req.(*GetUserByIdRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -286,12 +286,12 @@ var UsersService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _UsersService_Register_Handler,
 		},
 		{
-			MethodName: "ListAll",
-			Handler:    _UsersService_ListAll_Handler,
+			MethodName: "GetAllUsers",
+			Handler:    _UsersService_GetAllUsers_Handler,
 		},
 		{
-			MethodName: "GetById",
-			Handler:    _UsersService_GetById_Handler,
+			MethodName: "GetUserById",
+			Handler:    _UsersService_GetUserById_Handler,
 		},
 		{
 			MethodName: "Me",
