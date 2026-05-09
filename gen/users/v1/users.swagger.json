@@ -185,6 +185,82 @@
           "UsersService"
         ]
       }
+    },
+    "/users/{id}/activate": {
+      "post": {
+        "operationId": "UsersService_Activate",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ActivateResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UsersServiceActivateBody"
+            }
+          }
+        ],
+        "tags": [
+          "UsersService"
+        ]
+      }
+    },
+    "/users/{id}/deactivate": {
+      "post": {
+        "operationId": "UsersService_Deactivate",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1DeactivateResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UsersServiceDeactivateBody"
+            }
+          }
+        ],
+        "tags": [
+          "UsersService"
+        ]
+      }
     }
   },
   "definitions": {
@@ -207,6 +283,12 @@
           "type": "string"
         }
       }
+    },
+    "UsersServiceActivateBody": {
+      "type": "object"
+    },
+    "UsersServiceDeactivateBody": {
+      "type": "object"
     },
     "UsersServiceUpdateBody": {
       "type": "object",
@@ -243,6 +325,12 @@
           }
         }
       }
+    },
+    "v1ActivateResponse": {
+      "type": "object"
+    },
+    "v1DeactivateResponse": {
+      "type": "object"
     },
     "v1DeleteResponse": {
       "type": "object"

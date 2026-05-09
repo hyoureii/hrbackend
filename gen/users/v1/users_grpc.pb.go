@@ -23,6 +23,8 @@ const (
 	UsersService_GetAllUsers_FullMethodName = "/users.v1.UsersService/GetAllUsers"
 	UsersService_GetUserById_FullMethodName = "/users.v1.UsersService/GetUserById"
 	UsersService_Me_FullMethodName          = "/users.v1.UsersService/Me"
+	UsersService_Deactivate_FullMethodName  = "/users.v1.UsersService/Deactivate"
+	UsersService_Activate_FullMethodName    = "/users.v1.UsersService/Activate"
 	UsersService_Update_FullMethodName      = "/users.v1.UsersService/Update"
 	UsersService_Delete_FullMethodName      = "/users.v1.UsersService/Delete"
 )
@@ -35,6 +37,8 @@ type UsersServiceClient interface {
 	GetAllUsers(ctx context.Context, in *GetAllUsersRequest, opts ...grpc.CallOption) (*GetAllUsersResponse, error)
 	GetUserById(ctx context.Context, in *GetUserByIdRequest, opts ...grpc.CallOption) (*GetUserByIdResponse, error)
 	Me(ctx context.Context, in *MeRequest, opts ...grpc.CallOption) (*MeResponse, error)
+	Deactivate(ctx context.Context, in *DeactivateRequest, opts ...grpc.CallOption) (*DeactivateResponse, error)
+	Activate(ctx context.Context, in *ActivateRequest, opts ...grpc.CallOption) (*ActivateResponse, error)
 	Update(ctx context.Context, in *UpdateRequest, opts ...grpc.CallOption) (*UpdateResponse, error)
 	Delete(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*DeleteResponse, error)
 }
@@ -87,6 +91,26 @@ func (c *usersServiceClient) Me(ctx context.Context, in *MeRequest, opts ...grpc
 	return out, nil
 }
 
+func (c *usersServiceClient) Deactivate(ctx context.Context, in *DeactivateRequest, opts ...grpc.CallOption) (*DeactivateResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeactivateResponse)
+	err := c.cc.Invoke(ctx, UsersService_Deactivate_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *usersServiceClient) Activate(ctx context.Context, in *ActivateRequest, opts ...grpc.CallOption) (*ActivateResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ActivateResponse)
+	err := c.cc.Invoke(ctx, UsersService_Activate_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *usersServiceClient) Update(ctx context.Context, in *UpdateRequest, opts ...grpc.CallOption) (*UpdateResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(UpdateResponse)
@@ -115,6 +139,8 @@ type UsersServiceServer interface {
 	GetAllUsers(context.Context, *GetAllUsersRequest) (*GetAllUsersResponse, error)
 	GetUserById(context.Context, *GetUserByIdRequest) (*GetUserByIdResponse, error)
 	Me(context.Context, *MeRequest) (*MeResponse, error)
+	Deactivate(context.Context, *DeactivateRequest) (*DeactivateResponse, error)
+	Activate(context.Context, *ActivateRequest) (*ActivateResponse, error)
 	Update(context.Context, *UpdateRequest) (*UpdateResponse, error)
 	Delete(context.Context, *DeleteRequest) (*DeleteResponse, error)
 	mustEmbedUnimplementedUsersServiceServer()
@@ -138,6 +164,12 @@ func (UnimplementedUsersServiceServer) GetUserById(context.Context, *GetUserById
 }
 func (UnimplementedUsersServiceServer) Me(context.Context, *MeRequest) (*MeResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Me not implemented")
+}
+func (UnimplementedUsersServiceServer) Deactivate(context.Context, *DeactivateRequest) (*DeactivateResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method Deactivate not implemented")
+}
+func (UnimplementedUsersServiceServer) Activate(context.Context, *ActivateRequest) (*ActivateResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method Activate not implemented")
 }
 func (UnimplementedUsersServiceServer) Update(context.Context, *UpdateRequest) (*UpdateResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Update not implemented")
@@ -238,6 +270,42 @@ func _UsersService_Me_Handler(srv interface{}, ctx context.Context, dec func(int
 	return interceptor(ctx, in, info, handler)
 }
 
+func _UsersService_Deactivate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeactivateRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UsersServiceServer).Deactivate(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UsersService_Deactivate_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UsersServiceServer).Deactivate(ctx, req.(*DeactivateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _UsersService_Activate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ActivateRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UsersServiceServer).Activate(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: UsersService_Activate_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UsersServiceServer).Activate(ctx, req.(*ActivateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _UsersService_Update_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(UpdateRequest)
 	if err := dec(in); err != nil {
@@ -296,6 +364,14 @@ var UsersService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Me",
 			Handler:    _UsersService_Me_Handler,
+		},
+		{
+			MethodName: "Deactivate",
+			Handler:    _UsersService_Deactivate_Handler,
+		},
+		{
+			MethodName: "Activate",
+			Handler:    _UsersService_Activate_Handler,
 		},
 		{
 			MethodName: "Update",

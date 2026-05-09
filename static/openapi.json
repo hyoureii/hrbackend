@@ -47,6 +47,12 @@
         },
         "type": "object"
       },
+      "UsersServiceActivateBody": {
+        "type": "object"
+      },
+      "UsersServiceDeactivateBody": {
+        "type": "object"
+      },
       "UsersServiceUpdateBody": {
         "properties": {
           "data": {
@@ -80,6 +86,9 @@
             "type": "string"
           }
         },
+        "type": "object"
+      },
+      "v1ActivateResponse": {
         "type": "object"
       },
       "v1ApproveResponse": {
@@ -128,6 +137,9 @@
         "type": "object"
       },
       "v1CheckOutResponse": {
+        "type": "object"
+      },
+      "v1DeactivateResponse": {
         "type": "object"
       },
       "v1DeleteResponse": {
@@ -976,7 +988,7 @@
       }
     },
     "/leavereqs/{id}/approve": {
-      "patch": {
+      "post": {
         "operationId": "LeaveReqsService_Approve",
         "parameters": [
           {
@@ -1019,7 +1031,7 @@
       }
     },
     "/leavereqs/{id}/reject": {
-      "patch": {
+      "post": {
         "operationId": "LeaveReqsService_Reject",
         "parameters": [
           {
@@ -1292,6 +1304,114 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/v1UpdateResponse"
+                }
+              }
+            },
+            "description": "A successful response."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            },
+            "description": "An unexpected error response."
+          }
+        },
+        "tags": [
+          "UsersService"
+        ]
+      }
+    },
+    "/users/{id}/activate": {
+      "post": {
+        "operationId": "UsersService_Activate",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/authHeader"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UsersServiceActivateBody"
+              }
+            }
+          },
+          "required": true,
+          "x-originalParamName": "body"
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/v1ActivateResponse"
+                }
+              }
+            },
+            "description": "A successful response."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            },
+            "description": "An unexpected error response."
+          }
+        },
+        "tags": [
+          "UsersService"
+        ]
+      }
+    },
+    "/users/{id}/deactivate": {
+      "post": {
+        "operationId": "UsersService_Deactivate",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/authHeader"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UsersServiceDeactivateBody"
+              }
+            }
+          },
+          "required": true,
+          "x-originalParamName": "body"
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/v1DeactivateResponse"
                 }
               }
             },

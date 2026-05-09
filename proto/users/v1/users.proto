@@ -55,6 +55,14 @@ message MeRequest {}
 message MeResponse {
   User user = 1;
 }
+message DeactivateRequest {
+  string id = 1;
+}
+message DeactivateResponse {}
+message ActivateRequest {
+  string id = 1;
+}
+message ActivateResponse {}
 
 service UsersService {
   rpc Register(RegisterRequest) returns (RegisterResponse) {
@@ -74,6 +82,20 @@ service UsersService {
 
   rpc Me(MeRequest) returns (MeResponse) {
     option (google.api.http) = {get: "/me"};
+  }
+
+  rpc Deactivate(DeactivateRequest) returns (DeactivateResponse) {
+    option (google.api.http) = {
+      post: "/users/{id}/deactivate"
+      body: "*"
+    };
+  }
+
+  rpc Activate(ActivateRequest) returns (ActivateResponse) {
+    option (google.api.http) = {
+      post: "/users/{id}/activate"
+      body: "*"
+    };
   }
 
   rpc Update(UpdateRequest) returns (UpdateResponse) {

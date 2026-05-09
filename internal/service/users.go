@@ -131,6 +131,44 @@ func (s UsersServiceServer) Me(c context.Context, r *usersv1.MeRequest) (*usersv
 	}, nil
 }
 
+func (s UsersServiceServer) Deactivate(c context.Context, r *usersv1.DeactivateRequest) (*usersv1.DeactivateResponse, error) {
+	user, err := gorm.G[models.User](s.db).Where("id = ?", r.Id).First(c)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, status.Error(codes.NotFound, "User not found")
+		}
+		return nil, err
+	}
+
+	if !user.IsActive { return nil, status.Error(codes.InvalidArgument, "User is non-active")}
+
+	_, err = gorm.G[models.User](s.db).Where("id = ?", user.ID).Update(c, "is_active", false)
+	if err != nil {
+		return nil, err
+	}
+
+	return &usersv1.DeactivateResponse{}, nil
+}
+
+func (s UsersServiceServer) Activate(c context.Context, r *usersv1.ActivateRequest) (*usersv1.ActivateResponse, error) {
+	user, err := gorm.G[models.User](s.db).Where("id = ?", r.Id).First(c)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, status.Error(codes.NotFound, "User not found")
+		}
+		return nil, err
+	}
+
+	if user.IsActive { return nil, status.Error(codes.InvalidArgument, "User is active")}
+
+	_, err = gorm.G[models.User](s.db).Where("id = ?", user.ID).Update(c, "is_active", true)
+	if err != nil {
+		return nil, err
+	}
+
+	return &usersv1.ActivateResponse{}, nil
+}
+
 func (s UsersServiceServer) Update(c context.Context, r *usersv1.UpdateRequest) (*usersv1.UpdateResponse, error) {
 	_, err := gorm.G[models.User](s.db).Where("id = ?", r.Id).Select("email", "first_name", "last_name", "avatar_url", "role").Updates(c, models.User{
 		Email:     r.Data.Email,
