@@ -161,8 +161,12 @@ func rotateRefreshToken(c context.Context, db *gorm.DB, userId string, refreshin
 		}
 	}
 
+	id, err := uuid.NewRandom()
+	if err != nil {
+		return nil, err
+	}
 	err = gorm.G[models.RefreshToken](db).Create(c, &models.RefreshToken{
-		Base:      models.Base{ID: uuid.NewString()},
+		Base:      models.Base{ID: id.String()},
 		TokenHash: hashStr,
 		ExpiredAt: refreshExp.Unix(),
 		UserID:    userId,
