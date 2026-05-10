@@ -5,6 +5,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/google/uuid"
 	authv1 "github.com/hyoureii/hrbackend/gen/auth/v1"
 	"github.com/hyoureii/hrbackend/internal/lib"
 	"github.com/hyoureii/hrbackend/internal/middleware"
@@ -161,6 +162,7 @@ func rotateRefreshToken(c context.Context, db *gorm.DB, userId string, refreshin
 	}
 
 	err = gorm.G[models.RefreshToken](db).Create(c, &models.RefreshToken{
+		Base:      models.Base{ID: uuid.NewString()},
 		TokenHash: hashStr,
 		ExpiredAt: refreshExp.Unix(),
 		UserID:    userId,
