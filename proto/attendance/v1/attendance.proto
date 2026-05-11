@@ -3,7 +3,7 @@ package attendance.v1;
 
 import "google/api/annotations.proto";
 
-option go_package = "github.com/hyoureii/hrbackend/gen/attendance/v1;attendancev1";
+option go_package = "github.com/hyoureii/hrbackend/gen/attendance/v1;attendance";
 
 message Attendance {
   int64 scanned_at = 1;

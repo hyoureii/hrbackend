@@ -4,7 +4,7 @@
 // - protoc             (unknown)
 // source: attendance/v1/attendance.proto
 
-package attendancev1
+package attendance
 
 import (
 	context "context"

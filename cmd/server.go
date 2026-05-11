@@ -3,7 +3,8 @@ package main
 import (
 	"context"
 	"errors"
-	"log"
+	"fmt"
+	"log/slog"
 	"net"
 	"net/http"
 	"os"
@@ -12,8 +13,9 @@ import (
 	"syscall"
 	"time"
 
-	authv1 "github.com/hyoureii/hrbackend/gen/auth/v1"
-	usersv1 "github.com/hyoureii/hrbackend/gen/users/v1"
+	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/logging"
+	"github.com/hyoureii/hrbackend/gen/auth/v1"
+	"github.com/hyoureii/hrbackend/gen/users/v1"
 	"github.com/hyoureii/hrbackend/internal/config"
 	"github.com/hyoureii/hrbackend/internal/middleware"
 	"github.com/hyoureii/hrbackend/internal/service"
@@ -27,19 +29,20 @@ import (
 )
 
 type Server struct {
+	logger   *slog.Logger
 	db       *gorm.DB
 	grpcAddr string
 	httpAddr string
 }
 
-func NewServer(conf *config.Config) (*Server, error) {
+func NewServer(logger *slog.Logger, conf *config.Config) (*Server, error) {
 	db, err := gorm.Open(postgres.Open(conf.DbDsn), &gorm.Config{})
 	if err != nil {
 		return nil, err
 	}
-	log.Println("Database connection successful")
 
 	return &Server{
+		logger:   logger,
 		db:       db,
 		grpcAddr: `:` + conf.GrpcPort,
 		httpAddr: `:` + conf.HttpGatewayPort,
@@ -47,64 +50,70 @@ func NewServer(conf *config.Config) (*Server, error) {
 }
 
 func (s *Server) Run(c context.Context, shutdownTimeout time.Duration) error {
-
-	gs := grpc.NewServer(
-		grpc.UnaryInterceptor(middleware.UseAuth()),
+	grpcServer := grpc.NewServer(
+		grpc.ChainUnaryInterceptor(
+			logging.UnaryServerInterceptor(interceptorLogger(s.logger)),
+			middleware.UseAuth(),
+		),
 	)
 
-	authv1.RegisterAuthServiceServer(gs, service.NewAuthServiceServer(s.db))
-	usersv1.RegisterUsersServiceServer(gs, service.NewUsersServiceServer(s.db))
+	auth.RegisterAuthServiceServer(grpcServer, service.NewAuthServiceServer(s.db))
+	users.RegisterUsersServiceServer(grpcServer, service.NewUsersServiceServer(s.db))
 
-	gwMux := runtime.NewServeMux()
+	gatewayMux := runtime.NewServeMux()
 
-	registerGateway(c, gwMux, s.grpcAddr, authv1.RegisterAuthServiceHandlerFromEndpoint)
-	registerGateway(c, gwMux, s.grpcAddr, usersv1.RegisterUsersServiceHandlerFromEndpoint)
+	if err := registerGateway(c, gatewayMux, s.grpcAddr, auth.RegisterAuthServiceHandlerFromEndpoint); err != nil {
+		return err
+	}
+	if err := registerGateway(c, gatewayMux, s.grpcAddr, users.RegisterUsersServiceHandlerFromEndpoint); err != nil {
+		return err
+	}
 
-	handleStatic(gwMux, "/docs", "text/html", static.ScalarHtml)
-	handleStatic(gwMux, "/scalar.js", "application/javascript", static.ScalarJS)
-	handleStatic(gwMux, "/openapi.json", "application/json", static.OpenApiSpec)
+	handleStatic(gatewayMux, "/docs", "text/html", static.ScalarHtml)
+	handleStatic(gatewayMux, "/scalar.js", "application/javascript", static.ScalarJS)
+	handleStatic(gatewayMux, "/openapi.json", "application/json", static.OpenApiSpec)
 
-	mux := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Printf("[GATEWAY] Incoming %s %s", r.Method, r.RequestURI)
+	gateway := &http.Server{
+		Addr: s.httpAddr,
+		Handler: func(h http.Handler) http.Handler {
+			return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				s.logger.Info(fmt.Sprintf("[GATEWAY] Incoming %s %s", r.Method, r.RequestURI))
 
-		if after, ok := strings.CutPrefix(r.URL.Path, "/api/v1"); ok {
-			r.URL.Path = after
-			gwMux.ServeHTTP(w, r)
-		} else {
-			http.NotFound(w, r)
-			return
-		}
-	})
-
-	gw := &http.Server{
-		Addr:    s.httpAddr,
-		Handler: mux,
+				if after, ok := strings.CutPrefix(r.URL.Path, "/api/v1"); ok {
+					r.URL.Path = after
+					gatewayMux.ServeHTTP(w, r)
+				} else {
+					http.NotFound(w, r)
+					return
+				}
+			})
+		}(gatewayMux),
 	}
 
 	lis, err := net.Listen("tcp", s.grpcAddr)
 	if err != nil {
-		log.Fatalf("Failed to create listener: %s", err)
+		return errors.Join(errors.New("Failed to create listener: %s"), err)
 	}
 
 	gsError := make(chan error, 1)
 	go func() {
-		log.Println("Starting gRPC server...")
-		if err := gs.Serve(lis); !errors.Is(err, grpc.ErrServerStopped) {
+		s.logger.Info("Starting gRPC server...")
+		if err := grpcServer.Serve(lis); !errors.Is(err, grpc.ErrServerStopped) {
 			gsError <- err
 		}
 		close(gsError)
 	}()
-	log.Printf("Serving gRPC in %s", s.grpcAddr)
+	s.logger.Info(fmt.Sprintf("Serving gRPC in %s", s.grpcAddr))
 
 	gwError := make(chan error, 1)
 	go func() {
-		log.Println("Starting REST gateway server...")
-		if err := gw.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
+		s.logger.Info("Starting REST gateway server...")
+		if err := gateway.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
 			gwError <- err
 		}
 		close(gwError)
 	}()
-	log.Printf("Serving REST gateway in %s", gw.Addr)
+	s.logger.Info(fmt.Sprintf("Serving REST gateway in %s", gateway.Addr))
 
 	shutdown := make(chan os.Signal, 1)
 	signal.Notify(shutdown, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
@@ -119,22 +128,22 @@ func (s *Server) Run(c context.Context, shutdownTimeout time.Duration) error {
 			return err
 		}
 	case <-c.Done():
-		log.Println("Main context cancelled")
+		s.logger.Info("Main context cancelled")
 	case <-shutdown:
-		log.Println("Shutdown signal received, shutting down server gracefully")
+		s.logger.Info("Shutdown signal received, shutting down server gracefully")
 	}
 
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
 	defer cancel()
 
-	if err = gw.Shutdown(shutdownCtx); err != nil {
-		if closeErr := gw.Close(); closeErr != nil {
+	if err = gateway.Shutdown(shutdownCtx); err != nil {
+		if closeErr := gateway.Close(); closeErr != nil {
 			return errors.Join(err, closeErr)
 		}
 		return err
 	}
 
-	log.Println("Server closed gracefully")
+	s.logger.Info("Server closed gracefully")
 	return nil
 }
 
@@ -152,13 +161,20 @@ func registerGateway(
 	ctx context.Context,
 	r *runtime.ServeMux,
 	address string,
-	registerFunc func(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error)) {
+	registerFunc func(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error)) error {
 	if err := registerFunc(
 		ctx,
 		r,
 		address,
 		[]grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials())},
 	); err != nil {
-		log.Fatalf("Failed to register REST gateway: %s", err)
+		return errors.Join(errors.New("Failed to register REST gateway: %s"), err)
 	}
+	return nil
+}
+
+func interceptorLogger(l *slog.Logger) logging.Logger {
+	return logging.LoggerFunc(func(ctx context.Context, lvl logging.Level, msg string, fields ...any) {
+		l.Log(ctx, slog.Level(lvl), msg, fields...)
+	})
 }

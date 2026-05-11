@@ -4,7 +4,7 @@
 // 	protoc        (unknown)
 // source: users/v1/users.proto
 
-package usersv1
+package users
 
 import (
 	_ "google.golang.org/genproto/googleapis/api/annotations"
@@ -959,7 +959,9 @@ const file_users_v1_users_proto_rawDesc = "" +
 	"Deactivate\x12\x1b.users.v1.DeactivateRequest\x1a\x1c.users.v1.DeactivateResponse\"!\x82\xd3\xe4\x93\x02\x1b:\x01*\"\x16/users/{id}/deactivate\x12b\n" +
 	"\bActivate\x12\x19.users.v1.ActivateRequest\x1a\x1a.users.v1.ActivateResponse\"\x1f\x82\xd3\xe4\x93\x02\x19:\x01*\"\x14/users/{id}/activate\x12S\n" +
 	"\x06Update\x12\x17.users.v1.UpdateRequest\x1a\x18.users.v1.UpdateResponse\"\x16\x82\xd3\xe4\x93\x02\x10:\x01*\x1a\v/users/{id}\x12P\n" +
-	"\x06Delete\x12\x17.users.v1.DeleteRequest\x1a\x18.users.v1.DeleteResponse\"\x13\x82\xd3\xe4\x93\x02\r*\v/users/{id}B4Z2github.com/hyoureii/hrbackend/gen/users/v1;usersv1b\x06proto3"
+	"\x06Delete\x12\x17.users.v1.DeleteRequest\x1a\x18.users.v1.DeleteResponse\"\x13\x82\xd3\xe4\x93\x02\r*\v/users/{id}B\x8d\x01\n" +
+	"\fcom.users.v1B\n" +
+	"UsersProtoP\x01Z0github.com/hyoureii/hrbackend/gen/users/v1;users\xa2\x02\x03UXX\xaa\x02\bUsers.V1\xca\x02\bUsers\\V1\xe2\x02\x14Users\\V1\\GPBMetadata\xea\x02\tUsers::V1b\x06proto3"
 
 var (
 	file_users_v1_users_proto_rawDescOnce sync.Once

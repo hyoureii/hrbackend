@@ -3,7 +3,7 @@ package users.v1;
 
 import "google/api/annotations.proto";
 
-option go_package = "github.com/hyoureii/hrbackend/gen/users/v1;usersv1";
+option go_package = "github.com/hyoureii/hrbackend/gen/users/v1;users";
 
 enum Role {
   ROLE_STAFF_UNSPECIFIED = 0;

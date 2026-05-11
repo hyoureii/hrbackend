@@ -2,11 +2,11 @@
 // source: attendance/v1/attendance.proto
 
 /*
-Package attendancev1 is a reverse proxy.
+Package attendance is a reverse proxy.
 
 It translates gRPC into RESTful JSON APIs.
 */
-package attendancev1
+package attendance
 
 import (
 	"context"

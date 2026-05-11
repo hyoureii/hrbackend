@@ -4,7 +4,7 @@
 // 	protoc        (unknown)
 // source: attendance/v1/attendance.proto
 
-package attendancev1
+package attendance
 
 import (
 	_ "google.golang.org/genproto/googleapis/api/annotations"
@@ -650,7 +650,8 @@ const file_attendance_v1_attendance_proto_rawDesc = "" +
 	"\x10GetAllAttendance\x12&.attendance.v1.GetAllAttendanceRequest\x1a'.attendance.v1.GetAllAttendanceResponse\"\x13\x82\xd3\xe4\x93\x02\r\x12\v/attendance\x12\x80\x01\n" +
 	"\x11GetAttendanceById\x12'.attendance.v1.GetAttendanceByIdRequest\x1a(.attendance.v1.GetAttendanceByIdResponse\"\x18\x82\xd3\xe4\x93\x02\x12\x12\x10/attendance/{id}\x12i\n" +
 	"\n" +
-	"GetCurrent\x12 .attendance.v1.GetCurrentRequest\x1a!.attendance.v1.GetCurrentResponse\"\x16\x82\xd3\xe4\x93\x02\x10\x12\x0e/attendance/meB>Z<github.com/hyoureii/hrbackend/gen/attendance/v1;attendancev1b\x06proto3"
+	"GetCurrent\x12 .attendance.v1.GetCurrentRequest\x1a!.attendance.v1.GetCurrentResponse\"\x16\x82\xd3\xe4\x93\x02\x10\x12\x0e/attendance/meB\xb5\x01\n" +
+	"\x11com.attendance.v1B\x0fAttendanceProtoP\x01Z:github.com/hyoureii/hrbackend/gen/attendance/v1;attendance\xa2\x02\x03AXX\xaa\x02\rAttendance.V1\xca\x02\rAttendance\\V1\xe2\x02\x19Attendance\\V1\\GPBMetadata\xea\x02\x0eAttendance::V1b\x06proto3"
 
 var (
 	file_attendance_v1_attendance_proto_rawDescOnce sync.Once

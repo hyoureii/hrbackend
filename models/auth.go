@@ -1,14 +1,14 @@
 package models
 
 import (
-	usersv1 "github.com/hyoureii/hrbackend/gen/users/v1"
+	"github.com/hyoureii/hrbackend/gen/users/v1"
 )
 
 type User struct {
 	Base
 	FirstName string       `gorm:"not null"`
 	LastName  string       `gorm:"not null"`
-	Role      usersv1.Role `gorm:"not null;default:0"`
+	Role      users.Role `gorm:"not null;default:0"`
 	AvatarURL *string
 	IsActive  bool   `gorm:"not null;default:true"`
 	Email     string `gorm:"not null;unique"`

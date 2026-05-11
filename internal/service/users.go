@@ -5,7 +5,7 @@ import (
 	"errors"
 
 	"github.com/google/uuid"
-	usersv1 "github.com/hyoureii/hrbackend/gen/users/v1"
+	"github.com/hyoureii/hrbackend/gen/users/v1"
 	"github.com/hyoureii/hrbackend/internal/lib"
 	"github.com/hyoureii/hrbackend/internal/middleware"
 	"github.com/hyoureii/hrbackend/models"
@@ -16,14 +16,14 @@ import (
 
 type UsersServiceServer struct {
 	db *gorm.DB
-	usersv1.UnimplementedUsersServiceServer
+	users.UnimplementedUsersServiceServer
 }
 
 func NewUsersServiceServer(db *gorm.DB) *UsersServiceServer {
 	return &UsersServiceServer{db: db}
 }
 
-func (s UsersServiceServer) Register(c context.Context, r *usersv1.RegisterRequest) (*usersv1.RegisterResponse, error) {
+func (s UsersServiceServer) Register(c context.Context, r *users.RegisterRequest) (*users.RegisterResponse, error) {
 	hash, err := lib.HashPassword(r.Password)
 	if err != nil {
 		return nil, err
@@ -52,20 +52,20 @@ func (s UsersServiceServer) Register(c context.Context, r *usersv1.RegisterReque
 		return nil, err
 	}
 
-	return &usersv1.RegisterResponse{}, nil
+	return &users.RegisterResponse{}, nil
 }
 
-func (s UsersServiceServer) GetAllUsers(c context.Context, r *usersv1.GetAllUsersRequest) (*usersv1.GetAllUsersResponse, error) {
-	users, err := gorm.G[models.User](s.db).Find(c)
+func (s UsersServiceServer) GetAllUsers(c context.Context, r *users.GetAllUsersRequest) (*users.GetAllUsersResponse, error) {
+	usersRes, err := gorm.G[models.User](s.db).Find(c)
 	if err != nil {
 		return nil, err
 	}
 
-	userList := make([]*usersv1.User, len(users))
-	for i, user := range users {
-		userList[i] = &usersv1.User{
+	userList := make([]*users.User, len(usersRes))
+	for i, user := range usersRes {
+		userList[i] = &users.User{
 			Id: user.ID,
-			Data: &usersv1.User_Data{
+			Data: &users.User_Data{
 				Email:     user.Email,
 				FirstName: user.FirstName,
 				LastName:  user.LastName,
@@ -78,10 +78,10 @@ func (s UsersServiceServer) GetAllUsers(c context.Context, r *usersv1.GetAllUser
 		}
 	}
 
-	return &usersv1.GetAllUsersResponse{User: userList}, nil
+	return &users.GetAllUsersResponse{User: userList}, nil
 }
 
-func (s UsersServiceServer) GetUserById(c context.Context, r *usersv1.GetUserByIdRequest) (*usersv1.GetUserByIdResponse, error) {
+func (s UsersServiceServer) GetUserById(c context.Context, r *users.GetUserByIdRequest) (*users.GetUserByIdResponse, error) {
 	user, err := gorm.G[models.User](s.db).Where("id = ?", r.Id).First(c)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -90,10 +90,10 @@ func (s UsersServiceServer) GetUserById(c context.Context, r *usersv1.GetUserByI
 		return nil, err
 	}
 
-	return &usersv1.GetUserByIdResponse{
-		User: &usersv1.User{
+	return &users.GetUserByIdResponse{
+		User: &users.User{
 			Id: user.ID,
-			Data: &usersv1.User_Data{
+			Data: &users.User_Data{
 				Email:     user.Email,
 				FirstName: user.FirstName,
 				LastName:  user.LastName,
@@ -107,17 +107,17 @@ func (s UsersServiceServer) GetUserById(c context.Context, r *usersv1.GetUserByI
 	}, nil
 }
 
-func (s UsersServiceServer) Me(c context.Context, r *usersv1.MeRequest) (*usersv1.MeResponse, error) {
+func (s UsersServiceServer) Me(c context.Context, r *users.MeRequest) (*users.MeResponse, error) {
 	claims := c.Value(middleware.ClaimsKey).(*lib.Claims)
 	user, err := gorm.G[models.User](s.db).Where("id = ?", claims.Subject).First(c)
 	if err != nil {
 		return nil, err
 	}
 
-	return &usersv1.MeResponse{
-		User: &usersv1.User{
+	return &users.MeResponse{
+		User: &users.User{
 			Id: user.ID,
-			Data: &usersv1.User_Data{
+			Data: &users.User_Data{
 				Email:     user.Email,
 				FirstName: user.FirstName,
 				LastName:  user.LastName,
@@ -131,7 +131,7 @@ func (s UsersServiceServer) Me(c context.Context, r *usersv1.MeRequest) (*usersv
 	}, nil
 }
 
-func (s UsersServiceServer) Deactivate(c context.Context, r *usersv1.DeactivateRequest) (*usersv1.DeactivateResponse, error) {
+func (s UsersServiceServer) Deactivate(c context.Context, r *users.DeactivateRequest) (*users.DeactivateResponse, error) {
 	user, err := gorm.G[models.User](s.db).Where("id = ?", r.Id).First(c)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -147,10 +147,10 @@ func (s UsersServiceServer) Deactivate(c context.Context, r *usersv1.DeactivateR
 		return nil, err
 	}
 
-	return &usersv1.DeactivateResponse{}, nil
+	return &users.DeactivateResponse{}, nil
 }
 
-func (s UsersServiceServer) Activate(c context.Context, r *usersv1.ActivateRequest) (*usersv1.ActivateResponse, error) {
+func (s UsersServiceServer) Activate(c context.Context, r *users.ActivateRequest) (*users.ActivateResponse, error) {
 	user, err := gorm.G[models.User](s.db).Where("id = ?", r.Id).First(c)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -166,10 +166,10 @@ func (s UsersServiceServer) Activate(c context.Context, r *usersv1.ActivateReque
 		return nil, err
 	}
 
-	return &usersv1.ActivateResponse{}, nil
+	return &users.ActivateResponse{}, nil
 }
 
-func (s UsersServiceServer) Update(c context.Context, r *usersv1.UpdateRequest) (*usersv1.UpdateResponse, error) {
+func (s UsersServiceServer) Update(c context.Context, r *users.UpdateRequest) (*users.UpdateResponse, error) {
 	_, err := gorm.G[models.User](s.db).Where("id = ?", r.Id).Select("email", "first_name", "last_name", "avatar_url", "role").Updates(c, models.User{
 		Email:     r.Data.Email,
 		FirstName: r.Data.FirstName,
@@ -184,10 +184,10 @@ func (s UsersServiceServer) Update(c context.Context, r *usersv1.UpdateRequest) 
 		return nil, err
 	}
 
-	return &usersv1.UpdateResponse{}, nil
+	return &users.UpdateResponse{}, nil
 }
 
-func (s UsersServiceServer) Delete(c context.Context, r *usersv1.DeleteRequest) (*usersv1.DeleteResponse, error) {
+func (s UsersServiceServer) Delete(c context.Context, r *users.DeleteRequest) (*users.DeleteResponse, error) {
 	_, err := gorm.G[models.User](s.db).Where("id = ?", r.Id).Delete(c)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -196,5 +196,5 @@ func (s UsersServiceServer) Delete(c context.Context, r *usersv1.DeleteRequest) 
 		return nil, err
 	}
 
-	return &usersv1.DeleteResponse{}, nil
+	return &users.DeleteResponse{}, nil
 }

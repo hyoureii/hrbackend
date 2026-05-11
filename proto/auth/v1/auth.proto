@@ -1,12 +1,15 @@
 syntax = "proto3";
 package auth.v1;
 
+import "buf/validate/validate.proto";
 import "google/api/annotations.proto";
 
-option go_package = "github.com/hyoureii/hrbackend/gen/auth/v1;authv1";
+option go_package = "github.com/hyoureii/hrbackend/gen/auth/v1;auth";
 
 message LoginRequest {
-  string email = 1;
+  string email = 1 [
+    (buf.validate.field).string.email = true
+  ];
   string password = 2;
 }
 message LoginResponse {

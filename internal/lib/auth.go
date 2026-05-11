@@ -5,7 +5,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"log"
+	"log/slog"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -53,7 +53,7 @@ func GenerateJWT(scope ClaimType, userId string, exp time.Time) string {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenStr, err := token.SignedString(jwtSecret)
 	if err != nil {
-		log.Fatalf("Failed to generate JWT token: %s", err)
+		slog.Error(fmt.Sprintf("Failed to generate JWT token: %s", err))
 	}
 	return tokenStr
 }

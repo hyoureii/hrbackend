@@ -7,7 +7,7 @@ import (
 	"log"
 
 	"github.com/google/uuid"
-	usersv1 "github.com/hyoureii/hrbackend/gen/users/v1"
+	"github.com/hyoureii/hrbackend/gen/users/v1"
 	"github.com/hyoureii/hrbackend/internal/config"
 	"github.com/hyoureii/hrbackend/internal/lib"
 	"github.com/hyoureii/hrbackend/models"
@@ -29,7 +29,7 @@ func main() {
 			},
 			FirstName: "Hafizryandin Haykal",
 			LastName:  "Matondang",
-			Role:      usersv1.Role_ROLE_ADMIN,
+			Role:      users.Role_ROLE_ADMIN,
 			Email:     "admin@hrconnect.org",
 			Password:  hash("admin123"),
 		},
@@ -39,7 +39,7 @@ func main() {
 			},
 			FirstName: "Fathir",
 			LastName:  "RIH",
-			Role:      usersv1.Role_ROLE_DIRECTOR,
+			Role:      users.Role_ROLE_DIRECTOR,
 			Email:     "director@hrconnect.org",
 			Password:  hash("director123"),
 		},
@@ -49,7 +49,7 @@ func main() {
 			},
 			FirstName: "Nopal",
 			LastName:  "Pradana",
-			Role:      usersv1.Role_ROLE_MANAGER,
+			Role:      users.Role_ROLE_MANAGER,
 			Email:     "manager@hrconnect.org",
 			Password:  hash("manager123"),
 		},
@@ -59,7 +59,7 @@ func main() {
 			},
 			FirstName: "Haidar",
 			LastName:  "Zahran",
-			Role:      usersv1.Role_ROLE_SUPERVISOR,
+			Role:      users.Role_ROLE_SUPERVISOR,
 			Email:     "supervisor@hrconnect.org",
 			Password:  hash("supervisor123"),
 		},
@@ -69,7 +69,7 @@ func main() {
 			},
 			FirstName: "Cecep",
 			LastName:  "Wijaya",
-			Role:      usersv1.Role_ROLE_STAFF_UNSPECIFIED,
+			Role:      users.Role_ROLE_STAFF_UNSPECIFIED,
 			Email:     "staff@hrconnect.org",
 			Password:  hash("staff123"),
 		},

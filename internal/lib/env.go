@@ -1,6 +1,9 @@
 package lib
 
-import "os"
+import (
+	"log/slog"
+	"os"
+)
 
 func GetEnv(env string) string {
 	if foundEnv, found := os.LookupEnv(env); found {
@@ -13,5 +16,6 @@ func GetEnvOrDefault(env, def string) string {
 	if foundEnv, found := os.LookupEnv(env); found {
 		return foundEnv
 	}
+	slog.Warn("Environment variable %s isn't set. Using default %s", env, def)
 	return def
 }
