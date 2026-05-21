@@ -30,3 +30,13 @@ func RoleBelow(role string) string {
 func HasPermission(perms []string, codename string) bool {
 	return slices.Contains(perms, codename)
 }
+
+func MatchedPermissions(userPerms []string, requiredPerms []string) []string {
+	var matched []string
+	for _, p := range requiredPerms {
+		if slices.Contains(userPerms, p) {
+			matched = append(matched, p)
+		}
+	}
+	return matched
+}

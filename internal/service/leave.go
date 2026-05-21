@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"slices"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/hyoureii/hrbackend/gen/request/v1"
@@ -31,6 +32,15 @@ func (s LeaveServiceServer) NewLeave(c context.Context, r *request.NewLeaveReque
 	leaveType := models.LeaveType(r.Request.Type)
 	if !slices.Contains(models.LeaveTypes, leaveType) {
 		return nil, status.Error(codes.InvalidArgument, "Invalid leave type")
+	}
+
+	start := time.Unix(r.Request.StartDate, 0)
+	end := time.Unix(r.Request.EndDate, 0)
+	if !start.After(time.Now()) {
+		return nil, status.Error(codes.InvalidArgument, "Start date must be in the future")
+	}
+	if !end.After(start) {
+		return nil, status.Error(codes.InvalidArgument, "End date must be after start date")
 	}
 
 	id, err := uuid.NewRandom()
@@ -155,6 +165,22 @@ func (s LeaveServiceServer) GetLeaveById(c context.Context, r *request.GetLeaveB
 		return nil, err
 	}
 
+	claims := c.Value(middleware.ClaimsKey).(*lib.Claims)
+	perms := c.Value(middleware.PermsKey).([]string)
+
+	if slices.Contains(perms, "manageLeaveRequest") && !slices.Contains(perms, "seeAllLeaveRequest") {
+		requester, err := gorm.G[models.User](s.db).
+			Joins(clause.LeftJoin.Association("Role"), nil).
+			Where("users.id = ?", leave.RequesterID).
+			First(c)
+		if err != nil {
+			return nil, err
+		}
+		if !lib.CanManage(claims.Role, requester.Role.Name) {
+			return nil, status.Error(codes.PermissionDenied, "You cannot view requests from this role")
+		}
+	}
+
 	return &request.GetLeaveByIdResponse{Request: leaveToProto(leave)}, nil
 }
 
@@ -207,6 +233,10 @@ func (s LeaveServiceServer) ApproveLeave(c context.Context, r *request.ApproveLe
 		return nil, err
 	}
 
+	if leave.RequesterID == claims.Subject {
+		return nil, status.Error(codes.PermissionDenied, "You cannot manage your own request")
+	}
+
 	if leave.Status != models.Pending {
 		return nil, status.Error(codes.InvalidArgument, "Request is not pending")
 	}
@@ -247,6 +277,10 @@ func (s LeaveServiceServer) RejectLeave(c context.Context, r *request.RejectLeav
 			return nil, status.Error(codes.NotFound, "Leave request not found")
 		}
 		return nil, err
+	}
+
+	if leave.RequesterID == claims.Subject {
+		return nil, status.Error(codes.PermissionDenied, "You cannot manage your own request")
 	}
 
 	if leave.Status != models.Pending {

@@ -30,12 +30,17 @@ func main() {
 	}
 
 	permissions := []models.Permission{
-		newPermission("addLeaveRequest"),
 		newPermission("manageLeaveRequest"),
-		newPermission("addTripRequest"),
+		newPermission("seeAllLeaveRequest"),
+
 		newPermission("manageTripRequest"),
+		newPermission("seeAllTripRequest"),
+
 		newPermission("manageUsers"),
+		newPermission("manageEmployee"),
+
 		newPermission("createAttendanceQR"),
+		newPermission("seeAllAttendance"),
 	}
 
 	for _, role := range roles {
@@ -58,11 +63,10 @@ func main() {
 	}
 
 	rolePermissions := map[int][]string{
-		0: {"addLeaveRequest", "manageLeaveRequest", "addTripRequest", "manageTripRequest", "manageUsers", "createAttendanceQR"},
-		1: {"addLeaveRequest", "manageLeaveRequest", "addTripRequest", "manageTripRequest"},
-		2: {"addLeaveRequest", "manageLeaveRequest", "addTripRequest", "manageTripRequest", "manageUsers", "createAttendanceQR"},
-		3: {"addLeaveRequest", "manageLeaveRequest", "addTripRequest", "manageTripRequest"},
-		4: {"addLeaveRequest", "addTripRequest"},
+		1: {"manageLeaveRequest", "manageTripRequest"},
+		2: {"manageLeaveRequest", "manageTripRequest", "manageEmployee", "createAttendanceQR", "seeAllAttendance"},
+		3: {"manageLeaveRequest", "manageTripRequest"},
+		4: {"manageLeaveRequest", "manageTripRequest", "manageUsers", "createAttendanceQR", "seeAllAttendance", "seeAllLeaveRequest", "seeAllTripRequest"},
 	}
 
 	for roleIdx, codenames := range rolePermissions {

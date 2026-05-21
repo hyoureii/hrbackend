@@ -18,6 +18,7 @@ import (
 	useValidate "github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/protovalidate"
 	"github.com/hyoureii/hrbackend/gen/attendance/v1"
 	"github.com/hyoureii/hrbackend/gen/auth/v1"
+	dashboard "github.com/hyoureii/hrbackend/gen/dashboard/v1"
 	request "github.com/hyoureii/hrbackend/gen/request/v1"
 	"github.com/hyoureii/hrbackend/gen/users/v1"
 	"github.com/hyoureii/hrbackend/internal/config"
@@ -74,6 +75,7 @@ func (s *Server) Run(c context.Context, shutdownTimeout time.Duration) error {
 	attendance.RegisterAttendanceServiceServer(grpcServer, service.NewAttendanceServiceServer(s.db))
 	request.RegisterLeaveServiceServer(grpcServer, service.NewLeaveServiceServer(s.db))
 	request.RegisterTripServiceServer(grpcServer, service.NewTripServiceServer(s.db))
+	dashboard.RegisterDashboardServiceServer(grpcServer, service.NewDashboardServiceServer(s.db))
 
 	gatewayMux := runtime.NewServeMux()
 
@@ -90,6 +92,9 @@ func (s *Server) Run(c context.Context, shutdownTimeout time.Duration) error {
 		return err
 	}
 	if err := registerGateway(c, gatewayMux, s.grpcAddr, request.RegisterTripServiceHandlerFromEndpoint); err != nil {
+		return err
+	}
+	if err := registerGateway(c, gatewayMux, s.grpcAddr, dashboard.RegisterDashboardServiceHandlerFromEndpoint); err != nil {
 		return err
 	}
 

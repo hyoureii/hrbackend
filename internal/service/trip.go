@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"slices"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/hyoureii/hrbackend/gen/request/v1"
@@ -31,6 +32,15 @@ func (s TripServiceServer) NewTrip(c context.Context, r *request.NewTripRequest)
 	tripType := models.TripType(r.Request.Type)
 	if !slices.Contains(models.TripTypes, tripType) {
 		return nil, status.Error(codes.InvalidArgument, "Invalid trip type")
+	}
+
+	start := time.Unix(r.Request.StartDate, 0)
+	end := time.Unix(r.Request.EndDate, 0)
+	if !start.After(time.Now()) {
+		return nil, status.Error(codes.InvalidArgument, "Start date must be in the future")
+	}
+	if !end.After(start) {
+		return nil, status.Error(codes.InvalidArgument, "End date must be after start date")
 	}
 
 	id, err := uuid.NewRandom()
@@ -155,6 +165,22 @@ func (s TripServiceServer) GetTripById(c context.Context, r *request.GetTripById
 		return nil, err
 	}
 
+	claims := c.Value(middleware.ClaimsKey).(*lib.Claims)
+	perms := c.Value(middleware.PermsKey).([]string)
+
+	if slices.Contains(perms, "manageTripRequest") && !slices.Contains(perms, "seeAllTripRequest") {
+		requester, err := gorm.G[models.User](s.db).
+			Joins(clause.LeftJoin.Association("Role"), nil).
+			Where("users.id = ?", trip.RequesterID).
+			First(c)
+		if err != nil {
+			return nil, err
+		}
+		if !lib.CanManage(claims.Role, requester.Role.Name) {
+			return nil, status.Error(codes.PermissionDenied, "You cannot view requests from this role")
+		}
+	}
+
 	return &request.GetTripByIdResponse{Request: tripToProto(trip)}, nil
 }
 
@@ -207,6 +233,10 @@ func (s TripServiceServer) ApproveTrip(c context.Context, r *request.ApproveTrip
 		return nil, err
 	}
 
+	if trip.RequesterID == claims.Subject {
+		return nil, status.Error(codes.PermissionDenied, "You cannot manage your own request")
+	}
+
 	if trip.Status != models.Pending {
 		return nil, status.Error(codes.InvalidArgument, "Request is not pending")
 	}
@@ -247,6 +277,10 @@ func (s TripServiceServer) RejectTrip(c context.Context, r *request.RejectTripRe
 			return nil, status.Error(codes.NotFound, "Trip request not found")
 		}
 		return nil, err
+	}
+
+	if trip.RequesterID == claims.Subject {
+		return nil, status.Error(codes.PermissionDenied, "You cannot manage your own request")
 	}
 
 	if trip.Status != models.Pending {
