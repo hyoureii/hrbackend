@@ -1,0 +1,20 @@
+syntax = "proto3";
+package dashboard.v1;
+
+import "google/api/annotations.proto";
+
+option go_package = "github.com/hyoureii/hrbackend/gen/dashboard/v1;dashboard";
+
+message DashboardRequest {}
+message DashboardResponse {
+  int32 attendance_rate = 1;
+  int32 pending_leave = 2;
+  int32 pending_trip = 3;
+  optional int32 total_user = 4;
+}
+
+service DashboardService {
+  rpc Dashboard(DashboardRequest) returns (DashboardResponse) {
+    option (google.api.http) = {get: "/dashboard"};
+  }
+}

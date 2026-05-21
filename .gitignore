@@ -1,5 +1,6 @@
 tmp
 
 postgres_data
+redis_data
 
 .env

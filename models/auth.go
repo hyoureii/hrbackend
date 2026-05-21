@@ -1,14 +1,11 @@
 package models
 
-import (
-	"github.com/hyoureii/hrbackend/gen/users/v1"
-)
-
 type User struct {
 	Base
-	FirstName string       `gorm:"not null"`
-	LastName  string       `gorm:"not null"`
-	Role      users.Role `gorm:"not null;default:0"`
+	FirstName string `gorm:"not null"`
+	LastName  string `gorm:"not null"`
+	RoleID    string `gorm:"type:uuid;not null"`
+	Role      Role   `gorm:"not null"`
 	AvatarURL *string
 	IsActive  bool   `gorm:"not null;default:true"`
 	Email     string `gorm:"not null;unique"`

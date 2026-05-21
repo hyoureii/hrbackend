@@ -1,0 +1,415 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "request/v1/trip.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "TripService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/me/trip": {
+      "get": {
+        "operationId": "TripService_GetCurrentTrips",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetCurrentTripsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "TripService"
+        ]
+      }
+    },
+    "/pending/trip": {
+      "get": {
+        "operationId": "TripService_GetAllPendingTrips",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetAllPendingTripsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "TripService"
+        ]
+      }
+    },
+    "/trip": {
+      "get": {
+        "operationId": "TripService_GetAllTrips",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetAllTripsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "byUserId",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "TripService"
+        ]
+      }
+    },
+    "/trip/new": {
+      "post": {
+        "operationId": "TripService_NewTrip",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1NewTripResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1NewTripRequest"
+            }
+          }
+        ],
+        "tags": [
+          "TripService"
+        ]
+      }
+    },
+    "/trip/{id}": {
+      "get": {
+        "operationId": "TripService_GetTripById",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetTripByIdResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "TripService"
+        ]
+      },
+      "put": {
+        "operationId": "TripService_UpdateTrip",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1UpdateTripResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/TripServiceUpdateTripBody"
+            }
+          }
+        ],
+        "tags": [
+          "TripService"
+        ]
+      }
+    },
+    "/trip/{id}/approve": {
+      "post": {
+        "operationId": "TripService_ApproveTrip",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ApproveTripResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "TripService"
+        ]
+      }
+    },
+    "/trip/{id}/reject": {
+      "post": {
+        "operationId": "TripService_RejectTrip",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1RejectTripResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/TripServiceRejectTripBody"
+            }
+          }
+        ],
+        "tags": [
+          "TripService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "RequestData": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "startDate": {
+          "type": "string",
+          "format": "int64"
+        },
+        "endDate": {
+          "type": "string",
+          "format": "int64"
+        },
+        "type": {
+          "type": "string"
+        }
+      }
+    },
+    "TripServiceRejectTripBody": {
+      "type": "object",
+      "properties": {
+        "reason": {
+          "type": "string"
+        }
+      }
+    },
+    "TripServiceUpdateTripBody": {
+      "type": "object",
+      "properties": {
+        "request": {
+          "$ref": "#/definitions/RequestData"
+        }
+      }
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "v1ApproveTripResponse": {
+      "type": "object"
+    },
+    "v1GetAllPendingTripsResponse": {
+      "type": "object",
+      "properties": {
+        "requests": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Request"
+          }
+        }
+      }
+    },
+    "v1GetAllTripsResponse": {
+      "type": "object",
+      "properties": {
+        "requests": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Request"
+          }
+        }
+      }
+    },
+    "v1GetCurrentTripsResponse": {
+      "type": "object",
+      "properties": {
+        "requests": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Request"
+          }
+        }
+      }
+    },
+    "v1GetTripByIdResponse": {
+      "type": "object",
+      "properties": {
+        "request": {
+          "$ref": "#/definitions/v1Request"
+        }
+      }
+    },
+    "v1NewTripRequest": {
+      "type": "object",
+      "properties": {
+        "request": {
+          "$ref": "#/definitions/RequestData"
+        }
+      }
+    },
+    "v1NewTripResponse": {
+      "type": "object"
+    },
+    "v1RejectTripResponse": {
+      "type": "object"
+    },
+    "v1Request": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "data": {
+          "$ref": "#/definitions/RequestData"
+        },
+        "status": {
+          "type": "string"
+        },
+        "approverId": {
+          "type": "string"
+        },
+        "requesterId": {
+          "type": "string"
+        }
+      }
+    },
+    "v1UpdateTripResponse": {
+      "type": "object"
+    }
+  }
+}

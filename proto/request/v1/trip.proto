@@ -1,0 +1,98 @@
+syntax = "proto3";
+package request.v1;
+
+import "buf/validate/validate.proto";
+import "google/api/annotations.proto";
+import "request/v1/request.proto";
+
+option go_package = "github.com/hyoureii/hrbackend/gen/request/v1;request";
+
+message NewTripRequest {
+  Request.Data request = 1;
+}
+message NewTripResponse {}
+
+message GetAllTripsRequest {
+  optional string by_user_id = 1 [(buf.validate.field).string.uuid = true];
+  optional string status = 2;
+}
+message GetAllTripsResponse {
+  repeated Request requests = 1;
+}
+
+message GetCurrentTripsRequest {}
+message GetCurrentTripsResponse {
+  repeated Request requests = 1;
+}
+
+message GetAllPendingTripsRequest {}
+message GetAllPendingTripsResponse {
+  repeated Request requests = 1;
+}
+
+message GetTripByIdRequest {
+  string id = 1 [(buf.validate.field).string.uuid = true];
+}
+message GetTripByIdResponse {
+  Request request = 1;
+}
+
+message UpdateTripRequest {
+  string id = 1 [(buf.validate.field).string.uuid = true];
+  Request.Data request = 2;
+}
+message UpdateTripResponse {}
+
+message ApproveTripRequest {
+  string id = 1 [(buf.validate.field).string.uuid = true];
+}
+message ApproveTripResponse {}
+
+message RejectTripRequest {
+  string id = 1 [(buf.validate.field).string.uuid = true];
+  string reason = 2 [(buf.validate.field).required = true];
+}
+message RejectTripResponse {}
+
+service TripService {
+  rpc NewTrip(NewTripRequest) returns (NewTripResponse) {
+    option (google.api.http) = {
+      post: "/trip/new"
+      body: "*"
+    };
+  }
+
+  rpc GetAllTrips(GetAllTripsRequest) returns (GetAllTripsResponse) {
+    option (google.api.http) = {get: "/trip"};
+  }
+
+  rpc GetCurrentTrips(GetCurrentTripsRequest) returns (GetCurrentTripsResponse) {
+    option (google.api.http) = {get: "/me/trip"};
+  }
+
+  rpc GetAllPendingTrips(GetAllPendingTripsRequest) returns (GetAllPendingTripsResponse) {
+    option (google.api.http) = {get: "/pending/trip"};
+  }
+
+  rpc GetTripById(GetTripByIdRequest) returns (GetTripByIdResponse) {
+    option (google.api.http) = {get: "/trip/{id}"};
+  }
+
+  rpc UpdateTrip(UpdateTripRequest) returns (UpdateTripResponse) {
+    option (google.api.http) = {
+      put: "/trip/{id}"
+      body: "*"
+    };
+  }
+
+  rpc ApproveTrip(ApproveTripRequest) returns (ApproveTripResponse) {
+    option (google.api.http) = {post: "/trip/{id}/approve"};
+  }
+
+  rpc RejectTrip(RejectTripRequest) returns (RejectTripResponse) {
+    option (google.api.http) = {
+      post: "/trip/{id}/reject"
+      body: "*"
+    };
+  }
+}

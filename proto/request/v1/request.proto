@@ -1,0 +1,21 @@
+syntax = "proto3";
+package request.v1;
+
+import "buf/validate/validate.proto";
+import "google/api/annotations.proto";
+
+option go_package = "github.com/hyoureii/hrbackend/gen/request/v1;request";
+
+message Request {
+  message Data {
+    string description = 1 [(buf.validate.field).required = true];
+    int64 start_date = 2 [(buf.validate.field).required = true];
+    int64 end_date = 3 [(buf.validate.field).required = true];
+    string type = 4 [(buf.validate.field).required = true];
+  }
+  string id = 1;
+  Data data = 2;
+  string status = 3;
+  string approver_id = 4;
+  string requester_id = 5;
+}

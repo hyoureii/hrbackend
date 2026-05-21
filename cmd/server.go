@@ -13,10 +13,15 @@ import (
 	"syscall"
 	"time"
 
+	"buf.build/go/protovalidate"
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/logging"
+	useValidate "github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/protovalidate"
+	"github.com/hyoureii/hrbackend/gen/attendance/v1"
 	"github.com/hyoureii/hrbackend/gen/auth/v1"
+	request "github.com/hyoureii/hrbackend/gen/request/v1"
 	"github.com/hyoureii/hrbackend/gen/users/v1"
 	"github.com/hyoureii/hrbackend/internal/config"
+	"github.com/hyoureii/hrbackend/internal/lib"
 	"github.com/hyoureii/hrbackend/internal/middleware"
 	"github.com/hyoureii/hrbackend/internal/service"
 	"github.com/hyoureii/hrbackend/static"
@@ -50,15 +55,25 @@ func NewServer(logger *slog.Logger, conf *config.Config) (*Server, error) {
 }
 
 func (s *Server) Run(c context.Context, shutdownTimeout time.Duration) error {
+	validator, err := protovalidate.New()
+	if err != nil {
+		return errors.Join(errors.New("Failed to create validator"), err)
+	}
+
 	grpcServer := grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
 			logging.UnaryServerInterceptor(interceptorLogger(s.logger)),
 			middleware.UseAuth(),
+			middleware.UseRBAC(),
+			useValidate.UnaryServerInterceptor(validator),
 		),
 	)
 
 	auth.RegisterAuthServiceServer(grpcServer, service.NewAuthServiceServer(s.db))
 	users.RegisterUsersServiceServer(grpcServer, service.NewUsersServiceServer(s.db))
+	attendance.RegisterAttendanceServiceServer(grpcServer, service.NewAttendanceServiceServer(s.db))
+	request.RegisterLeaveServiceServer(grpcServer, service.NewLeaveServiceServer(s.db))
+	request.RegisterTripServiceServer(grpcServer, service.NewTripServiceServer(s.db))
 
 	gatewayMux := runtime.NewServeMux()
 
@@ -68,10 +83,25 @@ func (s *Server) Run(c context.Context, shutdownTimeout time.Duration) error {
 	if err := registerGateway(c, gatewayMux, s.grpcAddr, users.RegisterUsersServiceHandlerFromEndpoint); err != nil {
 		return err
 	}
+	if err := registerGateway(c, gatewayMux, s.grpcAddr, attendance.RegisterAttendanceServiceHandlerFromEndpoint); err != nil {
+		return err
+	}
+	if err := registerGateway(c, gatewayMux, s.grpcAddr, request.RegisterLeaveServiceHandlerFromEndpoint); err != nil {
+		return err
+	}
+	if err := registerGateway(c, gatewayMux, s.grpcAddr, request.RegisterTripServiceHandlerFromEndpoint); err != nil {
+		return err
+	}
 
 	handleStatic(gatewayMux, "/docs", "text/html", static.ScalarHtml)
 	handleStatic(gatewayMux, "/scalar.js", "application/javascript", static.ScalarJS)
 	handleStatic(gatewayMux, "/openapi.json", "application/json", static.OpenApiSpec)
+
+	qr, err := lib.GenerateAttendanceQr()
+	if err != nil {
+		return err
+	}
+	handleStatic(gatewayMux, "/qr", "image/png", qr)
 
 	gateway := &http.Server{
 		Addr: s.httpAddr,

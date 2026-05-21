@@ -24,7 +24,55 @@
         },
         "type": "object"
       },
-      "LeaveReqsServiceUpdateBody": {
+      "LeaveServiceRejectLeaveBody": {
+        "properties": {
+          "reason": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "LeaveServiceUpdateLeaveBody": {
+        "properties": {
+          "request": {
+            "$ref": "#/components/schemas/RequestData"
+          }
+        },
+        "type": "object"
+      },
+      "RequestData": {
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "endDate": {
+            "format": "int64",
+            "type": "string"
+          },
+          "startDate": {
+            "format": "int64",
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "TripServiceRejectTripBody": {
+        "properties": {
+          "reason": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "TripServiceUpdateTripBody": {
+        "properties": {
+          "request": {
+            "$ref": "#/components/schemas/RequestData"
+          }
+        },
         "type": "object"
       },
       "UserData": {
@@ -42,7 +90,7 @@
             "type": "string"
           },
           "role": {
-            "$ref": "#/components/schemas/v1Role"
+            "type": "string"
           }
         },
         "type": "object"
@@ -91,7 +139,10 @@
       "v1ActivateResponse": {
         "type": "object"
       },
-      "v1ApproveResponse": {
+      "v1ApproveLeaveResponse": {
+        "type": "object"
+      },
+      "v1ApproveTripResponse": {
         "type": "object"
       },
       "v1Attendance": {
@@ -139,6 +190,27 @@
       "v1CheckOutResponse": {
         "type": "object"
       },
+      "v1DashboardResponse": {
+        "properties": {
+          "attendanceRate": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "pendingLeave": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "pendingTrip": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "totalUser": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "v1DeactivateResponse": {
         "type": "object"
       },
@@ -147,6 +219,10 @@
       },
       "v1GenerateResponse": {
         "properties": {
+          "png": {
+            "format": "byte",
+            "type": "string"
+          },
           "url": {
             "type": "string"
           }
@@ -158,6 +234,50 @@
           "userAttendance": {
             "items": {
               "$ref": "#/components/schemas/GetAllAttendanceResponseUserAttendance"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "v1GetAllLeavesResponse": {
+        "properties": {
+          "requests": {
+            "items": {
+              "$ref": "#/components/schemas/v1Request"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "v1GetAllPendingLeavesResponse": {
+        "properties": {
+          "requests": {
+            "items": {
+              "$ref": "#/components/schemas/v1Request"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "v1GetAllPendingTripsResponse": {
+        "properties": {
+          "requests": {
+            "items": {
+              "$ref": "#/components/schemas/v1Request"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "v1GetAllTripsResponse": {
+        "properties": {
+          "requests": {
+            "items": {
+              "$ref": "#/components/schemas/v1Request"
             },
             "type": "array"
           }
@@ -186,7 +306,15 @@
         },
         "type": "object"
       },
-      "v1GetByIdResponse": {
+      "v1GetCurrentLeavesResponse": {
+        "properties": {
+          "requests": {
+            "items": {
+              "$ref": "#/components/schemas/v1Request"
+            },
+            "type": "array"
+          }
+        },
         "type": "object"
       },
       "v1GetCurrentResponse": {
@@ -200,15 +328,39 @@
         },
         "type": "object"
       },
+      "v1GetCurrentTripsResponse": {
+        "properties": {
+          "requests": {
+            "items": {
+              "$ref": "#/components/schemas/v1Request"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "v1GetLeaveByIdResponse": {
+        "properties": {
+          "request": {
+            "$ref": "#/components/schemas/v1Request"
+          }
+        },
+        "type": "object"
+      },
+      "v1GetTripByIdResponse": {
+        "properties": {
+          "request": {
+            "$ref": "#/components/schemas/v1Request"
+          }
+        },
+        "type": "object"
+      },
       "v1GetUserByIdResponse": {
         "properties": {
           "user": {
             "$ref": "#/components/schemas/v1User"
           }
         },
-        "type": "object"
-      },
-      "v1ListAllResponse": {
         "type": "object"
       },
       "v1LoginRequest": {
@@ -248,10 +400,26 @@
         },
         "type": "object"
       },
-      "v1NewRequest": {
+      "v1NewLeaveRequest": {
+        "properties": {
+          "request": {
+            "$ref": "#/components/schemas/RequestData"
+          }
+        },
         "type": "object"
       },
-      "v1NewResponse": {
+      "v1NewLeaveResponse": {
+        "type": "object"
+      },
+      "v1NewTripRequest": {
+        "properties": {
+          "request": {
+            "$ref": "#/components/schemas/RequestData"
+          }
+        },
+        "type": "object"
+      },
+      "v1NewTripResponse": {
         "type": "object"
       },
       "v1RefreshRequest": {
@@ -291,7 +459,30 @@
       "v1RegisterResponse": {
         "type": "object"
       },
-      "v1RejectResponse": {
+      "v1RejectLeaveResponse": {
+        "type": "object"
+      },
+      "v1RejectTripResponse": {
+        "type": "object"
+      },
+      "v1Request": {
+        "properties": {
+          "approverId": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/RequestData"
+          },
+          "id": {
+            "type": "string"
+          },
+          "requesterId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
         "type": "object"
       },
       "v1ResetPasswordRequest": {
@@ -308,18 +499,25 @@
       "v1ResetPasswordResponse": {
         "type": "object"
       },
-      "v1Role": {
-        "default": "ROLE_STAFF_UNSPECIFIED",
-        "enum": [
-          "ROLE_STAFF_UNSPECIFIED",
-          "ROLE_ADMIN",
-          "ROLE_DIRECTOR",
-          "ROLE_MANAGER",
-          "ROLE_SUPERVISOR"
-        ],
-        "type": "string"
+      "v1TodayResponse": {
+        "properties": {
+          "png": {
+            "format": "byte",
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "v1UpdateLeaveResponse": {
+        "type": "object"
       },
       "v1UpdateResponse": {
+        "type": "object"
+      },
+      "v1UpdateTripResponse": {
         "type": "object"
       },
       "v1User": {
@@ -528,6 +726,41 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/v1GetCurrentResponse"
+                }
+              }
+            },
+            "description": "A successful response."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            },
+            "description": "An unexpected error response."
+          }
+        },
+        "tags": [
+          "AttendanceService"
+        ]
+      }
+    },
+    "/attendance/today": {
+      "post": {
+        "operationId": "AttendanceService_Today",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/authHeader"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/v1TodayResponse"
                 }
               }
             },
@@ -811,9 +1044,9 @@
         ]
       }
     },
-    "/leavereqs": {
+    "/dashboard": {
       "get": {
-        "operationId": "LeaveReqsService_ListAll",
+        "operationId": "DashboardService_Dashboard",
         "parameters": [
           {
             "$ref": "#/components/parameters/authHeader"
@@ -824,7 +1057,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/v1ListAllResponse"
+                  "$ref": "#/components/schemas/v1DashboardResponse"
                 }
               }
             },
@@ -842,13 +1075,62 @@
           }
         },
         "tags": [
-          "LeaveReqsService"
+          "DashboardService"
         ]
       }
     },
-    "/leavereqs/new": {
+    "/leave": {
+      "get": {
+        "operationId": "LeaveService_GetAllLeaves",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "byUserId",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/authHeader"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/v1GetAllLeavesResponse"
+                }
+              }
+            },
+            "description": "A successful response."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            },
+            "description": "An unexpected error response."
+          }
+        },
+        "tags": [
+          "LeaveService"
+        ]
+      }
+    },
+    "/leave/new": {
       "post": {
-        "operationId": "LeaveReqsService_New",
+        "operationId": "LeaveService_NewLeave",
         "parameters": [
           {
             "$ref": "#/components/parameters/authHeader"
@@ -858,7 +1140,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/v1NewRequest"
+                "$ref": "#/components/schemas/v1NewLeaveRequest"
               }
             }
           },
@@ -870,7 +1152,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/v1NewResponse"
+                  "$ref": "#/components/schemas/v1NewLeaveResponse"
                 }
               }
             },
@@ -888,13 +1170,13 @@
           }
         },
         "tags": [
-          "LeaveReqsService"
+          "LeaveService"
         ]
       }
     },
-    "/leavereqs/{id}": {
+    "/leave/{id}": {
       "get": {
-        "operationId": "LeaveReqsService_GetById",
+        "operationId": "LeaveService_GetLeaveById",
         "parameters": [
           {
             "in": "path",
@@ -913,7 +1195,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/v1GetByIdResponse"
+                  "$ref": "#/components/schemas/v1GetLeaveByIdResponse"
                 }
               }
             },
@@ -931,11 +1213,11 @@
           }
         },
         "tags": [
-          "LeaveReqsService"
+          "LeaveService"
         ]
       },
       "put": {
-        "operationId": "LeaveReqsService_Update",
+        "operationId": "LeaveService_UpdateLeave",
         "parameters": [
           {
             "in": "path",
@@ -953,7 +1235,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/LeaveReqsServiceUpdateBody"
+                "$ref": "#/components/schemas/LeaveServiceUpdateLeaveBody"
               }
             }
           },
@@ -965,7 +1247,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/v1UpdateResponse"
+                  "$ref": "#/components/schemas/v1UpdateLeaveResponse"
                 }
               }
             },
@@ -983,13 +1265,13 @@
           }
         },
         "tags": [
-          "LeaveReqsService"
+          "LeaveService"
         ]
       }
     },
-    "/leavereqs/{id}/approve": {
+    "/leave/{id}/approve": {
       "post": {
-        "operationId": "LeaveReqsService_Approve",
+        "operationId": "LeaveService_ApproveLeave",
         "parameters": [
           {
             "in": "path",
@@ -1008,7 +1290,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/v1ApproveResponse"
+                  "$ref": "#/components/schemas/v1ApproveLeaveResponse"
                 }
               }
             },
@@ -1026,13 +1308,13 @@
           }
         },
         "tags": [
-          "LeaveReqsService"
+          "LeaveService"
         ]
       }
     },
-    "/leavereqs/{id}/reject": {
+    "/leave/{id}/reject": {
       "post": {
-        "operationId": "LeaveReqsService_Reject",
+        "operationId": "LeaveService_RejectLeave",
         "parameters": [
           {
             "in": "path",
@@ -1046,12 +1328,23 @@
             "$ref": "#/components/parameters/authHeader"
           }
         ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LeaveServiceRejectLeaveBody"
+              }
+            }
+          },
+          "required": true,
+          "x-originalParamName": "body"
+        },
         "responses": {
           "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/v1RejectResponse"
+                  "$ref": "#/components/schemas/v1RejectLeaveResponse"
                 }
               }
             },
@@ -1069,7 +1362,7 @@
           }
         },
         "tags": [
-          "LeaveReqsService"
+          "LeaveService"
         ]
       }
     },
@@ -1105,6 +1398,433 @@
         },
         "tags": [
           "UsersService"
+        ]
+      }
+    },
+    "/me/leave": {
+      "get": {
+        "operationId": "LeaveService_GetCurrentLeaves",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/authHeader"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/v1GetCurrentLeavesResponse"
+                }
+              }
+            },
+            "description": "A successful response."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            },
+            "description": "An unexpected error response."
+          }
+        },
+        "tags": [
+          "LeaveService"
+        ]
+      }
+    },
+    "/me/trip": {
+      "get": {
+        "operationId": "TripService_GetCurrentTrips",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/authHeader"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/v1GetCurrentTripsResponse"
+                }
+              }
+            },
+            "description": "A successful response."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            },
+            "description": "An unexpected error response."
+          }
+        },
+        "tags": [
+          "TripService"
+        ]
+      }
+    },
+    "/pending/leave": {
+      "get": {
+        "operationId": "LeaveService_GetAllPendingLeaves",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/authHeader"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/v1GetAllPendingLeavesResponse"
+                }
+              }
+            },
+            "description": "A successful response."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            },
+            "description": "An unexpected error response."
+          }
+        },
+        "tags": [
+          "LeaveService"
+        ]
+      }
+    },
+    "/pending/trip": {
+      "get": {
+        "operationId": "TripService_GetAllPendingTrips",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/authHeader"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/v1GetAllPendingTripsResponse"
+                }
+              }
+            },
+            "description": "A successful response."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            },
+            "description": "An unexpected error response."
+          }
+        },
+        "tags": [
+          "TripService"
+        ]
+      }
+    },
+    "/trip": {
+      "get": {
+        "operationId": "TripService_GetAllTrips",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "byUserId",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/authHeader"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/v1GetAllTripsResponse"
+                }
+              }
+            },
+            "description": "A successful response."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            },
+            "description": "An unexpected error response."
+          }
+        },
+        "tags": [
+          "TripService"
+        ]
+      }
+    },
+    "/trip/new": {
+      "post": {
+        "operationId": "TripService_NewTrip",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/authHeader"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/v1NewTripRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-originalParamName": "body"
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/v1NewTripResponse"
+                }
+              }
+            },
+            "description": "A successful response."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            },
+            "description": "An unexpected error response."
+          }
+        },
+        "tags": [
+          "TripService"
+        ]
+      }
+    },
+    "/trip/{id}": {
+      "get": {
+        "operationId": "TripService_GetTripById",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/authHeader"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/v1GetTripByIdResponse"
+                }
+              }
+            },
+            "description": "A successful response."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            },
+            "description": "An unexpected error response."
+          }
+        },
+        "tags": [
+          "TripService"
+        ]
+      },
+      "put": {
+        "operationId": "TripService_UpdateTrip",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/authHeader"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TripServiceUpdateTripBody"
+              }
+            }
+          },
+          "required": true,
+          "x-originalParamName": "body"
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/v1UpdateTripResponse"
+                }
+              }
+            },
+            "description": "A successful response."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            },
+            "description": "An unexpected error response."
+          }
+        },
+        "tags": [
+          "TripService"
+        ]
+      }
+    },
+    "/trip/{id}/approve": {
+      "post": {
+        "operationId": "TripService_ApproveTrip",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/authHeader"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/v1ApproveTripResponse"
+                }
+              }
+            },
+            "description": "A successful response."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            },
+            "description": "An unexpected error response."
+          }
+        },
+        "tags": [
+          "TripService"
+        ]
+      }
+    },
+    "/trip/{id}/reject": {
+      "post": {
+        "operationId": "TripService_RejectTrip",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/authHeader"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TripServiceRejectTripBody"
+              }
+            }
+          },
+          "required": true,
+          "x-originalParamName": "body"
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/v1RejectTripResponse"
+                }
+              }
+            },
+            "description": "A successful response."
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/rpcStatus"
+                }
+              }
+            },
+            "description": "An unexpected error response."
+          }
+        },
+        "tags": [
+          "TripService"
         ]
       }
     },
@@ -1444,10 +2164,16 @@
       "name": "AuthService"
     },
     {
+      "name": "TripService"
+    },
+    {
       "name": "UsersService"
     },
     {
-      "name": "LeaveReqsService"
+      "name": "LeaveService"
+    },
+    {
+      "name": "DashboardService"
     },
     {
       "name": "AttendanceService"

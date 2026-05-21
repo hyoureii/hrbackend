@@ -1,26 +1,37 @@
 syntax = "proto3";
 package attendance.v1;
 
+import "buf/validate/validate.proto";
 import "google/api/annotations.proto";
 
 option go_package = "github.com/hyoureii/hrbackend/gen/attendance/v1;attendance";
 
 message Attendance {
-  int64 scanned_at = 1;
+  int64 scanned_at = 1 [(buf.validate.field).required = true];
 }
 
 message CheckInRequest {
-  string payload = 1;
+  string payload = 1 [(buf.validate.field).required = true];
 }
 message CheckInResponse {}
+
 message CheckOutRequest {
-  string payload = 1;
+  string payload = 1 [(buf.validate.field).required = true];
 }
 message CheckOutResponse {}
+
 message GenerateRequest {}
 message GenerateResponse {
-  string url = 1;
+  bytes png = 1;
+  string url = 2;
 }
+
+message TodayRequest {}
+message TodayResponse {
+  bytes png = 1;
+  string url = 2;
+}
+
 message GetAllAttendanceRequest {}
 message GetAllAttendanceResponse {
   message UserAttendance {
@@ -29,12 +40,14 @@ message GetAllAttendanceResponse {
   }
   repeated UserAttendance user_attendance = 1;
 }
+
 message GetAttendanceByIdRequest {
-  string id = 1;
+  string id = 1 [(buf.validate.field).string.uuid = true];
 }
 message GetAttendanceByIdResponse {
   repeated Attendance attendance = 1;
 }
+
 message GetCurrentRequest {}
 message GetCurrentResponse {
   repeated Attendance attendance = 1;
@@ -57,6 +70,10 @@ service AttendanceService {
 
   rpc Generate(GenerateRequest) returns (GenerateResponse) {
     option (google.api.http) = {post: "/attendance/generate"};
+  }
+
+  rpc Today(TodayRequest) returns (TodayResponse) {
+    option (google.api.http) = {post: "/attendance/today"};
   }
 
   rpc GetAllAttendance(GetAllAttendanceRequest) returns (GetAllAttendanceResponse) {

@@ -13,6 +13,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type tokenResponse struct {
@@ -31,7 +32,15 @@ func NewAuthServiceServer(db *gorm.DB) *AuthServiceServer {
 }
 
 func (s AuthServiceServer) Login(c context.Context, r *auth.LoginRequest) (*auth.LoginResponse, error) {
-	user, err := gorm.G[models.User](s.db).Where("email = ?", r.Email).First(c)
+	valid, err := lib.ValidatePassword(r.Password)
+	if err != nil {
+		return nil, err
+	}
+	if !valid {
+		return nil, status.Error(codes.InvalidArgument, "Password format invalid")
+	}
+
+	user, err := gorm.G[models.User](s.db).Joins(clause.LeftJoin.Association("Role"), nil).Where("email = ?", r.Email).First(c)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, status.Error(codes.NotFound, "User not found")
@@ -43,7 +52,12 @@ func (s AuthServiceServer) Login(c context.Context, r *auth.LoginRequest) (*auth
 		return nil, status.Error(codes.Unauthenticated, "Incorrect password")
 	}
 
-	t, err := rotateRefreshToken(c, s.db, user.ID, false)
+	perms, err := getUserPermissions(c, s.db, user.RoleID)
+	if err != nil {
+		return nil, err
+	}
+
+	t, err := rotateRefreshToken(c, s.db, user.ID, user.Role.Name, perms, false)
 	if err != nil {
 		return nil, err
 	}
@@ -57,12 +71,25 @@ func (s AuthServiceServer) Login(c context.Context, r *auth.LoginRequest) (*auth
 
 func (s AuthServiceServer) Refresh(c context.Context, r *auth.RefreshRequest) (*auth.RefreshResponse, error) {
 	token := r.RefreshToken
-	claims, err := lib.ValidateJWT(token)
+	claims, err := lib.ValidateJwt(token)
 	if err != nil {
 		return nil, status.Error(codes.Unauthenticated, "Invalid refresh token")
 	}
 
-	t, err := rotateRefreshToken(c, s.db, claims.Subject, true)
+	user, err := gorm.G[models.User](s.db).Joins(clause.LeftJoin.Association("Role"), nil).Where("users.id = ?", claims.Subject).First(c)
+	if err != nil {
+		return nil, err
+	}
+
+	perms, err := getUserPermissions(c, s.db, user.RoleID)
+	if err != nil {
+		return nil, err
+	}
+
+	t, err := rotateRefreshToken(c, s.db, claims.Subject, user.Role.Name, perms, true)
+	if err != nil {
+		return nil, err
+	}
 	return &auth.RefreshResponse{
 		AccessToken:  t.AccessToken,
 		RefreshToken: t.RefreshToken,
@@ -90,6 +117,21 @@ func (s AuthServiceServer) Logout(c context.Context, r *auth.LogoutRequest) (*au
 }
 
 func (s AuthServiceServer) ChangePassword(c context.Context, r *auth.ChangePasswordRequest) (*auth.ChangePasswordResponse, error) {
+	valid, err := lib.ValidatePassword(r.OldPassword)
+	if err != nil {
+		return nil, err
+	}
+	if !valid {
+		return nil, status.Error(codes.InvalidArgument, "Password format invalid")
+	}
+	valid, err = lib.ValidatePassword(r.NewPassword)
+	if err != nil {
+		return nil, err
+	}
+	if !valid {
+		return nil, status.Error(codes.InvalidArgument, "Password format invalid")
+	}
+
 	claims := c.Value(middleware.ClaimsKey).(*lib.Claims)
 	user, err := gorm.G[models.User](s.db).Where("id = ?", claims.Subject).First(c)
 	if err != nil {
@@ -113,6 +155,14 @@ func (s AuthServiceServer) ChangePassword(c context.Context, r *auth.ChangePassw
 }
 
 func (s AuthServiceServer) ResetPassword(c context.Context, r *auth.ResetPasswordRequest) (*auth.ResetPasswordResponse, error) {
+	valid, err := lib.ValidatePassword(r.NewPassword)
+	if err != nil {
+		return nil, err
+	}
+	if !valid {
+		return nil, status.Error(codes.InvalidArgument, "Password format invalid")
+	}
+
 	hash, err := lib.HashPassword(r.NewPassword)
 	if err != nil {
 		return nil, err
@@ -128,17 +178,23 @@ func (s AuthServiceServer) ResetPassword(c context.Context, r *auth.ResetPasswor
 	return &auth.ResetPasswordResponse{}, nil
 }
 
-func rotateRefreshToken(c context.Context, db *gorm.DB, userId string, refreshing bool) (*tokenResponse, error) {
+func rotateRefreshToken(c context.Context, db *gorm.DB, userId string, role string, perms []string, refreshing bool) (*tokenResponse, error) {
 	accessExp := time.Now().Add(time.Minute * 5)
 	refreshExp := time.Now().Add(time.Hour * 24 * 7)
 
-	refreshToken := lib.GenerateJWT(lib.ClaimRefresh, userId, refreshExp)
+	refreshToken, err := lib.GenerateAccessRefresh(lib.ClaimRefresh, userId, role, perms, refreshExp)
+	if err != nil {
+		return nil, err
+	}
 	hashStr := lib.HashToken(refreshToken)
 	rows, err := gorm.G[models.RefreshToken](db).Where("user_id = ?", userId).Find(c)
 	if err != nil {
 		return nil, err
 	}
 	if refreshing {
+		if len(rows) <= 0 {
+			return nil, status.Error(codes.Unauthenticated, "Refresh token invalid")
+		}
 		latest := rows[0]
 		for _, token := range rows {
 			if time.Unix(token.ExpiredAt, 0).After(time.Unix(latest.ExpiredAt, 0)) {
@@ -174,10 +230,27 @@ func rotateRefreshToken(c context.Context, db *gorm.DB, userId string, refreshin
 	if err != nil {
 		return nil, err
 	}
+	accessToken, err := lib.GenerateAccessRefresh(lib.ClaimAccess, userId, role, perms, accessExp)
+	if err != nil {
+		return nil, err
+	}
 
 	return &tokenResponse{
-		AccessToken:  lib.GenerateJWT(lib.ClaimAccess, userId, accessExp),
+		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 		ExpTime:      accessExp.Unix(),
 	}, nil
+}
+
+func getUserPermissions(c context.Context, db *gorm.DB, roleID string) ([]string, error) {
+	rolePerms, err := gorm.G[models.RolePermission](db).Joins(clause.LeftJoin.Association("Permission"), nil).Where("role_id = ?", roleID).Find(c)
+	if err != nil {
+		return nil, err
+	}
+
+	perms := make([]string, len(rolePerms))
+	for i, rp := range rolePerms {
+		perms[i] = rp.Permission.Codename
+	}
+	return perms, nil
 }

@@ -7,3 +7,9 @@ type Attendance struct {
 	ScannedAt int64  `gorm:"not null;index:idx_attendance,unique"`
 	Payload   string `gorm:"not null"`
 }
+
+type QrCode struct {
+	Base
+	ExpiredAt int64  `gorm:"not null"`
+	Payload   string `gorm:"not null"`
+}

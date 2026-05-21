@@ -1,0 +1,93 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "dashboard/v1/dashboard.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "DashboardService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/dashboard": {
+      "get": {
+        "operationId": "DashboardService_Dashboard",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1DashboardResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "DashboardService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "v1DashboardResponse": {
+      "type": "object",
+      "properties": {
+        "attendanceRate": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "pendingLeave": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "pendingTrip": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "totalUser": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    }
+  }
+}

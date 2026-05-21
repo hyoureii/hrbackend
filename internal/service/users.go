@@ -12,6 +12,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type UsersServiceServer struct {
@@ -24,6 +25,14 @@ func NewUsersServiceServer(db *gorm.DB) *UsersServiceServer {
 }
 
 func (s UsersServiceServer) Register(c context.Context, r *users.RegisterRequest) (*users.RegisterResponse, error) {
+	valid, err := lib.ValidatePassword(r.Password)
+	if err != nil {
+		return nil, err
+	}
+	if !valid {
+		return nil, status.Error(codes.InvalidArgument, "Password format invalid")
+	}
+
 	hash, err := lib.HashPassword(r.Password)
 	if err != nil {
 		return nil, err
@@ -33,13 +42,17 @@ func (s UsersServiceServer) Register(c context.Context, r *users.RegisterRequest
 	if err != nil {
 		return nil, err
 	}
+	roleId, err := getRoleID(c, r.Data.Role, s.db)
+	if err != nil {
+		return nil, err
+	}
 	newUser := &models.User{
 		Base: models.Base{
 			ID: id.String(),
 		},
 		FirstName: r.Data.FirstName,
 		LastName:  r.Data.LastName,
-		Role:      r.Data.Role,
+		RoleID:    roleId,
 		AvatarURL: r.Data.AvatarUrl,
 		Email:     r.Data.Email,
 		Password:  string(hash),
@@ -56,7 +69,7 @@ func (s UsersServiceServer) Register(c context.Context, r *users.RegisterRequest
 }
 
 func (s UsersServiceServer) GetAllUsers(c context.Context, r *users.GetAllUsersRequest) (*users.GetAllUsersResponse, error) {
-	usersRes, err := gorm.G[models.User](s.db).Find(c)
+	usersRes, err := gorm.G[models.User](s.db).Joins(clause.LeftJoin.Association("Role"), nil).Find(c)
 	if err != nil {
 		return nil, err
 	}
@@ -69,7 +82,7 @@ func (s UsersServiceServer) GetAllUsers(c context.Context, r *users.GetAllUsersR
 				Email:     user.Email,
 				FirstName: user.FirstName,
 				LastName:  user.LastName,
-				Role:      user.Role,
+				Role:      user.Role.Name,
 				AvatarUrl: user.AvatarURL,
 			},
 			IsActive:  user.IsActive,
@@ -82,7 +95,7 @@ func (s UsersServiceServer) GetAllUsers(c context.Context, r *users.GetAllUsersR
 }
 
 func (s UsersServiceServer) GetUserById(c context.Context, r *users.GetUserByIdRequest) (*users.GetUserByIdResponse, error) {
-	user, err := gorm.G[models.User](s.db).Where("id = ?", r.Id).First(c)
+	user, err := gorm.G[models.User](s.db).Joins(clause.LeftJoin.Association("Role"), nil).Where("users.id = ?", r.Id).First(c)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, status.Error(codes.NotFound, "User not found")
@@ -97,7 +110,7 @@ func (s UsersServiceServer) GetUserById(c context.Context, r *users.GetUserByIdR
 				Email:     user.Email,
 				FirstName: user.FirstName,
 				LastName:  user.LastName,
-				Role:      user.Role,
+				Role:      user.Role.Name,
 				AvatarUrl: user.AvatarURL,
 			},
 			IsActive:  user.IsActive,
@@ -109,7 +122,7 @@ func (s UsersServiceServer) GetUserById(c context.Context, r *users.GetUserByIdR
 
 func (s UsersServiceServer) Me(c context.Context, r *users.MeRequest) (*users.MeResponse, error) {
 	claims := c.Value(middleware.ClaimsKey).(*lib.Claims)
-	user, err := gorm.G[models.User](s.db).Where("id = ?", claims.Subject).First(c)
+	user, err := gorm.G[models.User](s.db).Joins(clause.LeftJoin.Association("Role"), nil).Where("users.id = ?", claims.Subject).First(c)
 	if err != nil {
 		return nil, err
 	}
@@ -121,7 +134,7 @@ func (s UsersServiceServer) Me(c context.Context, r *users.MeRequest) (*users.Me
 				Email:     user.Email,
 				FirstName: user.FirstName,
 				LastName:  user.LastName,
-				Role:      user.Role,
+				Role:      user.Role.Name,
 				AvatarUrl: user.AvatarURL,
 			},
 			IsActive:  user.IsActive,
@@ -140,7 +153,9 @@ func (s UsersServiceServer) Deactivate(c context.Context, r *users.DeactivateReq
 		return nil, err
 	}
 
-	if !user.IsActive { return nil, status.Error(codes.InvalidArgument, "User is non-active")}
+	if !user.IsActive {
+		return nil, status.Error(codes.InvalidArgument, "User is non-active")
+	}
 
 	_, err = gorm.G[models.User](s.db).Where("id = ?", user.ID).Update(c, "is_active", false)
 	if err != nil {
@@ -159,7 +174,9 @@ func (s UsersServiceServer) Activate(c context.Context, r *users.ActivateRequest
 		return nil, err
 	}
 
-	if user.IsActive { return nil, status.Error(codes.InvalidArgument, "User is active")}
+	if user.IsActive {
+		return nil, status.Error(codes.InvalidArgument, "User is active")
+	}
 
 	_, err = gorm.G[models.User](s.db).Where("id = ?", user.ID).Update(c, "is_active", true)
 	if err != nil {
@@ -170,12 +187,16 @@ func (s UsersServiceServer) Activate(c context.Context, r *users.ActivateRequest
 }
 
 func (s UsersServiceServer) Update(c context.Context, r *users.UpdateRequest) (*users.UpdateResponse, error) {
-	_, err := gorm.G[models.User](s.db).Where("id = ?", r.Id).Select("email", "first_name", "last_name", "avatar_url", "role").Updates(c, models.User{
+	roleId, err := getRoleID(c, r.Data.Role, s.db)
+	if err != nil {
+		return nil, err
+	}
+	_, err = gorm.G[models.User](s.db).Where("id = ?", r.Id).Select("email", "first_name", "last_name", "avatar_url", "role_id").Updates(c, models.User{
 		Email:     r.Data.Email,
 		FirstName: r.Data.FirstName,
 		LastName:  r.Data.LastName,
 		AvatarURL: r.Data.AvatarUrl,
-		Role:      r.Data.Role,
+		RoleID:    roleId,
 	})
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -197,4 +218,20 @@ func (s UsersServiceServer) Delete(c context.Context, r *users.DeleteRequest) (*
 	}
 
 	return &users.DeleteResponse{}, nil
+}
+
+func getRoleID(c context.Context, roleName string, db *gorm.DB) (string, error) {
+	role, err := gorm.G[models.Role](db).Where("name = ?", roleName).First(c)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			def, err := gorm.G[models.Role](db).Where("name = ?", "Staff").First(c)
+			if err != nil {
+				return "", err
+			}
+			return def.ID, nil
+		}
+		return "", err
+	}
+
+	return role.ID, nil
 }

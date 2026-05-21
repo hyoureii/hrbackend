@@ -491,29 +491,29 @@ var File_auth_v1_auth_proto protoreflect.FileDescriptor
 
 const file_auth_v1_auth_proto_rawDesc = "" +
 	"\n" +
-	"\x12auth/v1/auth.proto\x12\aauth.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\"@\n" +
-	"\fLoginRequest\x12\x14\n" +
-	"\x05email\x18\x01 \x01(\tR\x05email\x12\x1a\n" +
-	"\bpassword\x18\x02 \x01(\tR\bpassword\"r\n" +
+	"\x12auth/v1/auth.proto\x12\aauth.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\"R\n" +
+	"\fLoginRequest\x12\x1d\n" +
+	"\x05email\x18\x01 \x01(\tB\a\xbaH\x04r\x02`\x01R\x05email\x12#\n" +
+	"\bpassword\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\bR\bpassword\"r\n" +
 	"\rLoginResponse\x12!\n" +
 	"\faccess_token\x18\x01 \x01(\tR\vaccessToken\x12#\n" +
 	"\rrefresh_token\x18\x02 \x01(\tR\frefreshToken\x12\x19\n" +
-	"\bexp_time\x18\x03 \x01(\x03R\aexpTime\"5\n" +
-	"\x0eRefreshRequest\x12#\n" +
-	"\rrefresh_token\x18\x01 \x01(\tR\frefreshToken\"t\n" +
+	"\bexp_time\x18\x03 \x01(\x03R\aexpTime\"=\n" +
+	"\x0eRefreshRequest\x12+\n" +
+	"\rrefresh_token\x18\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\frefreshToken\"t\n" +
 	"\x0fRefreshResponse\x12!\n" +
 	"\faccess_token\x18\x01 \x01(\tR\vaccessToken\x12#\n" +
 	"\rrefresh_token\x18\x02 \x01(\tR\frefreshToken\x12\x19\n" +
 	"\bexp_time\x18\x03 \x01(\x03R\aexpTime\"\x0f\n" +
 	"\rLogoutRequest\"\x10\n" +
-	"\x0eLogoutResponse\"]\n" +
-	"\x15ChangePasswordRequest\x12!\n" +
-	"\fold_password\x18\x01 \x01(\tR\voldPassword\x12!\n" +
-	"\fnew_password\x18\x02 \x01(\tR\vnewPassword\"\x18\n" +
-	"\x16ChangePasswordResponse\"I\n" +
-	"\x14ResetPasswordRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12!\n" +
-	"\fnew_password\x18\x02 \x01(\tR\vnewPassword\"\x17\n" +
+	"\x0eLogoutResponse\"o\n" +
+	"\x15ChangePasswordRequest\x12*\n" +
+	"\fold_password\x18\x01 \x01(\tB\a\xbaH\x04r\x02\x10\bR\voldPassword\x12*\n" +
+	"\fnew_password\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\bR\vnewPassword\"\x18\n" +
+	"\x16ChangePasswordResponse\"\\\n" +
+	"\x14ResetPasswordRequest\x12\x18\n" +
+	"\x02id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12*\n" +
+	"\fnew_password\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\bR\vnewPassword\"\x17\n" +
 	"\x15ResetPasswordResponse2\xda\x03\n" +
 	"\vAuthService\x12N\n" +
 	"\x05Login\x12\x15.auth.v1.LoginRequest\x1a\x16.auth.v1.LoginResponse\"\x16\x82\xd3\xe4\x93\x02\x10:\x01*\"\v/auth/login\x12V\n" +

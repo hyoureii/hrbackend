@@ -15,3 +15,8 @@ plugins:
       - paths=source_relative
   - local: protoc-gen-openapiv2
     out: gen
+managed:
+  enabled: true
+  disable:
+    - file_option: go_package
+      module: buf.build/bufbuild/protovalidate

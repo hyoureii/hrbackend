@@ -277,7 +277,7 @@
           "type": "string"
         },
         "role": {
-          "$ref": "#/definitions/v1Role"
+          "type": "string"
         },
         "avatarUrl": {
           "type": "string"
@@ -376,17 +376,6 @@
     },
     "v1RegisterResponse": {
       "type": "object"
-    },
-    "v1Role": {
-      "type": "string",
-      "enum": [
-        "ROLE_STAFF_UNSPECIFIED",
-        "ROLE_ADMIN",
-        "ROLE_DIRECTOR",
-        "ROLE_MANAGER",
-        "ROLE_SUPERVISOR"
-      ],
-      "default": "ROLE_STAFF_UNSPECIFIED"
     },
     "v1UpdateResponse": {
       "type": "object"

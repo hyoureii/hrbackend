@@ -7,7 +7,6 @@ import (
 	"log"
 
 	"github.com/google/uuid"
-	"github.com/hyoureii/hrbackend/gen/users/v1"
 	"github.com/hyoureii/hrbackend/internal/config"
 	"github.com/hyoureii/hrbackend/internal/lib"
 	"github.com/hyoureii/hrbackend/models"
@@ -22,6 +21,64 @@ func main() {
 		log.Fatalf("Failed to connect: %s", err)
 	}
 
+	roles := []models.Role{
+		newRole("staff"),
+		newRole("supervisor"),
+		newRole("manager"),
+		newRole("director"),
+		newRole("admin"),
+	}
+
+	permissions := []models.Permission{
+		newPermission("addLeaveRequest"),
+		newPermission("manageLeaveRequest"),
+		newPermission("addTripRequest"),
+		newPermission("manageTripRequest"),
+		newPermission("manageUsers"),
+		newPermission("createAttendanceQR"),
+	}
+
+	for _, role := range roles {
+		err = gorm.G[models.Role](db).Create(context.Background(), &role)
+		if err != nil {
+			log.Fatalf("Failed to seed: %s", err)
+		}
+	}
+
+	for _, perm := range permissions {
+		err = gorm.G[models.Permission](db).Create(context.Background(), &perm)
+		if err != nil {
+			log.Fatalf("Failed to seed: %s", err)
+		}
+	}
+
+	permMap := map[string]models.Permission{}
+	for _, p := range permissions {
+		permMap[p.Codename] = p
+	}
+
+	rolePermissions := map[int][]string{
+		0: {"addLeaveRequest", "manageLeaveRequest", "addTripRequest", "manageTripRequest", "manageUsers", "createAttendanceQR"},
+		1: {"addLeaveRequest", "manageLeaveRequest", "addTripRequest", "manageTripRequest"},
+		2: {"addLeaveRequest", "manageLeaveRequest", "addTripRequest", "manageTripRequest", "manageUsers", "createAttendanceQR"},
+		3: {"addLeaveRequest", "manageLeaveRequest", "addTripRequest", "manageTripRequest"},
+		4: {"addLeaveRequest", "addTripRequest"},
+	}
+
+	for roleIdx, codenames := range rolePermissions {
+		for _, codename := range codenames {
+			rp := models.RolePermission{
+				Base:         models.Base{ID: uuid.NewString()},
+				RoleID:       roles[roleIdx].ID,
+				PermissionID: permMap[codename].ID,
+			}
+			err = gorm.G[models.RolePermission](db).Create(context.Background(), &rp)
+			if err != nil {
+				log.Fatalf("Failed to seed role permission: %s", err)
+			}
+		}
+	}
+
 	dummyUsers := []models.User{
 		{
 			Base: models.Base{
@@ -29,9 +86,9 @@ func main() {
 			},
 			FirstName: "Hafizryandin Haykal",
 			LastName:  "Matondang",
-			Role:      users.Role_ROLE_ADMIN,
+			RoleID:    roles[4].ID,
 			Email:     "admin@hrconnect.org",
-			Password:  hash("admin123"),
+			Password:  hash("Admin@123"),
 		},
 		{
 			Base: models.Base{
@@ -39,9 +96,9 @@ func main() {
 			},
 			FirstName: "Fathir",
 			LastName:  "RIH",
-			Role:      users.Role_ROLE_DIRECTOR,
+			RoleID:    roles[3].ID,
 			Email:     "director@hrconnect.org",
-			Password:  hash("director123"),
+			Password:  hash("Director@123"),
 		},
 		{
 			Base: models.Base{
@@ -49,9 +106,9 @@ func main() {
 			},
 			FirstName: "Nopal",
 			LastName:  "Pradana",
-			Role:      users.Role_ROLE_MANAGER,
+			RoleID:    roles[2].ID,
 			Email:     "manager@hrconnect.org",
-			Password:  hash("manager123"),
+			Password:  hash("Manager@123"),
 		},
 		{
 			Base: models.Base{
@@ -59,9 +116,9 @@ func main() {
 			},
 			FirstName: "Haidar",
 			LastName:  "Zahran",
-			Role:      users.Role_ROLE_SUPERVISOR,
+			RoleID:    roles[1].ID,
 			Email:     "supervisor@hrconnect.org",
-			Password:  hash("supervisor123"),
+			Password:  hash("Supervisor@123"),
 		},
 		{
 			Base: models.Base{
@@ -69,9 +126,9 @@ func main() {
 			},
 			FirstName: "Cecep",
 			LastName:  "Wijaya",
-			Role:      users.Role_ROLE_STAFF_UNSPECIFIED,
+			RoleID:    roles[0].ID,
 			Email:     "staff@hrconnect.org",
-			Password:  hash("staff123"),
+			Password:  hash("Staff@123"),
 		},
 	}
 
@@ -80,6 +137,24 @@ func main() {
 		if err != nil {
 			log.Fatalf("Failed to seed: %s", err)
 		}
+	}
+}
+
+func newRole(name string) models.Role {
+	return models.Role{
+		Base: models.Base{
+			ID: uuid.NewString(),
+		},
+		Name: name,
+	}
+}
+
+func newPermission(codename string) models.Permission {
+	return models.Permission{
+		Base: models.Base{
+			ID: uuid.NewString(),
+		},
+		Codename: codename,
 	}
 }
 

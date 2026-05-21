@@ -1,0 +1,98 @@
+syntax = "proto3";
+package request.v1;
+
+import "buf/validate/validate.proto";
+import "google/api/annotations.proto";
+import "request/v1/request.proto";
+
+option go_package = "github.com/hyoureii/hrbackend/gen/request/v1;request";
+
+message NewLeaveRequest {
+  Request.Data request = 1;
+}
+message NewLeaveResponse {}
+
+message GetAllLeavesRequest {
+  optional string by_user_id = 1 [(buf.validate.field).string.uuid = true];
+  optional string status = 2;
+}
+message GetAllLeavesResponse {
+  repeated Request requests = 1;
+}
+
+message GetCurrentLeavesRequest {}
+message GetCurrentLeavesResponse {
+  repeated Request requests = 1;
+}
+
+message GetAllPendingLeavesRequest {}
+message GetAllPendingLeavesResponse {
+  repeated Request requests = 1;
+}
+
+message GetLeaveByIdRequest {
+  string id = 1 [(buf.validate.field).string.uuid = true];
+}
+message GetLeaveByIdResponse {
+  Request request = 1;
+}
+
+message UpdateLeaveRequest {
+  string id = 1 [(buf.validate.field).string.uuid = true];
+  Request.Data request = 2;
+}
+message UpdateLeaveResponse {}
+
+message ApproveLeaveRequest {
+  string id = 1 [(buf.validate.field).string.uuid = true];
+}
+message ApproveLeaveResponse {}
+
+message RejectLeaveRequest {
+  string id = 1 [(buf.validate.field).string.uuid = true];
+  string reason = 2 [(buf.validate.field).required = true];
+}
+message RejectLeaveResponse {}
+
+service LeaveService {
+  rpc NewLeave(NewLeaveRequest) returns (NewLeaveResponse) {
+    option (google.api.http) = {
+      post: "/leave/new"
+      body: "*"
+    };
+  }
+
+  rpc GetAllLeaves(GetAllLeavesRequest) returns (GetAllLeavesResponse) {
+    option (google.api.http) = {get: "/leave"};
+  }
+
+  rpc GetCurrentLeaves(GetCurrentLeavesRequest) returns (GetCurrentLeavesResponse) {
+    option (google.api.http) = {get: "/me/leave"};
+  }
+
+  rpc GetAllPendingLeaves(GetAllPendingLeavesRequest) returns (GetAllPendingLeavesResponse) {
+    option (google.api.http) = {get: "/pending/leave"};
+  }
+
+  rpc GetLeaveById(GetLeaveByIdRequest) returns (GetLeaveByIdResponse) {
+    option (google.api.http) = {get: "/leave/{id}"};
+  }
+
+  rpc UpdateLeave(UpdateLeaveRequest) returns (UpdateLeaveResponse) {
+    option (google.api.http) = {
+      put: "/leave/{id}"
+      body: "*"
+    };
+  }
+
+  rpc ApproveLeave(ApproveLeaveRequest) returns (ApproveLeaveResponse) {
+    option (google.api.http) = {post: "/leave/{id}/approve"};
+  }
+
+  rpc RejectLeave(RejectLeaveRequest) returns (RejectLeaveResponse) {
+    option (google.api.http) = {
+      post: "/leave/{id}/reject"
+      body: "*"
+    };
+  }
+}

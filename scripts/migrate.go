@@ -3,7 +3,10 @@
 package main
 
 import (
+	"context"
+	"fmt"
 	"os"
+	"strings"
 
 	"github.com/hyoureii/hrbackend/internal/config"
 	"github.com/hyoureii/hrbackend/models"
@@ -45,12 +48,48 @@ func main() {
 			}
 		}
 
-		err = m.CreateTable(&models.User{}, &models.RefreshToken{}, &models.Attendance{})
-		if err != nil {
+		createEnum("request_status", goEnumToDB(models.RequestStatuses), db)
+		createEnum("leave_type", goEnumToDB(models.LeaveTypes), db)
+		createEnum("trip_type", goEnumToDB(models.TripTypes), db)
+
+		if err := m.CreateTable(
+			&models.Role{},
+			&models.Permission{},
+			&models.RolePermission{},
+			&models.User{},
+			&models.RefreshToken{},
+			&models.Attendance{},
+			&models.Leave{},
+			&models.Trip{},
+		); err != nil {
 			panic(err)
 		}
 
 	default:
 		panic(help)
 	}
+}
+
+func createEnum(name, query string, db *gorm.DB) {
+	if err := gorm.G[any](db).Exec(
+		context.Background(),
+		fmt.Sprintf("CREATE TYPE %s AS ENUM %s", name, query),
+	); err != nil {
+		panic(err)
+	}
+}
+
+func goEnumToDB[T ~string](enum []T) string {
+	dbEnum := ""
+	for index, item := range enum {
+		strItem := string(item)
+		strItem = fmt.Sprintf("'%s'", strItem)
+		if index == 0 {
+			dbEnum = strItem
+		} else {
+			dbEnum = strings.Join([]string{dbEnum, strItem}, ",")
+		}
+	}
+	dbEnum = fmt.Sprintf("(%s)", dbEnum)
+	return dbEnum
 }

@@ -7,6 +7,7 @@
 package users
 
 import (
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -21,61 +22,6 @@ const (
 	// Verify that runtime/protoimpl is sufficiently up-to-date.
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
-
-type Role int32
-
-const (
-	Role_ROLE_STAFF_UNSPECIFIED Role = 0
-	Role_ROLE_ADMIN             Role = 1
-	Role_ROLE_DIRECTOR          Role = 2
-	Role_ROLE_MANAGER           Role = 3
-	Role_ROLE_SUPERVISOR        Role = 4
-)
-
-// Enum value maps for Role.
-var (
-	Role_name = map[int32]string{
-		0: "ROLE_STAFF_UNSPECIFIED",
-		1: "ROLE_ADMIN",
-		2: "ROLE_DIRECTOR",
-		3: "ROLE_MANAGER",
-		4: "ROLE_SUPERVISOR",
-	}
-	Role_value = map[string]int32{
-		"ROLE_STAFF_UNSPECIFIED": 0,
-		"ROLE_ADMIN":             1,
-		"ROLE_DIRECTOR":          2,
-		"ROLE_MANAGER":           3,
-		"ROLE_SUPERVISOR":        4,
-	}
-)
-
-func (x Role) Enum() *Role {
-	p := new(Role)
-	*p = x
-	return p
-}
-
-func (x Role) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (Role) Descriptor() protoreflect.EnumDescriptor {
-	return file_users_v1_users_proto_enumTypes[0].Descriptor()
-}
-
-func (Role) Type() protoreflect.EnumType {
-	return &file_users_v1_users_proto_enumTypes[0]
-}
-
-func (x Role) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use Role.Descriptor instead.
-func (Role) EnumDescriptor() ([]byte, []int) {
-	return file_users_v1_users_proto_rawDescGZIP(), []int{0}
-}
 
 type User struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -822,7 +768,7 @@ type User_Data struct {
 	Email         string                 `protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty"`
 	FirstName     string                 `protobuf:"bytes,2,opt,name=first_name,json=firstName,proto3" json:"first_name,omitempty"`
 	LastName      string                 `protobuf:"bytes,3,opt,name=last_name,json=lastName,proto3" json:"last_name,omitempty"`
-	Role          Role                   `protobuf:"varint,4,opt,name=role,proto3,enum=users.v1.Role" json:"role,omitempty"`
+	Role          string                 `protobuf:"bytes,4,opt,name=role,proto3" json:"role,omitempty"`
 	AvatarUrl     *string                `protobuf:"bytes,5,opt,name=avatar_url,json=avatarUrl,proto3,oneof" json:"avatar_url,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -879,11 +825,11 @@ func (x *User_Data) GetLastName() string {
 	return ""
 }
 
-func (x *User_Data) GetRole() Role {
+func (x *User_Data) GetRole() string {
 	if x != nil {
 		return x.Role
 	}
-	return Role_ROLE_STAFF_UNSPECIFIED
+	return ""
 }
 
 func (x *User_Data) GetAvatarUrl() string {
@@ -897,7 +843,7 @@ var File_users_v1_users_proto protoreflect.FileDescriptor
 
 const file_users_v1_users_proto_rawDesc = "" +
 	"\n" +
-	"\x14users/v1/users.proto\x12\busers.v1\x1a\x1cgoogle/api/annotations.proto\"\xcc\x02\n" +
+	"\x14users/v1/users.proto\x12\busers.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\"\xe7\x02\n" +
 	"\x04User\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12'\n" +
 	"\x04data\x18\x02 \x01(\v2\x13.users.v1.User.DataR\x04data\x12\x1b\n" +
@@ -905,51 +851,44 @@ const file_users_v1_users_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\x04 \x01(\x03R\tcreatedAt\x12\x1d\n" +
 	"\n" +
-	"updated_at\x18\x05 \x01(\x03R\tupdatedAt\x1a\xaf\x01\n" +
-	"\x04Data\x12\x14\n" +
-	"\x05email\x18\x01 \x01(\tR\x05email\x12\x1d\n" +
+	"updated_at\x18\x05 \x01(\x03R\tupdatedAt\x1a\xca\x01\n" +
+	"\x04Data\x12\x1d\n" +
+	"\x05email\x18\x01 \x01(\tB\a\xbaH\x04r\x02`\x01R\x05email\x12%\n" +
 	"\n" +
-	"first_name\x18\x02 \x01(\tR\tfirstName\x12\x1b\n" +
-	"\tlast_name\x18\x03 \x01(\tR\blastName\x12\"\n" +
-	"\x04role\x18\x04 \x01(\x0e2\x0e.users.v1.RoleR\x04role\x12\"\n" +
+	"first_name\x18\x02 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\tfirstName\x12#\n" +
+	"\tlast_name\x18\x03 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\blastName\x12\x1a\n" +
+	"\x04role\x18\x04 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\x04role\x12,\n" +
 	"\n" +
-	"avatar_url\x18\x05 \x01(\tH\x00R\tavatarUrl\x88\x01\x01B\r\n" +
-	"\v_avatar_url\"V\n" +
+	"avatar_url\x18\x05 \x01(\tB\b\xbaH\x05r\x03\x88\x01\x01H\x00R\tavatarUrl\x88\x01\x01B\r\n" +
+	"\v_avatar_url\"_\n" +
 	"\x0fRegisterRequest\x12'\n" +
-	"\x04data\x18\x01 \x01(\v2\x13.users.v1.User.DataR\x04data\x12\x1a\n" +
-	"\bpassword\x18\x02 \x01(\tR\bpassword\"\x12\n" +
+	"\x04data\x18\x01 \x01(\v2\x13.users.v1.User.DataR\x04data\x12#\n" +
+	"\bpassword\x18\x02 \x01(\tB\a\xbaH\x04r\x02\x10\bR\bpassword\"\x12\n" +
 	"\x10RegisterResponse\"\x14\n" +
 	"\x12GetAllUsersRequest\"9\n" +
 	"\x13GetAllUsersResponse\x12\"\n" +
-	"\x04user\x18\x01 \x03(\v2\x0e.users.v1.UserR\x04user\"$\n" +
-	"\x12GetUserByIdRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"9\n" +
+	"\x04user\x18\x01 \x03(\v2\x0e.users.v1.UserR\x04user\".\n" +
+	"\x12GetUserByIdRequest\x12\x18\n" +
+	"\x02id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x02id\"9\n" +
 	"\x13GetUserByIdResponse\x12\"\n" +
-	"\x04user\x18\x01 \x01(\v2\x0e.users.v1.UserR\x04user\"H\n" +
-	"\rUpdateRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12'\n" +
+	"\x04user\x18\x01 \x01(\v2\x0e.users.v1.UserR\x04user\"R\n" +
+	"\rUpdateRequest\x12\x18\n" +
+	"\x02id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x02id\x12'\n" +
 	"\x04data\x18\x02 \x01(\v2\x13.users.v1.User.DataR\x04data\"\x10\n" +
-	"\x0eUpdateResponse\"\x1f\n" +
-	"\rDeleteRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"\x10\n" +
+	"\x0eUpdateResponse\")\n" +
+	"\rDeleteRequest\x12\x18\n" +
+	"\x02id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x02id\"\x10\n" +
 	"\x0eDeleteResponse\"\v\n" +
 	"\tMeRequest\"0\n" +
 	"\n" +
 	"MeResponse\x12\"\n" +
-	"\x04user\x18\x01 \x01(\v2\x0e.users.v1.UserR\x04user\"#\n" +
-	"\x11DeactivateRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"\x14\n" +
-	"\x12DeactivateResponse\"!\n" +
-	"\x0fActivateRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"\x12\n" +
-	"\x10ActivateResponse*l\n" +
-	"\x04Role\x12\x1a\n" +
-	"\x16ROLE_STAFF_UNSPECIFIED\x10\x00\x12\x0e\n" +
-	"\n" +
-	"ROLE_ADMIN\x10\x01\x12\x11\n" +
-	"\rROLE_DIRECTOR\x10\x02\x12\x10\n" +
-	"\fROLE_MANAGER\x10\x03\x12\x13\n" +
-	"\x0fROLE_SUPERVISOR\x10\x042\xdf\x05\n" +
+	"\x04user\x18\x01 \x01(\v2\x0e.users.v1.UserR\x04user\"-\n" +
+	"\x11DeactivateRequest\x12\x18\n" +
+	"\x02id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x02id\"\x14\n" +
+	"\x12DeactivateResponse\"+\n" +
+	"\x0fActivateRequest\x12\x18\n" +
+	"\x02id\x18\x01 \x01(\tB\b\xbaH\x05r\x03\xb0\x01\x01R\x02id\"\x12\n" +
+	"\x10ActivateResponse2\xdf\x05\n" +
 	"\fUsersService\x12]\n" +
 	"\bRegister\x12\x19.users.v1.RegisterRequest\x1a\x1a.users.v1.RegisterResponse\"\x1a\x82\xd3\xe4\x93\x02\x14:\x01*\"\x0f/users/register\x12Z\n" +
 	"\vGetAllUsers\x12\x1c.users.v1.GetAllUsersRequest\x1a\x1d.users.v1.GetAllUsersResponse\"\x0e\x82\xd3\xe4\x93\x02\b\x12\x06/users\x12_\n" +
@@ -975,58 +914,55 @@ func file_users_v1_users_proto_rawDescGZIP() []byte {
 	return file_users_v1_users_proto_rawDescData
 }
 
-var file_users_v1_users_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 var file_users_v1_users_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
 var file_users_v1_users_proto_goTypes = []any{
-	(Role)(0),                   // 0: users.v1.Role
-	(*User)(nil),                // 1: users.v1.User
-	(*RegisterRequest)(nil),     // 2: users.v1.RegisterRequest
-	(*RegisterResponse)(nil),    // 3: users.v1.RegisterResponse
-	(*GetAllUsersRequest)(nil),  // 4: users.v1.GetAllUsersRequest
-	(*GetAllUsersResponse)(nil), // 5: users.v1.GetAllUsersResponse
-	(*GetUserByIdRequest)(nil),  // 6: users.v1.GetUserByIdRequest
-	(*GetUserByIdResponse)(nil), // 7: users.v1.GetUserByIdResponse
-	(*UpdateRequest)(nil),       // 8: users.v1.UpdateRequest
-	(*UpdateResponse)(nil),      // 9: users.v1.UpdateResponse
-	(*DeleteRequest)(nil),       // 10: users.v1.DeleteRequest
-	(*DeleteResponse)(nil),      // 11: users.v1.DeleteResponse
-	(*MeRequest)(nil),           // 12: users.v1.MeRequest
-	(*MeResponse)(nil),          // 13: users.v1.MeResponse
-	(*DeactivateRequest)(nil),   // 14: users.v1.DeactivateRequest
-	(*DeactivateResponse)(nil),  // 15: users.v1.DeactivateResponse
-	(*ActivateRequest)(nil),     // 16: users.v1.ActivateRequest
-	(*ActivateResponse)(nil),    // 17: users.v1.ActivateResponse
-	(*User_Data)(nil),           // 18: users.v1.User.Data
+	(*User)(nil),                // 0: users.v1.User
+	(*RegisterRequest)(nil),     // 1: users.v1.RegisterRequest
+	(*RegisterResponse)(nil),    // 2: users.v1.RegisterResponse
+	(*GetAllUsersRequest)(nil),  // 3: users.v1.GetAllUsersRequest
+	(*GetAllUsersResponse)(nil), // 4: users.v1.GetAllUsersResponse
+	(*GetUserByIdRequest)(nil),  // 5: users.v1.GetUserByIdRequest
+	(*GetUserByIdResponse)(nil), // 6: users.v1.GetUserByIdResponse
+	(*UpdateRequest)(nil),       // 7: users.v1.UpdateRequest
+	(*UpdateResponse)(nil),      // 8: users.v1.UpdateResponse
+	(*DeleteRequest)(nil),       // 9: users.v1.DeleteRequest
+	(*DeleteResponse)(nil),      // 10: users.v1.DeleteResponse
+	(*MeRequest)(nil),           // 11: users.v1.MeRequest
+	(*MeResponse)(nil),          // 12: users.v1.MeResponse
+	(*DeactivateRequest)(nil),   // 13: users.v1.DeactivateRequest
+	(*DeactivateResponse)(nil),  // 14: users.v1.DeactivateResponse
+	(*ActivateRequest)(nil),     // 15: users.v1.ActivateRequest
+	(*ActivateResponse)(nil),    // 16: users.v1.ActivateResponse
+	(*User_Data)(nil),           // 17: users.v1.User.Data
 }
 var file_users_v1_users_proto_depIdxs = []int32{
-	18, // 0: users.v1.User.data:type_name -> users.v1.User.Data
-	18, // 1: users.v1.RegisterRequest.data:type_name -> users.v1.User.Data
-	1,  // 2: users.v1.GetAllUsersResponse.user:type_name -> users.v1.User
-	1,  // 3: users.v1.GetUserByIdResponse.user:type_name -> users.v1.User
-	18, // 4: users.v1.UpdateRequest.data:type_name -> users.v1.User.Data
-	1,  // 5: users.v1.MeResponse.user:type_name -> users.v1.User
-	0,  // 6: users.v1.User.Data.role:type_name -> users.v1.Role
-	2,  // 7: users.v1.UsersService.Register:input_type -> users.v1.RegisterRequest
-	4,  // 8: users.v1.UsersService.GetAllUsers:input_type -> users.v1.GetAllUsersRequest
-	6,  // 9: users.v1.UsersService.GetUserById:input_type -> users.v1.GetUserByIdRequest
-	12, // 10: users.v1.UsersService.Me:input_type -> users.v1.MeRequest
-	14, // 11: users.v1.UsersService.Deactivate:input_type -> users.v1.DeactivateRequest
-	16, // 12: users.v1.UsersService.Activate:input_type -> users.v1.ActivateRequest
-	8,  // 13: users.v1.UsersService.Update:input_type -> users.v1.UpdateRequest
-	10, // 14: users.v1.UsersService.Delete:input_type -> users.v1.DeleteRequest
-	3,  // 15: users.v1.UsersService.Register:output_type -> users.v1.RegisterResponse
-	5,  // 16: users.v1.UsersService.GetAllUsers:output_type -> users.v1.GetAllUsersResponse
-	7,  // 17: users.v1.UsersService.GetUserById:output_type -> users.v1.GetUserByIdResponse
-	13, // 18: users.v1.UsersService.Me:output_type -> users.v1.MeResponse
-	15, // 19: users.v1.UsersService.Deactivate:output_type -> users.v1.DeactivateResponse
-	17, // 20: users.v1.UsersService.Activate:output_type -> users.v1.ActivateResponse
-	9,  // 21: users.v1.UsersService.Update:output_type -> users.v1.UpdateResponse
-	11, // 22: users.v1.UsersService.Delete:output_type -> users.v1.DeleteResponse
-	15, // [15:23] is the sub-list for method output_type
-	7,  // [7:15] is the sub-list for method input_type
-	7,  // [7:7] is the sub-list for extension type_name
-	7,  // [7:7] is the sub-list for extension extendee
-	0,  // [0:7] is the sub-list for field type_name
+	17, // 0: users.v1.User.data:type_name -> users.v1.User.Data
+	17, // 1: users.v1.RegisterRequest.data:type_name -> users.v1.User.Data
+	0,  // 2: users.v1.GetAllUsersResponse.user:type_name -> users.v1.User
+	0,  // 3: users.v1.GetUserByIdResponse.user:type_name -> users.v1.User
+	17, // 4: users.v1.UpdateRequest.data:type_name -> users.v1.User.Data
+	0,  // 5: users.v1.MeResponse.user:type_name -> users.v1.User
+	1,  // 6: users.v1.UsersService.Register:input_type -> users.v1.RegisterRequest
+	3,  // 7: users.v1.UsersService.GetAllUsers:input_type -> users.v1.GetAllUsersRequest
+	5,  // 8: users.v1.UsersService.GetUserById:input_type -> users.v1.GetUserByIdRequest
+	11, // 9: users.v1.UsersService.Me:input_type -> users.v1.MeRequest
+	13, // 10: users.v1.UsersService.Deactivate:input_type -> users.v1.DeactivateRequest
+	15, // 11: users.v1.UsersService.Activate:input_type -> users.v1.ActivateRequest
+	7,  // 12: users.v1.UsersService.Update:input_type -> users.v1.UpdateRequest
+	9,  // 13: users.v1.UsersService.Delete:input_type -> users.v1.DeleteRequest
+	2,  // 14: users.v1.UsersService.Register:output_type -> users.v1.RegisterResponse
+	4,  // 15: users.v1.UsersService.GetAllUsers:output_type -> users.v1.GetAllUsersResponse
+	6,  // 16: users.v1.UsersService.GetUserById:output_type -> users.v1.GetUserByIdResponse
+	12, // 17: users.v1.UsersService.Me:output_type -> users.v1.MeResponse
+	14, // 18: users.v1.UsersService.Deactivate:output_type -> users.v1.DeactivateResponse
+	16, // 19: users.v1.UsersService.Activate:output_type -> users.v1.ActivateResponse
+	8,  // 20: users.v1.UsersService.Update:output_type -> users.v1.UpdateResponse
+	10, // 21: users.v1.UsersService.Delete:output_type -> users.v1.DeleteResponse
+	14, // [14:22] is the sub-list for method output_type
+	6,  // [6:14] is the sub-list for method input_type
+	6,  // [6:6] is the sub-list for extension type_name
+	6,  // [6:6] is the sub-list for extension extendee
+	0,  // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_users_v1_users_proto_init() }
@@ -1040,14 +976,13 @@ func file_users_v1_users_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_users_v1_users_proto_rawDesc), len(file_users_v1_users_proto_rawDesc)),
-			NumEnums:      1,
+			NumEnums:      0,
 			NumMessages:   18,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_users_v1_users_proto_goTypes,
 		DependencyIndexes: file_users_v1_users_proto_depIdxs,
-		EnumInfos:         file_users_v1_users_proto_enumTypes,
 		MessageInfos:      file_users_v1_users_proto_msgTypes,
 	}.Build()
 	File_users_v1_users_proto = out.File

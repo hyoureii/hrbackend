@@ -1,0 +1,415 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "request/v1/leave.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "LeaveService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/leave": {
+      "get": {
+        "operationId": "LeaveService_GetAllLeaves",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetAllLeavesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "byUserId",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "LeaveService"
+        ]
+      }
+    },
+    "/leave/new": {
+      "post": {
+        "operationId": "LeaveService_NewLeave",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1NewLeaveResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1NewLeaveRequest"
+            }
+          }
+        ],
+        "tags": [
+          "LeaveService"
+        ]
+      }
+    },
+    "/leave/{id}": {
+      "get": {
+        "operationId": "LeaveService_GetLeaveById",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetLeaveByIdResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "LeaveService"
+        ]
+      },
+      "put": {
+        "operationId": "LeaveService_UpdateLeave",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1UpdateLeaveResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/LeaveServiceUpdateLeaveBody"
+            }
+          }
+        ],
+        "tags": [
+          "LeaveService"
+        ]
+      }
+    },
+    "/leave/{id}/approve": {
+      "post": {
+        "operationId": "LeaveService_ApproveLeave",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ApproveLeaveResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "LeaveService"
+        ]
+      }
+    },
+    "/leave/{id}/reject": {
+      "post": {
+        "operationId": "LeaveService_RejectLeave",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1RejectLeaveResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/LeaveServiceRejectLeaveBody"
+            }
+          }
+        ],
+        "tags": [
+          "LeaveService"
+        ]
+      }
+    },
+    "/me/leave": {
+      "get": {
+        "operationId": "LeaveService_GetCurrentLeaves",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetCurrentLeavesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "LeaveService"
+        ]
+      }
+    },
+    "/pending/leave": {
+      "get": {
+        "operationId": "LeaveService_GetAllPendingLeaves",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetAllPendingLeavesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "LeaveService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "LeaveServiceRejectLeaveBody": {
+      "type": "object",
+      "properties": {
+        "reason": {
+          "type": "string"
+        }
+      }
+    },
+    "LeaveServiceUpdateLeaveBody": {
+      "type": "object",
+      "properties": {
+        "request": {
+          "$ref": "#/definitions/RequestData"
+        }
+      }
+    },
+    "RequestData": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "startDate": {
+          "type": "string",
+          "format": "int64"
+        },
+        "endDate": {
+          "type": "string",
+          "format": "int64"
+        },
+        "type": {
+          "type": "string"
+        }
+      }
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "v1ApproveLeaveResponse": {
+      "type": "object"
+    },
+    "v1GetAllLeavesResponse": {
+      "type": "object",
+      "properties": {
+        "requests": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Request"
+          }
+        }
+      }
+    },
+    "v1GetAllPendingLeavesResponse": {
+      "type": "object",
+      "properties": {
+        "requests": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Request"
+          }
+        }
+      }
+    },
+    "v1GetCurrentLeavesResponse": {
+      "type": "object",
+      "properties": {
+        "requests": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Request"
+          }
+        }
+      }
+    },
+    "v1GetLeaveByIdResponse": {
+      "type": "object",
+      "properties": {
+        "request": {
+          "$ref": "#/definitions/v1Request"
+        }
+      }
+    },
+    "v1NewLeaveRequest": {
+      "type": "object",
+      "properties": {
+        "request": {
+          "$ref": "#/definitions/RequestData"
+        }
+      }
+    },
+    "v1NewLeaveResponse": {
+      "type": "object"
+    },
+    "v1RejectLeaveResponse": {
+      "type": "object"
+    },
+    "v1Request": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "data": {
+          "$ref": "#/definitions/RequestData"
+        },
+        "status": {
+          "type": "string"
+        },
+        "approverId": {
+          "type": "string"
+        },
+        "requesterId": {
+          "type": "string"
+        }
+      }
+    },
+    "v1UpdateLeaveResponse": {
+      "type": "object"
+    }
+  }
+}

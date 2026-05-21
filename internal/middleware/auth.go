@@ -9,6 +9,7 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 
+	"github.com/hyoureii/hrbackend/gen/auth/v1"
 	"github.com/hyoureii/hrbackend/internal/lib"
 )
 
@@ -17,8 +18,8 @@ type contextKey = string
 const ClaimsKey contextKey = "claims"
 
 var publicRoutes = map[string]bool{
-	"/auth.v1.AuthService/Login":   true,
-	"/auth.v1.AuthService/Refresh": true,
+	auth.AuthService_Login_FullMethodName:   true,
+	auth.AuthService_Refresh_FullMethodName: true,
 }
 
 func UseAuth() grpc.UnaryServerInterceptor {
@@ -39,9 +40,9 @@ func UseAuth() grpc.UnaryServerInterceptor {
 
 		tokenStr := strings.TrimPrefix(accToken[0], "Bearer ")
 
-		claims, err := lib.ValidateJWT(tokenStr)
+		claims, err := lib.ValidateJwt(tokenStr)
 		if err != nil {
-			return nil, status.Error(codes.Unauthenticated, "Invalid token")
+			return nil, status.Error(codes.Unauthenticated, err.Error())
 		}
 
 		ctx = metadata.NewIncomingContext(context.WithValue(ctx, ClaimsKey, claims), meta)

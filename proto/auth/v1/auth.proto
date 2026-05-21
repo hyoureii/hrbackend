@@ -7,34 +7,36 @@ import "google/api/annotations.proto";
 option go_package = "github.com/hyoureii/hrbackend/gen/auth/v1;auth";
 
 message LoginRequest {
-  string email = 1 [
-    (buf.validate.field).string.email = true
-  ];
-  string password = 2;
+  string email = 1 [(buf.validate.field).string.email = true];
+  string password = 2 [(buf.validate.field).string.min_len = 8];
 }
 message LoginResponse {
   string access_token = 1;
   string refresh_token = 2;
   int64 exp_time = 3;
 }
+
 message RefreshRequest {
-  string refresh_token = 1;
+  string refresh_token = 1 [(buf.validate.field).required = true];
 }
 message RefreshResponse {
   string access_token = 1;
   string refresh_token = 2;
   int64 exp_time = 3;
 }
+
 message LogoutRequest {}
 message LogoutResponse {}
+
 message ChangePasswordRequest {
-  string old_password = 1;
-  string new_password = 2;
+  string old_password = 1 [(buf.validate.field).string.min_len = 8];
+  string new_password = 2 [(buf.validate.field).string.min_len = 8];
 }
 message ChangePasswordResponse {}
+
 message ResetPasswordRequest {
-  string id = 1;
-  string new_password = 2;
+  string id = 1 [(buf.validate.field).string.uuid = true];
+  string new_password = 2 [(buf.validate.field).string.min_len = 8];
 }
 message ResetPasswordResponse {}
 
@@ -54,9 +56,7 @@ service AuthService {
   }
 
   rpc Logout(LogoutRequest) returns (LogoutResponse) {
-    option (google.api.http) = {
-      post: "/auth/logout"
-    };
+    option (google.api.http) = {post: "/auth/logout"};
   }
 
   rpc ChangePassword(ChangePasswordRequest) returns (ChangePasswordResponse) {

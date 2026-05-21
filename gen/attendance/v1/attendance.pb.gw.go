@@ -110,6 +110,27 @@ func local_request_AttendanceService_Generate_0(ctx context.Context, marshaler r
 	return msg, metadata, err
 }
 
+func request_AttendanceService_Today_0(ctx context.Context, marshaler runtime.Marshaler, client AttendanceServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq TodayRequest
+		metadata runtime.ServerMetadata
+	)
+	if req.Body != nil {
+		_, _ = io.Copy(io.Discard, req.Body)
+	}
+	msg, err := client.Today(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+}
+
+func local_request_AttendanceService_Today_0(ctx context.Context, marshaler runtime.Marshaler, server AttendanceServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var (
+		protoReq TodayRequest
+		metadata runtime.ServerMetadata
+	)
+	msg, err := server.Today(ctx, &protoReq)
+	return msg, metadata, err
+}
+
 func request_AttendanceService_GetAllAttendance_0(ctx context.Context, marshaler runtime.Marshaler, client AttendanceServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var (
 		protoReq GetAllAttendanceRequest
@@ -256,6 +277,26 @@ func RegisterAttendanceServiceHandlerServer(ctx context.Context, mux *runtime.Se
 			return
 		}
 		forward_AttendanceService_Generate_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
+	mux.Handle(http.MethodPost, pattern_AttendanceService_Today_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/attendance.v1.AttendanceService/Today", runtime.WithHTTPPathPattern("/attendance/today"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_AttendanceService_Today_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_AttendanceService_Today_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 	mux.Handle(http.MethodGet, pattern_AttendanceService_GetAllAttendance_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
@@ -408,6 +449,23 @@ func RegisterAttendanceServiceHandlerClient(ctx context.Context, mux *runtime.Se
 		}
 		forward_AttendanceService_Generate_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
+	mux.Handle(http.MethodPost, pattern_AttendanceService_Today_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		annotatedContext, err := runtime.AnnotateContext(ctx, mux, req, "/attendance.v1.AttendanceService/Today", runtime.WithHTTPPathPattern("/attendance/today"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_AttendanceService_Today_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
+		if err != nil {
+			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		forward_AttendanceService_Today_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+	})
 	mux.Handle(http.MethodGet, pattern_AttendanceService_GetAllAttendance_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -466,6 +524,7 @@ var (
 	pattern_AttendanceService_CheckIn_0           = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"attendance", "checkin"}, ""))
 	pattern_AttendanceService_CheckOut_0          = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"attendance", "checkout"}, ""))
 	pattern_AttendanceService_Generate_0          = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"attendance", "generate"}, ""))
+	pattern_AttendanceService_Today_0             = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"attendance", "today"}, ""))
 	pattern_AttendanceService_GetAllAttendance_0  = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0}, []string{"attendance"}, ""))
 	pattern_AttendanceService_GetAttendanceById_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 1, 0, 4, 1, 5, 1}, []string{"attendance", "id"}, ""))
 	pattern_AttendanceService_GetCurrent_0        = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"attendance", "me"}, ""))
@@ -475,6 +534,7 @@ var (
 	forward_AttendanceService_CheckIn_0           = runtime.ForwardResponseMessage
 	forward_AttendanceService_CheckOut_0          = runtime.ForwardResponseMessage
 	forward_AttendanceService_Generate_0          = runtime.ForwardResponseMessage
+	forward_AttendanceService_Today_0             = runtime.ForwardResponseMessage
 	forward_AttendanceService_GetAllAttendance_0  = runtime.ForwardResponseMessage
 	forward_AttendanceService_GetAttendanceById_0 = runtime.ForwardResponseMessage
 	forward_AttendanceService_GetCurrent_0        = runtime.ForwardResponseMessage
