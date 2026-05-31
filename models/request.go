@@ -37,7 +37,7 @@ var LeaveTypes = []LeaveType{OtherLeave, Sick, Casual, Maternity, Paternity}
 type Request struct {
 	Base
 	Description string        `gorm:"not null;size:512"`
-	Status      RequestStatus `gorm:"not null;type:request_status;default:pending"`
+	Status      RequestStatus `gorm:"not null;type:hr_request_status;default:pending"`
 	ApproverID  string        `gorm:"type:uuid;default:null"`
 	Approver    User          `gorm:"foreignKey:ApproverID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 	RequesterID string        `gorm:"not null;type:uuid"`
@@ -48,9 +48,9 @@ type Request struct {
 
 type Leave struct {
 	Request
-	Type LeaveType `gorm:"not null;type:leave_type"`
+	Type LeaveType `gorm:"not null;type:hr_leave_type"`
 }
 type Trip struct {
 	Request
-	Type TripType `gorm:"not null;type:trip_type"`
+	Type TripType `gorm:"not null;type:hr_trip_type"`
 }

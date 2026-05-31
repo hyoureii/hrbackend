@@ -48,9 +48,9 @@ func main() {
 			}
 		}
 
-		createEnum("request_status", goEnumToDB(models.RequestStatuses), db)
-		createEnum("leave_type", goEnumToDB(models.LeaveTypes), db)
-		createEnum("trip_type", goEnumToDB(models.TripTypes), db)
+		createEnum("hr_request_status", goEnumToDB(models.RequestStatuses), db)
+		createEnum("hr_leave_type", goEnumToDB(models.LeaveTypes), db)
+		createEnum("hr_trip_type", goEnumToDB(models.TripTypes), db)
 
 		if err := m.CreateTable(
 			&models.Role{},
