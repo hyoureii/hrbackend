@@ -25,14 +25,16 @@ jobs:
         run: ls -lA && ls -lA ~/.ssh
 
       - name: Copy compose, traefik and redis config file
-        run: scp -i ~/.ssh/id_ed25519 \
+        run: |
+          scp -i ~/.ssh/id_ed25519 \
           docker-compose.prod.yaml \
           traefik.yaml \
           redis.conf \
           ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/app/
 
       - name: Pull image & restart container
-        run: ssh -i ~/.ssh/id_ed25519 \
+        run: |
+          ssh -i ~/.ssh/id_ed25519 \
           ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
           'cd /app && \
           docker compose -f docker-compose.prod.yaml pull && \
