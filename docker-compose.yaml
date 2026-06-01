@@ -1,31 +1,45 @@
 services:
+  traefik:
+    image: traefik:v3.7
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - CLOUDFLARE_DNS_API_TOKEN: ${CLOUDFLARE_DNS_API_TOKEN}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - .traefik.yaml:/etc/traefik/traefik.yaml:ro
+      - ./data/certs:/var/traefik/certs/:rw
+    networks:
+      - hrbackend
+
   db:
     image: postgres:16-alpine
+    restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DBNAME}
-    ports:
-      - "${POSTGRES_PORT}:5432"
     volumes:
-      - ./postgres_data:/var/lib/postgresql/data
+      - ./data/postgres:/var/lib/postgresql/data
     networks:
       - hrbackend
 
   redis:
     image: redis:8.6-alpine
+    restart: unless-stopped
     command: redis-server /usr/local/etc/redis/redis.conf
-    ports:
-      - "6379:6379"
     volumes:
       - ./redis.conf:/usr/local/etc/redis/redis.conf
       - ./users.acl:/usr/local/etc/redis/users.acl
-      - ./redis_data:/data
+      - ./data/redis:/data
     networks:
       - hrbackend
 
   app:
-    build: .
+    image: ghcr.io/hyoureii/hrbackend:latest
+    restart: unless-stopped
     depends_on:
       db:
         condition: service_started

@@ -1,0 +1,35 @@
+global:
+  checknewversion: false
+  sendanonymoususage: false
+
+log:
+  level: INFO
+
+entryPoints:
+  web:
+    address: ":80"
+    http:
+      redirections:
+        entryPoint:
+          to: websecure
+          scheme: https
+          permanent: true
+  websecure:
+    address: ":443"
+
+providers:
+  docker:
+    exposedByDefault: false
+    endpoint: "unix:///var/run/docker.sock"
+
+certificatesResolvers:
+  cloudflare:
+    acme:
+      email: work.hnaufal@gmail.com
+      storage: /var/traefik/certs/cloudflare-acme.json
+      keyType: EC256
+      dnsChallenge:
+        provider: cloudflare
+        resolvers:
+          - "1.1.1.1:53"
+          - "8.8.8.8:53"
