@@ -17,7 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Log in to GHCR in Docker Hub
+      - name: Log in to GHCR
         uses: docker/login-action@v4
         with:
           registry: ${{ env.REGISTRY }}

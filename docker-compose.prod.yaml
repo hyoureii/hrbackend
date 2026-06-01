@@ -6,10 +6,10 @@ services:
       - "80:80"
       - "443:443"
     environment:
-      - CLOUDFLARE_DNS_API_TOKEN: ${CLOUDFLARE_DNS_API_TOKEN}
+      CLOUDFLARE_DNS_API_TOKEN: ${CLOUDFLARE_DNS_API_TOKEN}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - .traefik.yaml:/etc/traefik/traefik.yaml:ro
+      - ./traefik.yaml:/etc/traefik/traefik.yaml:ro
       - ./data/certs:/var/traefik/certs/:rw
     networks:
       - hrbackend
@@ -54,9 +54,21 @@ services:
       POSTGRES_DBNAME: ${POSTGRES_DBNAME}
       POSTGRES_PORT: "5432"
       JWT_SECRET: ${JWT_SECRET}
-    ports:
-      - "${GRPC_PORT}:${GRPC_PORT}"
-      - "${HTTP_GATEWAY_PORT}:${HTTP_GATEWAY_PORT}"
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.gateway-r.rule=Host(`hr.hyourei.xyz`) && PathPrefix(`/api`)
+      - traefik.http.routers.gateway-r.entrypoints=websecure
+      - traefik.http.routers.gateway-r.service=gateway-s
+      - traefik.http.routers.gateway-r.tls=true
+      - traefik.http.routers.gateway-r.tls.certresolver=cloudflare
+      - traefik.http.services.gateway-s.loadbalancer.server.port=${HTTP_GATEWAY_PORT}
+      - traefik.http.routers.grpc-r.rule=Host(`hr.hyourei.xyz`) && Header(`Content-Type`, `application/grpc`)
+      - traefik.http.routers.grpc-r.entrypoints=websecure
+      - traefik.http.routers.grpc-r.service=grpc-s
+      - traefik.http.routers.grpc-r.tls=true
+      - traefik.http.routers.grpc-r.tls.certresolver=cloudflare
+      - traefik.http.services.grpc-s.loadbalancer.server.port=${GRPC_PORT}
+      - traefik.http.services.grpc-s.loadbalancer.server.scheme=h2c
     networks:
       - hrbackend
 
