@@ -21,6 +21,9 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
+      - name: List workspace files
+        run: ls -lA && ls -lA ~/.ssh
+
       - name: Copy compose, traefik and redis config file
         run: scp -i ~/.ssh/id_ed25519 \
           docker-compose.prod.yaml \
