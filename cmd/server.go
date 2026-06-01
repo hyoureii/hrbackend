@@ -64,6 +64,7 @@ func (s *Server) Run(c context.Context, shutdownTimeout time.Duration) error {
 	grpcServer := grpc.NewServer(
 		grpc.ChainUnaryInterceptor(
 			logging.UnaryServerInterceptor(interceptorLogger(s.logger)),
+			middleware.UseValidateRequest(),
 			middleware.UseAuth(),
 			middleware.UseRBAC(),
 			useValidate.UnaryServerInterceptor(validator),
