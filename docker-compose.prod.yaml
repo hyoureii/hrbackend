@@ -1,0 +1,64 @@
+services:
+  traefik:
+    image: traefik:v3.7
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - CLOUDFLARE_DNS_API_TOKEN: ${CLOUDFLARE_DNS_API_TOKEN}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - .traefik.yaml:/etc/traefik/traefik.yaml:ro
+      - ./data/certs:/var/traefik/certs/:rw
+    networks:
+      - hrbackend
+
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DBNAME}
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+    networks:
+      - hrbackend
+
+  redis:
+    image: redis:8.6-alpine
+    restart: unless-stopped
+    command: redis-server /usr/local/etc/redis/redis.conf
+    volumes:
+      - ./redis.conf:/usr/local/etc/redis/redis.conf
+      - ./users.acl:/usr/local/etc/redis/users.acl
+      - ./data/redis:/data
+    networks:
+      - hrbackend
+
+  app:
+    image: ghcr.io/hyoureii/hrbackend:latest
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_started
+      redis:
+        condition: service_started
+    environment:
+      GRPC_PORT: ${GRPC_PORT}
+      HTTP_GATEWAY_PORT: ${HTTP_GATEWAY_PORT}
+      POSTGRES_HOST: db
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DBNAME: ${POSTGRES_DBNAME}
+      POSTGRES_PORT: "5432"
+      JWT_SECRET: ${JWT_SECRET}
+    ports:
+      - "${GRPC_PORT}:${GRPC_PORT}"
+      - "${HTTP_GATEWAY_PORT}:${HTTP_GATEWAY_PORT}"
+    networks:
+      - hrbackend
+
+networks:
+  hrbackend:

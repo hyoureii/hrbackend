@@ -25,7 +25,7 @@ func buildDBDsn() string {
 	host := lib.GetEnvOrDefault("POSTGRES_HOST", "localhost")
 	user := lib.GetEnvOrDefault("POSTGRES_USER", "hrconnect")
 	pw := lib.GetEnvOrDefault("POSTGRES_PASSWORD", "hrbackenddb")
-	port := lib.GetEnvOrDefault("POSTGRES_PORT", "9002")
+	port := lib.GetEnvOrDefault("POSTGRES_PORT", "5432")
 
 	dbUrl := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
 		host,
