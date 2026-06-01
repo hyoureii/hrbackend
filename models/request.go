@@ -41,7 +41,7 @@ type Request struct {
 	ApproverID  string        `gorm:"type:uuid;default:null"`
 	Approver    User          `gorm:"foreignKey:ApproverID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 	RequesterID string        `gorm:"not null;type:uuid"`
-	Requester   User          `gorm:"foreignKey:ApproverID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	Requester   User          `gorm:"foreignKey:RequesterID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 	StartDate   int64         `gorm:"not null"`
 	EndDate     int64         `gorm:"not null"`
 }
