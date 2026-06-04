@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"net"
 	"net/http"
+	"net/http/httputil"
 	"os"
 	"os/signal"
 	"strings"
@@ -22,7 +23,6 @@ import (
 	request "github.com/hyoureii/hrbackend/gen/request/v1"
 	"github.com/hyoureii/hrbackend/gen/users/v1"
 	"github.com/hyoureii/hrbackend/internal/config"
-	"github.com/hyoureii/hrbackend/internal/lib"
 	"github.com/hyoureii/hrbackend/internal/middleware"
 	"github.com/hyoureii/hrbackend/internal/service"
 	"github.com/hyoureii/hrbackend/static"
@@ -103,17 +103,13 @@ func (s *Server) Run(c context.Context, shutdownTimeout time.Duration) error {
 	handleStatic(gatewayMux, "/scalar.js", "application/javascript", static.ScalarJS)
 	handleStatic(gatewayMux, "/openapi.json", "application/json", static.OpenApiSpec)
 
-	qr, err := lib.GenerateAttendanceQr()
-	if err != nil {
-		return err
-	}
-	handleStatic(gatewayMux, "/qr", "image/png", qr)
-
 	gateway := &http.Server{
 		Addr: s.httpAddr,
 		Handler: func(h http.Handler) http.Handler {
 			return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				s.logger.Info(fmt.Sprintf("[GATEWAY] Incoming %s %s", r.Method, r.RequestURI))
+				body, _ := httputil.DumpRequest(r, true)
+				s.logger.Debug(string(body))
 
 				if after, ok := strings.CutPrefix(r.URL.Path, "/api/v1"); ok {
 					r.URL.Path = after
