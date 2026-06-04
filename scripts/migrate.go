@@ -71,6 +71,10 @@ func main() {
 }
 
 func createEnum(name, query string, db *gorm.DB) {
+	gorm.G[any](db).Exec(
+		context.Background(),
+		fmt.Sprintf("DROP TYPE IF EXISTS %s", name),
+	)
 	if err := gorm.G[any](db).Exec(
 		context.Background(),
 		fmt.Sprintf("CREATE TYPE %s AS ENUM %s", name, query),
