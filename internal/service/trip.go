@@ -27,7 +27,7 @@ func NewTripServiceServer(db *gorm.DB) *TripServiceServer {
 }
 
 func (s TripServiceServer) NewTrip(c context.Context, r *request.NewTripRequest) (*request.NewTripResponse, error) {
-	claims := c.Value(middleware.ClaimsKey).(*lib.Claims)
+	claims := c.Value(middleware.ClaimsKey).(*lib.AuthClaims)
 
 	tripType := models.TripType(r.Request.Type)
 	if !slices.Contains(models.TripTypes, tripType) {
@@ -92,7 +92,7 @@ func (s TripServiceServer) GetAllTrips(c context.Context, r *request.GetAllTrips
 }
 
 func (s TripServiceServer) GetCurrentTrips(c context.Context, r *request.GetCurrentTripsRequest) (*request.GetCurrentTripsResponse, error) {
-	claims := c.Value(middleware.ClaimsKey).(*lib.Claims)
+	claims := c.Value(middleware.ClaimsKey).(*lib.AuthClaims)
 
 	trips, err := gorm.G[models.Trip](s.db).
 		Joins(clause.LeftJoin.Association("Requester"), nil).
@@ -111,7 +111,7 @@ func (s TripServiceServer) GetCurrentTrips(c context.Context, r *request.GetCurr
 }
 
 func (s TripServiceServer) GetAllPendingTrips(c context.Context, r *request.GetAllPendingTripsRequest) (*request.GetAllPendingTripsResponse, error) {
-	claims := c.Value(middleware.ClaimsKey).(*lib.Claims)
+	claims := c.Value(middleware.ClaimsKey).(*lib.AuthClaims)
 
 	roleBelow := lib.RoleBelow(claims.Role)
 	if roleBelow == "" {
@@ -165,7 +165,7 @@ func (s TripServiceServer) GetTripById(c context.Context, r *request.GetTripById
 		return nil, err
 	}
 
-	claims := c.Value(middleware.ClaimsKey).(*lib.Claims)
+	claims := c.Value(middleware.ClaimsKey).(*lib.AuthClaims)
 	perms := c.Value(middleware.PermsKey).([]string)
 
 	if slices.Contains(perms, "manageTripRequest") && !slices.Contains(perms, "seeAllTripRequest") {
@@ -185,7 +185,7 @@ func (s TripServiceServer) GetTripById(c context.Context, r *request.GetTripById
 }
 
 func (s TripServiceServer) UpdateTrip(c context.Context, r *request.UpdateTripRequest) (*request.UpdateTripResponse, error) {
-	claims := c.Value(middleware.ClaimsKey).(*lib.Claims)
+	claims := c.Value(middleware.ClaimsKey).(*lib.AuthClaims)
 
 	trip, err := gorm.G[models.Trip](s.db).Where("id = ?", r.Id).First(c)
 	if err != nil {
@@ -220,7 +220,7 @@ func (s TripServiceServer) UpdateTrip(c context.Context, r *request.UpdateTripRe
 }
 
 func (s TripServiceServer) ApproveTrip(c context.Context, r *request.ApproveTripRequest) (*request.ApproveTripResponse, error) {
-	claims := c.Value(middleware.ClaimsKey).(*lib.Claims)
+	claims := c.Value(middleware.ClaimsKey).(*lib.AuthClaims)
 
 	trip, err := gorm.G[models.Trip](s.db).
 		Joins(clause.LeftJoin.Association("Requester"), nil).
@@ -266,7 +266,7 @@ func (s TripServiceServer) ApproveTrip(c context.Context, r *request.ApproveTrip
 }
 
 func (s TripServiceServer) RejectTrip(c context.Context, r *request.RejectTripRequest) (*request.RejectTripResponse, error) {
-	claims := c.Value(middleware.ClaimsKey).(*lib.Claims)
+	claims := c.Value(middleware.ClaimsKey).(*lib.AuthClaims)
 
 	trip, err := gorm.G[models.Trip](s.db).
 		Joins(clause.LeftJoin.Association("Requester"), nil).

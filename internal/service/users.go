@@ -121,7 +121,7 @@ func (s UsersServiceServer) GetUserById(c context.Context, r *users.GetUserByIdR
 }
 
 func (s UsersServiceServer) Me(c context.Context, r *users.MeRequest) (*users.MeResponse, error) {
-	claims := c.Value(middleware.ClaimsKey).(*lib.Claims)
+	claims := c.Value(middleware.ClaimsKey).(*lib.AuthClaims)
 	user, err := gorm.G[models.User](s.db).Joins(clause.LeftJoin.Association("Role"), nil).Where("users.id = ?", claims.Subject).First(c)
 	if err != nil {
 		return nil, err

@@ -98,7 +98,7 @@ func (s AuthServiceServer) Refresh(c context.Context, r *auth.RefreshRequest) (*
 }
 
 func (s AuthServiceServer) Logout(c context.Context, r *auth.LogoutRequest) (*auth.LogoutResponse, error) {
-	claims := c.Value(middleware.ClaimsKey).(*lib.Claims)
+	claims := c.Value(middleware.ClaimsKey).(*lib.AuthClaims)
 	token, err := gorm.G[models.RefreshToken](s.db).Where("user_id = ?", claims.Subject).Find(c)
 	if err != nil {
 		return nil, err
@@ -132,7 +132,7 @@ func (s AuthServiceServer) ChangePassword(c context.Context, r *auth.ChangePassw
 		return nil, status.Error(codes.InvalidArgument, "Password format invalid")
 	}
 
-	claims := c.Value(middleware.ClaimsKey).(*lib.Claims)
+	claims := c.Value(middleware.ClaimsKey).(*lib.AuthClaims)
 	user, err := gorm.G[models.User](s.db).Where("id = ?", claims.Subject).First(c)
 	if err != nil {
 		return nil, err

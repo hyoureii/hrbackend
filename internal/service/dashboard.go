@@ -22,7 +22,7 @@ func NewDashboardServiceServer(db *gorm.DB) *DashboardServiceServer {
 }
 
 func (s DashboardServiceServer) Dashboard(ctx context.Context, req *dashboard.DashboardRequest) (*dashboard.DashboardResponse, error) {
-	claims := ctx.Value(middleware.ClaimsKey).(*lib.Claims)
+	claims := ctx.Value(middleware.ClaimsKey).(*lib.AuthClaims)
 
 	now := time.Now()
 	cutoff := now.Add(-30 * 24 * time.Hour)

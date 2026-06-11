@@ -47,7 +47,7 @@ func UseRBAC() grpc.UnaryServerInterceptor {
 			return handler(ctx, req)
 		}
 
-		claims, ok := ctx.Value(ClaimsKey).(*lib.Claims)
+		claims, ok := ctx.Value(ClaimsKey).(*lib.AuthClaims)
 		if !ok {
 			return nil, status.Error(codes.Unauthenticated, "Missing claims")
 		}

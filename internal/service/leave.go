@@ -27,7 +27,7 @@ func NewLeaveServiceServer(db *gorm.DB) *LeaveServiceServer {
 }
 
 func (s LeaveServiceServer) NewLeave(c context.Context, r *request.NewLeaveRequest) (*request.NewLeaveResponse, error) {
-	claims := c.Value(middleware.ClaimsKey).(*lib.Claims)
+	claims := c.Value(middleware.ClaimsKey).(*lib.AuthClaims)
 
 	leaveType := models.LeaveType(r.Request.Type)
 	if !slices.Contains(models.LeaveTypes, leaveType) {
@@ -92,7 +92,7 @@ func (s LeaveServiceServer) GetAllLeaves(c context.Context, r *request.GetAllLea
 }
 
 func (s LeaveServiceServer) GetCurrentLeaves(c context.Context, r *request.GetCurrentLeavesRequest) (*request.GetCurrentLeavesResponse, error) {
-	claims := c.Value(middleware.ClaimsKey).(*lib.Claims)
+	claims := c.Value(middleware.ClaimsKey).(*lib.AuthClaims)
 
 	leaves, err := gorm.G[models.Leave](s.db).
 		Joins(clause.LeftJoin.Association("Requester"), nil).
@@ -111,7 +111,7 @@ func (s LeaveServiceServer) GetCurrentLeaves(c context.Context, r *request.GetCu
 }
 
 func (s LeaveServiceServer) GetAllPendingLeaves(c context.Context, r *request.GetAllPendingLeavesRequest) (*request.GetAllPendingLeavesResponse, error) {
-	claims := c.Value(middleware.ClaimsKey).(*lib.Claims)
+	claims := c.Value(middleware.ClaimsKey).(*lib.AuthClaims)
 
 	roleBelow := lib.RoleBelow(claims.Role)
 	if roleBelow == "" {
@@ -165,7 +165,7 @@ func (s LeaveServiceServer) GetLeaveById(c context.Context, r *request.GetLeaveB
 		return nil, err
 	}
 
-	claims := c.Value(middleware.ClaimsKey).(*lib.Claims)
+	claims := c.Value(middleware.ClaimsKey).(*lib.AuthClaims)
 	perms := c.Value(middleware.PermsKey).([]string)
 
 	if slices.Contains(perms, "manageLeaveRequest") && !slices.Contains(perms, "seeAllLeaveRequest") {
@@ -185,7 +185,7 @@ func (s LeaveServiceServer) GetLeaveById(c context.Context, r *request.GetLeaveB
 }
 
 func (s LeaveServiceServer) UpdateLeave(c context.Context, r *request.UpdateLeaveRequest) (*request.UpdateLeaveResponse, error) {
-	claims := c.Value(middleware.ClaimsKey).(*lib.Claims)
+	claims := c.Value(middleware.ClaimsKey).(*lib.AuthClaims)
 
 	leave, err := gorm.G[models.Leave](s.db).Where("id = ?", r.Id).First(c)
 	if err != nil {
@@ -220,7 +220,7 @@ func (s LeaveServiceServer) UpdateLeave(c context.Context, r *request.UpdateLeav
 }
 
 func (s LeaveServiceServer) ApproveLeave(c context.Context, r *request.ApproveLeaveRequest) (*request.ApproveLeaveResponse, error) {
-	claims := c.Value(middleware.ClaimsKey).(*lib.Claims)
+	claims := c.Value(middleware.ClaimsKey).(*lib.AuthClaims)
 
 	leave, err := gorm.G[models.Leave](s.db).
 		Joins(clause.LeftJoin.Association("Requester"), nil).
@@ -266,7 +266,7 @@ func (s LeaveServiceServer) ApproveLeave(c context.Context, r *request.ApproveLe
 }
 
 func (s LeaveServiceServer) RejectLeave(c context.Context, r *request.RejectLeaveRequest) (*request.RejectLeaveResponse, error) {
-	claims := c.Value(middleware.ClaimsKey).(*lib.Claims)
+	claims := c.Value(middleware.ClaimsKey).(*lib.AuthClaims)
 
 	leave, err := gorm.G[models.Leave](s.db).
 		Joins(clause.LeftJoin.Association("Requester"), nil).
