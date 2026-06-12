@@ -11,11 +11,5 @@ until pg_isready -q; do
   sleep 1
 done
 
-echo "Running migrations..."
-/migrate push
-
-echo "Seeding database..."
-/seed
-
 echo "Starting server..."
 exec /server
