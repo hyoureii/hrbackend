@@ -10,6 +10,9 @@ type Config struct {
 	GrpcPort        string
 	HttpGatewayPort string
 	DbDsn           string
+	RedisAddr       string
+	RedisPass       string
+	RedisUser       string
 }
 
 func Load() *Config {
@@ -18,6 +21,13 @@ func Load() *Config {
 		GrpcPort:        lib.GetEnvOrDefault("GRPC_PORT", "9000"),
 		HttpGatewayPort: lib.GetEnvOrDefault("HTTP_GATEWAY_PORT", "9001"),
 		DbDsn:           dbDsn,
+		RedisAddr: fmt.Sprintf(
+			"%s:%s",
+			lib.GetEnvOrDefault("REDIS_HOST", "localhost"),
+			lib.GetEnvOrDefault("REDIS_PORT", "6379"),
+		),
+		RedisPass: lib.GetEnvOrDefault("REDIS_PASSWORD", "hrconnect"),
+		RedisUser: lib.GetEnvOrDefault("REDIS_USER", "hrbackendcache"),
 	}
 }
 

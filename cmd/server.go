@@ -26,6 +26,7 @@ import (
 	"github.com/hyoureii/hrbackend/internal/middleware"
 	"github.com/hyoureii/hrbackend/internal/service"
 	"github.com/hyoureii/hrbackend/static"
+	"github.com/redis/go-redis/v9"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc"
@@ -37,6 +38,7 @@ import (
 type Server struct {
 	logger   *slog.Logger
 	db       *gorm.DB
+	rdb      *redis.Client
 	grpcAddr string
 	httpAddr string
 }
@@ -46,10 +48,19 @@ func NewServer(logger *slog.Logger, conf *config.Config) (*Server, error) {
 	if err != nil {
 		return nil, err
 	}
+	rdb := redis.NewClient(&redis.Options{
+		Addr:     conf.RedisAddr,
+		Password: conf.RedisPass,
+		Username: conf.RedisUser,
+	})
+	if rdb == nil {
+		return nil, err
+	}
 
 	return &Server{
 		logger:   logger,
 		db:       db,
+		rdb:      rdb,
 		grpcAddr: `:` + conf.GrpcPort,
 		httpAddr: `:` + conf.HttpGatewayPort,
 	}, nil
