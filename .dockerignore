@@ -1,7 +1,6 @@
 .git/
 tmp/
 
-postgres_data/
-redis_data/
+data/
 
 *.env

@@ -17,6 +17,9 @@ FROM alpine:3.20 AS runtime
 
 RUN apk add --no-cache postgresql-client
 
+COPY --from=build /usr/share/zoneinfo /usr/share/zoneinfo
+ENV TZ=Asia/Jakarta
+
 COPY --from=build /build/server  /server
 COPY --from=build /build/migrate /migrate
 COPY --from=build /build/seed    /seed
