@@ -25,7 +25,8 @@ func (s DashboardServiceServer) Dashboard(ctx context.Context, req *dashboard.Da
 	claims := ctx.Value(middleware.ClaimsKey).(*lib.AuthClaims)
 
 	now := time.Now()
-	cutoff := now.Add(-30 * 24 * time.Hour)
+	startOfDay := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
+	cutoff := startOfDay.Add(-30 * 24 * time.Hour)
 
 	totalWeekdays := 0
 	for d := cutoff; !d.After(now); d = d.Add(24 * time.Hour) {
@@ -35,7 +36,7 @@ func (s DashboardServiceServer) Dashboard(ctx context.Context, req *dashboard.Da
 	}
 
 	records, err := gorm.G[models.Attendance](s.db).
-		Where("user_id = ? AND scanned_at >= ?", claims.Subject, cutoff.Unix()).
+		Where("employee_id = ? AND work_day >= ?", claims.Subject, cutoff.Unix()).
 		Find(ctx)
 	if err != nil {
 		return nil, err
