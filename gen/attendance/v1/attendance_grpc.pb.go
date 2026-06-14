@@ -22,7 +22,6 @@ const (
 	AttendanceService_CheckIn_FullMethodName           = "/attendance.v1.AttendanceService/CheckIn"
 	AttendanceService_CheckOut_FullMethodName          = "/attendance.v1.AttendanceService/CheckOut"
 	AttendanceService_Generate_FullMethodName          = "/attendance.v1.AttendanceService/Generate"
-	AttendanceService_Today_FullMethodName             = "/attendance.v1.AttendanceService/Today"
 	AttendanceService_GetAllAttendance_FullMethodName  = "/attendance.v1.AttendanceService/GetAllAttendance"
 	AttendanceService_GetAttendanceById_FullMethodName = "/attendance.v1.AttendanceService/GetAttendanceById"
 	AttendanceService_GetCurrent_FullMethodName        = "/attendance.v1.AttendanceService/GetCurrent"
@@ -35,7 +34,6 @@ type AttendanceServiceClient interface {
 	CheckIn(ctx context.Context, in *CheckInRequest, opts ...grpc.CallOption) (*CheckInResponse, error)
 	CheckOut(ctx context.Context, in *CheckOutRequest, opts ...grpc.CallOption) (*CheckOutResponse, error)
 	Generate(ctx context.Context, in *GenerateRequest, opts ...grpc.CallOption) (*GenerateResponse, error)
-	Today(ctx context.Context, in *TodayRequest, opts ...grpc.CallOption) (*TodayResponse, error)
 	GetAllAttendance(ctx context.Context, in *GetAllAttendanceRequest, opts ...grpc.CallOption) (*GetAllAttendanceResponse, error)
 	GetAttendanceById(ctx context.Context, in *GetAttendanceByIdRequest, opts ...grpc.CallOption) (*GetAttendanceByIdResponse, error)
 	GetCurrent(ctx context.Context, in *GetCurrentRequest, opts ...grpc.CallOption) (*GetCurrentResponse, error)
@@ -79,16 +77,6 @@ func (c *attendanceServiceClient) Generate(ctx context.Context, in *GenerateRequ
 	return out, nil
 }
 
-func (c *attendanceServiceClient) Today(ctx context.Context, in *TodayRequest, opts ...grpc.CallOption) (*TodayResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(TodayResponse)
-	err := c.cc.Invoke(ctx, AttendanceService_Today_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *attendanceServiceClient) GetAllAttendance(ctx context.Context, in *GetAllAttendanceRequest, opts ...grpc.CallOption) (*GetAllAttendanceResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetAllAttendanceResponse)
@@ -126,7 +114,6 @@ type AttendanceServiceServer interface {
 	CheckIn(context.Context, *CheckInRequest) (*CheckInResponse, error)
 	CheckOut(context.Context, *CheckOutRequest) (*CheckOutResponse, error)
 	Generate(context.Context, *GenerateRequest) (*GenerateResponse, error)
-	Today(context.Context, *TodayRequest) (*TodayResponse, error)
 	GetAllAttendance(context.Context, *GetAllAttendanceRequest) (*GetAllAttendanceResponse, error)
 	GetAttendanceById(context.Context, *GetAttendanceByIdRequest) (*GetAttendanceByIdResponse, error)
 	GetCurrent(context.Context, *GetCurrentRequest) (*GetCurrentResponse, error)
@@ -148,9 +135,6 @@ func (UnimplementedAttendanceServiceServer) CheckOut(context.Context, *CheckOutR
 }
 func (UnimplementedAttendanceServiceServer) Generate(context.Context, *GenerateRequest) (*GenerateResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Generate not implemented")
-}
-func (UnimplementedAttendanceServiceServer) Today(context.Context, *TodayRequest) (*TodayResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method Today not implemented")
 }
 func (UnimplementedAttendanceServiceServer) GetAllAttendance(context.Context, *GetAllAttendanceRequest) (*GetAllAttendanceResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetAllAttendance not implemented")
@@ -236,24 +220,6 @@ func _AttendanceService_Generate_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AttendanceService_Today_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(TodayRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AttendanceServiceServer).Today(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: AttendanceService_Today_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AttendanceServiceServer).Today(ctx, req.(*TodayRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _AttendanceService_GetAllAttendance_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetAllAttendanceRequest)
 	if err := dec(in); err != nil {
@@ -326,10 +292,6 @@ var AttendanceService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Generate",
 			Handler:    _AttendanceService_Generate_Handler,
-		},
-		{
-			MethodName: "Today",
-			Handler:    _AttendanceService_Today_Handler,
 		},
 		{
 			MethodName: "GetAllAttendance",

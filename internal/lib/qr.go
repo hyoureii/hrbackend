@@ -7,10 +7,10 @@ import (
 	"github.com/skip2/go-qrcode"
 )
 
-const openapp = "https://hrconnect.hyourei.xyz/openapp/scan"
+const openapp = "https://hr.hyourei.xyz/openapp/scan"
 
-func GenerateAttendanceQr() ([]byte, error) {
-	jwt, err := GenerateAttendanceJWT(CheckIn, time.Now().Add(time.Second * 30))
+func GenerateAttendanceQr(typ AttendanceClaimType, exp time.Time, id string) ([]byte, error) {
+	jwt, err := GenerateAttendanceJWTWithID(typ, exp, id)
 	if err != nil {
 		return nil, err
 	}
@@ -19,5 +19,11 @@ func GenerateAttendanceQr() ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	return qr.PNG(512)
+
+	qrBytes, err := qr.PNG(512)
+	if err != nil {
+		return nil, err
+	}
+
+	return qrBytes, nil
 }

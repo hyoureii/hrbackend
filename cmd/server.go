@@ -84,7 +84,7 @@ func (s *Server) Run(c context.Context, shutdownTimeout time.Duration) error {
 
 	auth.RegisterAuthServiceServer(grpcServer, service.NewAuthServiceServer(s.db))
 	users.RegisterUsersServiceServer(grpcServer, service.NewUsersServiceServer(s.db))
-	attendance.RegisterAttendanceServiceServer(grpcServer, service.NewAttendanceServiceServer(s.db))
+	attendance.RegisterAttendanceServiceServer(grpcServer, service.NewAttendanceServiceServer(s.db, s.rdb))
 	request.RegisterLeaveServiceServer(grpcServer, service.NewLeaveServiceServer(s.db))
 	request.RegisterTripServiceServer(grpcServer, service.NewTripServiceServer(s.db))
 	dashboard.RegisterDashboardServiceServer(grpcServer, service.NewDashboardServiceServer(s.db))
@@ -114,6 +114,23 @@ func (s *Server) Run(c context.Context, shutdownTimeout time.Duration) error {
 	handleStatic(gatewayMux, "/scalar.js", "application/javascript", static.ScalarJS)
 	handleStatic(gatewayMux, "/openapi.json", "application/json", static.OpenApiSpec)
 
+	qrMux := http.NewServeMux()
+	qrMux.HandleFunc("/qr/{id}", func(w http.ResponseWriter, r *http.Request) {
+		png, err := s.rdb.Get(r.Context(), "qr:"+r.PathValue("id")).Bytes()
+		if err != nil {
+			if errors.Is(err, redis.Nil) {
+				http.Error(w, "QR code not found or expired", http.StatusNotFound)
+				return
+			}
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "image/png")
+		w.Header().Set("Cache-Control", "no-store")
+		w.Write(png)
+	})
+
 	gateway := &http.Server{
 		Addr: s.httpAddr,
 		Handler: func(h http.Handler) http.Handler {
@@ -124,9 +141,9 @@ func (s *Server) Run(c context.Context, shutdownTimeout time.Duration) error {
 
 				if after, ok := strings.CutPrefix(r.URL.Path, "/api/v1"); ok {
 					r.URL.Path = after
-					gatewayMux.ServeHTTP(w, r)
+					h.ServeHTTP(w, r)
 				} else {
-					http.NotFound(w, r)
+					qrMux.ServeHTTP(w, r)
 					return
 				}
 			})

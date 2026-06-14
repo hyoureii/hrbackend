@@ -25,7 +25,9 @@ const (
 
 type Attendance struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	ScannedAt     int64                  `protobuf:"varint,1,opt,name=scanned_at,json=scannedAt,proto3" json:"scanned_at,omitempty"`
+	Workday       int64                  `protobuf:"varint,1,opt,name=workday,proto3" json:"workday,omitempty"`
+	CheckInAt     int64                  `protobuf:"varint,2,opt,name=check_in_at,json=checkInAt,proto3" json:"check_in_at,omitempty"`
+	CheckOutAt    int64                  `protobuf:"varint,3,opt,name=check_out_at,json=checkOutAt,proto3" json:"check_out_at,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -60,9 +62,23 @@ func (*Attendance) Descriptor() ([]byte, []int) {
 	return file_attendance_v1_attendance_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *Attendance) GetScannedAt() int64 {
+func (x *Attendance) GetWorkday() int64 {
 	if x != nil {
-		return x.ScannedAt
+		return x.Workday
+	}
+	return 0
+}
+
+func (x *Attendance) GetCheckInAt() int64 {
+	if x != nil {
+		return x.CheckInAt
+	}
+	return 0
+}
+
+func (x *Attendance) GetCheckOutAt() int64 {
+	if x != nil {
+		return x.CheckOutAt
 	}
 	return 0
 }
@@ -265,8 +281,7 @@ func (*GenerateRequest) Descriptor() ([]byte, []int) {
 
 type GenerateResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Png           []byte                 `protobuf:"bytes,1,opt,name=png,proto3" json:"png,omitempty"`
-	Url           string                 `protobuf:"bytes,2,opt,name=url,proto3" json:"url,omitempty"`
+	Url           string                 `protobuf:"bytes,1,opt,name=url,proto3" json:"url,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -301,102 +316,7 @@ func (*GenerateResponse) Descriptor() ([]byte, []int) {
 	return file_attendance_v1_attendance_proto_rawDescGZIP(), []int{6}
 }
 
-func (x *GenerateResponse) GetPng() []byte {
-	if x != nil {
-		return x.Png
-	}
-	return nil
-}
-
 func (x *GenerateResponse) GetUrl() string {
-	if x != nil {
-		return x.Url
-	}
-	return ""
-}
-
-type TodayRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *TodayRequest) Reset() {
-	*x = TodayRequest{}
-	mi := &file_attendance_v1_attendance_proto_msgTypes[7]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *TodayRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*TodayRequest) ProtoMessage() {}
-
-func (x *TodayRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_attendance_v1_attendance_proto_msgTypes[7]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use TodayRequest.ProtoReflect.Descriptor instead.
-func (*TodayRequest) Descriptor() ([]byte, []int) {
-	return file_attendance_v1_attendance_proto_rawDescGZIP(), []int{7}
-}
-
-type TodayResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Png           []byte                 `protobuf:"bytes,1,opt,name=png,proto3" json:"png,omitempty"`
-	Url           string                 `protobuf:"bytes,2,opt,name=url,proto3" json:"url,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *TodayResponse) Reset() {
-	*x = TodayResponse{}
-	mi := &file_attendance_v1_attendance_proto_msgTypes[8]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *TodayResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*TodayResponse) ProtoMessage() {}
-
-func (x *TodayResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_attendance_v1_attendance_proto_msgTypes[8]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use TodayResponse.ProtoReflect.Descriptor instead.
-func (*TodayResponse) Descriptor() ([]byte, []int) {
-	return file_attendance_v1_attendance_proto_rawDescGZIP(), []int{8}
-}
-
-func (x *TodayResponse) GetPng() []byte {
-	if x != nil {
-		return x.Png
-	}
-	return nil
-}
-
-func (x *TodayResponse) GetUrl() string {
 	if x != nil {
 		return x.Url
 	}
@@ -411,7 +331,7 @@ type GetAllAttendanceRequest struct {
 
 func (x *GetAllAttendanceRequest) Reset() {
 	*x = GetAllAttendanceRequest{}
-	mi := &file_attendance_v1_attendance_proto_msgTypes[9]
+	mi := &file_attendance_v1_attendance_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -423,7 +343,7 @@ func (x *GetAllAttendanceRequest) String() string {
 func (*GetAllAttendanceRequest) ProtoMessage() {}
 
 func (x *GetAllAttendanceRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_attendance_v1_attendance_proto_msgTypes[9]
+	mi := &file_attendance_v1_attendance_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -436,7 +356,7 @@ func (x *GetAllAttendanceRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAllAttendanceRequest.ProtoReflect.Descriptor instead.
 func (*GetAllAttendanceRequest) Descriptor() ([]byte, []int) {
-	return file_attendance_v1_attendance_proto_rawDescGZIP(), []int{9}
+	return file_attendance_v1_attendance_proto_rawDescGZIP(), []int{7}
 }
 
 type GetAllAttendanceResponse struct {
@@ -448,7 +368,7 @@ type GetAllAttendanceResponse struct {
 
 func (x *GetAllAttendanceResponse) Reset() {
 	*x = GetAllAttendanceResponse{}
-	mi := &file_attendance_v1_attendance_proto_msgTypes[10]
+	mi := &file_attendance_v1_attendance_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -460,7 +380,7 @@ func (x *GetAllAttendanceResponse) String() string {
 func (*GetAllAttendanceResponse) ProtoMessage() {}
 
 func (x *GetAllAttendanceResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_attendance_v1_attendance_proto_msgTypes[10]
+	mi := &file_attendance_v1_attendance_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -473,7 +393,7 @@ func (x *GetAllAttendanceResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAllAttendanceResponse.ProtoReflect.Descriptor instead.
 func (*GetAllAttendanceResponse) Descriptor() ([]byte, []int) {
-	return file_attendance_v1_attendance_proto_rawDescGZIP(), []int{10}
+	return file_attendance_v1_attendance_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *GetAllAttendanceResponse) GetUserAttendance() []*GetAllAttendanceResponse_UserAttendance {
@@ -492,7 +412,7 @@ type GetAttendanceByIdRequest struct {
 
 func (x *GetAttendanceByIdRequest) Reset() {
 	*x = GetAttendanceByIdRequest{}
-	mi := &file_attendance_v1_attendance_proto_msgTypes[11]
+	mi := &file_attendance_v1_attendance_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -504,7 +424,7 @@ func (x *GetAttendanceByIdRequest) String() string {
 func (*GetAttendanceByIdRequest) ProtoMessage() {}
 
 func (x *GetAttendanceByIdRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_attendance_v1_attendance_proto_msgTypes[11]
+	mi := &file_attendance_v1_attendance_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -517,7 +437,7 @@ func (x *GetAttendanceByIdRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAttendanceByIdRequest.ProtoReflect.Descriptor instead.
 func (*GetAttendanceByIdRequest) Descriptor() ([]byte, []int) {
-	return file_attendance_v1_attendance_proto_rawDescGZIP(), []int{11}
+	return file_attendance_v1_attendance_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *GetAttendanceByIdRequest) GetId() string {
@@ -536,7 +456,7 @@ type GetAttendanceByIdResponse struct {
 
 func (x *GetAttendanceByIdResponse) Reset() {
 	*x = GetAttendanceByIdResponse{}
-	mi := &file_attendance_v1_attendance_proto_msgTypes[12]
+	mi := &file_attendance_v1_attendance_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -548,7 +468,7 @@ func (x *GetAttendanceByIdResponse) String() string {
 func (*GetAttendanceByIdResponse) ProtoMessage() {}
 
 func (x *GetAttendanceByIdResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_attendance_v1_attendance_proto_msgTypes[12]
+	mi := &file_attendance_v1_attendance_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -561,7 +481,7 @@ func (x *GetAttendanceByIdResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAttendanceByIdResponse.ProtoReflect.Descriptor instead.
 func (*GetAttendanceByIdResponse) Descriptor() ([]byte, []int) {
-	return file_attendance_v1_attendance_proto_rawDescGZIP(), []int{12}
+	return file_attendance_v1_attendance_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *GetAttendanceByIdResponse) GetAttendance() []*Attendance {
@@ -579,7 +499,7 @@ type GetCurrentRequest struct {
 
 func (x *GetCurrentRequest) Reset() {
 	*x = GetCurrentRequest{}
-	mi := &file_attendance_v1_attendance_proto_msgTypes[13]
+	mi := &file_attendance_v1_attendance_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -591,7 +511,7 @@ func (x *GetCurrentRequest) String() string {
 func (*GetCurrentRequest) ProtoMessage() {}
 
 func (x *GetCurrentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_attendance_v1_attendance_proto_msgTypes[13]
+	mi := &file_attendance_v1_attendance_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -604,7 +524,7 @@ func (x *GetCurrentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetCurrentRequest.ProtoReflect.Descriptor instead.
 func (*GetCurrentRequest) Descriptor() ([]byte, []int) {
-	return file_attendance_v1_attendance_proto_rawDescGZIP(), []int{13}
+	return file_attendance_v1_attendance_proto_rawDescGZIP(), []int{11}
 }
 
 type GetCurrentResponse struct {
@@ -616,7 +536,7 @@ type GetCurrentResponse struct {
 
 func (x *GetCurrentResponse) Reset() {
 	*x = GetCurrentResponse{}
-	mi := &file_attendance_v1_attendance_proto_msgTypes[14]
+	mi := &file_attendance_v1_attendance_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -628,7 +548,7 @@ func (x *GetCurrentResponse) String() string {
 func (*GetCurrentResponse) ProtoMessage() {}
 
 func (x *GetCurrentResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_attendance_v1_attendance_proto_msgTypes[14]
+	mi := &file_attendance_v1_attendance_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -641,7 +561,7 @@ func (x *GetCurrentResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetCurrentResponse.ProtoReflect.Descriptor instead.
 func (*GetCurrentResponse) Descriptor() ([]byte, []int) {
-	return file_attendance_v1_attendance_proto_rawDescGZIP(), []int{14}
+	return file_attendance_v1_attendance_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *GetCurrentResponse) GetAttendance() []*Attendance {
@@ -661,7 +581,7 @@ type GetAllAttendanceResponse_UserAttendance struct {
 
 func (x *GetAllAttendanceResponse_UserAttendance) Reset() {
 	*x = GetAllAttendanceResponse_UserAttendance{}
-	mi := &file_attendance_v1_attendance_proto_msgTypes[15]
+	mi := &file_attendance_v1_attendance_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -673,7 +593,7 @@ func (x *GetAllAttendanceResponse_UserAttendance) String() string {
 func (*GetAllAttendanceResponse_UserAttendance) ProtoMessage() {}
 
 func (x *GetAllAttendanceResponse_UserAttendance) ProtoReflect() protoreflect.Message {
-	mi := &file_attendance_v1_attendance_proto_msgTypes[15]
+	mi := &file_attendance_v1_attendance_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -686,7 +606,7 @@ func (x *GetAllAttendanceResponse_UserAttendance) ProtoReflect() protoreflect.Me
 
 // Deprecated: Use GetAllAttendanceResponse_UserAttendance.ProtoReflect.Descriptor instead.
 func (*GetAllAttendanceResponse_UserAttendance) Descriptor() ([]byte, []int) {
-	return file_attendance_v1_attendance_proto_rawDescGZIP(), []int{10, 0}
+	return file_attendance_v1_attendance_proto_rawDescGZIP(), []int{8, 0}
 }
 
 func (x *GetAllAttendanceResponse_UserAttendance) GetUserId() string {
@@ -707,25 +627,22 @@ var File_attendance_v1_attendance_proto protoreflect.FileDescriptor
 
 const file_attendance_v1_attendance_proto_rawDesc = "" +
 	"\n" +
-	"\x1eattendance/v1/attendance.proto\x12\rattendance.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\"3\n" +
+	"\x1eattendance/v1/attendance.proto\x12\rattendance.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\"h\n" +
 	"\n" +
-	"Attendance\x12%\n" +
-	"\n" +
-	"scanned_at\x18\x01 \x01(\x03B\x06\xbaH\x03\xc8\x01\x01R\tscannedAt\"2\n" +
+	"Attendance\x12\x18\n" +
+	"\aworkday\x18\x01 \x01(\x03R\aworkday\x12\x1e\n" +
+	"\vcheck_in_at\x18\x02 \x01(\x03R\tcheckInAt\x12 \n" +
+	"\fcheck_out_at\x18\x03 \x01(\x03R\n" +
+	"checkOutAt\"2\n" +
 	"\x0eCheckInRequest\x12 \n" +
 	"\apayload\x18\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\apayload\"\x11\n" +
 	"\x0fCheckInResponse\"3\n" +
 	"\x0fCheckOutRequest\x12 \n" +
 	"\apayload\x18\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\apayload\"\x12\n" +
 	"\x10CheckOutResponse\"\x11\n" +
-	"\x0fGenerateRequest\"6\n" +
+	"\x0fGenerateRequest\"$\n" +
 	"\x10GenerateResponse\x12\x10\n" +
-	"\x03png\x18\x01 \x01(\fR\x03png\x12\x10\n" +
-	"\x03url\x18\x02 \x01(\tR\x03url\"\x0e\n" +
-	"\fTodayRequest\"3\n" +
-	"\rTodayResponse\x12\x10\n" +
-	"\x03png\x18\x01 \x01(\fR\x03png\x12\x10\n" +
-	"\x03url\x18\x02 \x01(\tR\x03url\"\x19\n" +
+	"\x03url\x18\x01 \x01(\tR\x03url\"\x19\n" +
 	"\x17GetAllAttendanceRequest\"\xe1\x01\n" +
 	"\x18GetAllAttendanceResponse\x12_\n" +
 	"\x0fuser_attendance\x18\x01 \x03(\v26.attendance.v1.GetAllAttendanceResponse.UserAttendanceR\x0euserAttendance\x1ad\n" +
@@ -744,12 +661,11 @@ const file_attendance_v1_attendance_proto_rawDesc = "" +
 	"\x12GetCurrentResponse\x129\n" +
 	"\n" +
 	"attendance\x18\x01 \x03(\v2\x19.attendance.v1.AttendanceR\n" +
-	"attendance2\x9d\x06\n" +
+	"attendance2\xbe\x05\n" +
 	"\x11AttendanceService\x12h\n" +
 	"\aCheckIn\x12\x1d.attendance.v1.CheckInRequest\x1a\x1e.attendance.v1.CheckInResponse\"\x1e\x82\xd3\xe4\x93\x02\x18:\x01*\"\x13/attendance/checkin\x12l\n" +
 	"\bCheckOut\x12\x1e.attendance.v1.CheckOutRequest\x1a\x1f.attendance.v1.CheckOutResponse\"\x1f\x82\xd3\xe4\x93\x02\x19:\x01*\"\x14/attendance/checkout\x12i\n" +
-	"\bGenerate\x12\x1e.attendance.v1.GenerateRequest\x1a\x1f.attendance.v1.GenerateResponse\"\x1c\x82\xd3\xe4\x93\x02\x16\"\x14/attendance/generate\x12]\n" +
-	"\x05Today\x12\x1b.attendance.v1.TodayRequest\x1a\x1c.attendance.v1.TodayResponse\"\x19\x82\xd3\xe4\x93\x02\x13\"\x11/attendance/today\x12x\n" +
+	"\bGenerate\x12\x1e.attendance.v1.GenerateRequest\x1a\x1f.attendance.v1.GenerateResponse\"\x1c\x82\xd3\xe4\x93\x02\x16\"\x14/attendance/generate\x12x\n" +
 	"\x10GetAllAttendance\x12&.attendance.v1.GetAllAttendanceRequest\x1a'.attendance.v1.GetAllAttendanceResponse\"\x13\x82\xd3\xe4\x93\x02\r\x12\v/attendance\x12\x80\x01\n" +
 	"\x11GetAttendanceById\x12'.attendance.v1.GetAttendanceByIdRequest\x1a(.attendance.v1.GetAttendanceByIdResponse\"\x18\x82\xd3\xe4\x93\x02\x12\x12\x10/attendance/{id}\x12i\n" +
 	"\n" +
@@ -768,7 +684,7 @@ func file_attendance_v1_attendance_proto_rawDescGZIP() []byte {
 	return file_attendance_v1_attendance_proto_rawDescData
 }
 
-var file_attendance_v1_attendance_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
+var file_attendance_v1_attendance_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
 var file_attendance_v1_attendance_proto_goTypes = []any{
 	(*Attendance)(nil),                              // 0: attendance.v1.Attendance
 	(*CheckInRequest)(nil),                          // 1: attendance.v1.CheckInRequest
@@ -777,37 +693,33 @@ var file_attendance_v1_attendance_proto_goTypes = []any{
 	(*CheckOutResponse)(nil),                        // 4: attendance.v1.CheckOutResponse
 	(*GenerateRequest)(nil),                         // 5: attendance.v1.GenerateRequest
 	(*GenerateResponse)(nil),                        // 6: attendance.v1.GenerateResponse
-	(*TodayRequest)(nil),                            // 7: attendance.v1.TodayRequest
-	(*TodayResponse)(nil),                           // 8: attendance.v1.TodayResponse
-	(*GetAllAttendanceRequest)(nil),                 // 9: attendance.v1.GetAllAttendanceRequest
-	(*GetAllAttendanceResponse)(nil),                // 10: attendance.v1.GetAllAttendanceResponse
-	(*GetAttendanceByIdRequest)(nil),                // 11: attendance.v1.GetAttendanceByIdRequest
-	(*GetAttendanceByIdResponse)(nil),               // 12: attendance.v1.GetAttendanceByIdResponse
-	(*GetCurrentRequest)(nil),                       // 13: attendance.v1.GetCurrentRequest
-	(*GetCurrentResponse)(nil),                      // 14: attendance.v1.GetCurrentResponse
-	(*GetAllAttendanceResponse_UserAttendance)(nil), // 15: attendance.v1.GetAllAttendanceResponse.UserAttendance
+	(*GetAllAttendanceRequest)(nil),                 // 7: attendance.v1.GetAllAttendanceRequest
+	(*GetAllAttendanceResponse)(nil),                // 8: attendance.v1.GetAllAttendanceResponse
+	(*GetAttendanceByIdRequest)(nil),                // 9: attendance.v1.GetAttendanceByIdRequest
+	(*GetAttendanceByIdResponse)(nil),               // 10: attendance.v1.GetAttendanceByIdResponse
+	(*GetCurrentRequest)(nil),                       // 11: attendance.v1.GetCurrentRequest
+	(*GetCurrentResponse)(nil),                      // 12: attendance.v1.GetCurrentResponse
+	(*GetAllAttendanceResponse_UserAttendance)(nil), // 13: attendance.v1.GetAllAttendanceResponse.UserAttendance
 }
 var file_attendance_v1_attendance_proto_depIdxs = []int32{
-	15, // 0: attendance.v1.GetAllAttendanceResponse.user_attendance:type_name -> attendance.v1.GetAllAttendanceResponse.UserAttendance
+	13, // 0: attendance.v1.GetAllAttendanceResponse.user_attendance:type_name -> attendance.v1.GetAllAttendanceResponse.UserAttendance
 	0,  // 1: attendance.v1.GetAttendanceByIdResponse.attendance:type_name -> attendance.v1.Attendance
 	0,  // 2: attendance.v1.GetCurrentResponse.attendance:type_name -> attendance.v1.Attendance
 	0,  // 3: attendance.v1.GetAllAttendanceResponse.UserAttendance.attendance:type_name -> attendance.v1.Attendance
 	1,  // 4: attendance.v1.AttendanceService.CheckIn:input_type -> attendance.v1.CheckInRequest
 	3,  // 5: attendance.v1.AttendanceService.CheckOut:input_type -> attendance.v1.CheckOutRequest
 	5,  // 6: attendance.v1.AttendanceService.Generate:input_type -> attendance.v1.GenerateRequest
-	7,  // 7: attendance.v1.AttendanceService.Today:input_type -> attendance.v1.TodayRequest
-	9,  // 8: attendance.v1.AttendanceService.GetAllAttendance:input_type -> attendance.v1.GetAllAttendanceRequest
-	11, // 9: attendance.v1.AttendanceService.GetAttendanceById:input_type -> attendance.v1.GetAttendanceByIdRequest
-	13, // 10: attendance.v1.AttendanceService.GetCurrent:input_type -> attendance.v1.GetCurrentRequest
-	2,  // 11: attendance.v1.AttendanceService.CheckIn:output_type -> attendance.v1.CheckInResponse
-	4,  // 12: attendance.v1.AttendanceService.CheckOut:output_type -> attendance.v1.CheckOutResponse
-	6,  // 13: attendance.v1.AttendanceService.Generate:output_type -> attendance.v1.GenerateResponse
-	8,  // 14: attendance.v1.AttendanceService.Today:output_type -> attendance.v1.TodayResponse
-	10, // 15: attendance.v1.AttendanceService.GetAllAttendance:output_type -> attendance.v1.GetAllAttendanceResponse
-	12, // 16: attendance.v1.AttendanceService.GetAttendanceById:output_type -> attendance.v1.GetAttendanceByIdResponse
-	14, // 17: attendance.v1.AttendanceService.GetCurrent:output_type -> attendance.v1.GetCurrentResponse
-	11, // [11:18] is the sub-list for method output_type
-	4,  // [4:11] is the sub-list for method input_type
+	7,  // 7: attendance.v1.AttendanceService.GetAllAttendance:input_type -> attendance.v1.GetAllAttendanceRequest
+	9,  // 8: attendance.v1.AttendanceService.GetAttendanceById:input_type -> attendance.v1.GetAttendanceByIdRequest
+	11, // 9: attendance.v1.AttendanceService.GetCurrent:input_type -> attendance.v1.GetCurrentRequest
+	2,  // 10: attendance.v1.AttendanceService.CheckIn:output_type -> attendance.v1.CheckInResponse
+	4,  // 11: attendance.v1.AttendanceService.CheckOut:output_type -> attendance.v1.CheckOutResponse
+	6,  // 12: attendance.v1.AttendanceService.Generate:output_type -> attendance.v1.GenerateResponse
+	8,  // 13: attendance.v1.AttendanceService.GetAllAttendance:output_type -> attendance.v1.GetAllAttendanceResponse
+	10, // 14: attendance.v1.AttendanceService.GetAttendanceById:output_type -> attendance.v1.GetAttendanceByIdResponse
+	12, // 15: attendance.v1.AttendanceService.GetCurrent:output_type -> attendance.v1.GetCurrentResponse
+	10, // [10:16] is the sub-list for method output_type
+	4,  // [4:10] is the sub-list for method input_type
 	4,  // [4:4] is the sub-list for extension type_name
 	4,  // [4:4] is the sub-list for extension extendee
 	0,  // [0:4] is the sub-list for field type_name
@@ -824,7 +736,7 @@ func file_attendance_v1_attendance_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_attendance_v1_attendance_proto_rawDesc), len(file_attendance_v1_attendance_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   16,
+			NumMessages:   14,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

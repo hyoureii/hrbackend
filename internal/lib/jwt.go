@@ -68,10 +68,14 @@ func GenerateAttendanceJWT(typ AttendanceClaimType, exp time.Time) (string, erro
 		return "", err
 	}
 
+	return GenerateAttendanceJWTWithID(typ, exp, id.String())
+}
+
+func GenerateAttendanceJWTWithID(typ AttendanceClaimType, exp time.Time, id string) (string, error) {
 	claims := &AttendanceClaims{
 		Type: typ,
 	}
-	claims.ID = id.String()
+	claims.ID = id
 	claims.ExpiresAt = jwt.NewNumericDate(exp)
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenStr, err := token.SignedString(jwtSecret)
@@ -90,6 +94,20 @@ func ValidateJwt(tokenString string) (*AuthClaims, error) {
 		return nil, err
 	}
 	claims, ok := token.Claims.(*AuthClaims)
+	if !ok || !token.Valid {
+		return nil, errors.New("Invalid token")
+	}
+	return claims, nil
+}
+
+func ValidateAttendanceJwt(tokenString string) (*AttendanceClaims, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &AttendanceClaims{}, func(t *jwt.Token) (any, error) {
+		return jwtSecret, nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	claims, ok := token.Claims.(*AttendanceClaims)
 	if !ok || !token.Valid {
 		return nil, errors.New("Invalid token")
 	}
