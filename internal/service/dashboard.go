@@ -43,7 +43,7 @@ func (s DashboardServiceServer) Dashboard(ctx context.Context, req *dashboard.Da
 
 	seen := make(map[string]struct{})
 	for _, r := range records {
-		t := time.Unix(r.ScannedAt, 0)
+		t := time.Unix(r.WorkDay, 0)
 		if wd := t.Weekday(); wd != time.Saturday && wd != time.Sunday {
 			key := t.Format("2006-01-02")
 			seen[key] = struct{}{}

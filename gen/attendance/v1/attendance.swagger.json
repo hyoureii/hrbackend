@@ -146,28 +146,6 @@
         ]
       }
     },
-    "/attendance/today": {
-      "post": {
-        "operationId": "AttendanceService_Today",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1TodayResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "tags": [
-          "AttendanceService"
-        ]
-      }
-    },
     "/attendance/{id}": {
       "get": {
         "operationId": "AttendanceService_GetAttendanceById",
@@ -246,7 +224,15 @@
     "v1Attendance": {
       "type": "object",
       "properties": {
-        "scannedAt": {
+        "workday": {
+          "type": "string",
+          "format": "int64"
+        },
+        "checkInAt": {
+          "type": "string",
+          "format": "int64"
+        },
+        "checkOutAt": {
           "type": "string",
           "format": "int64"
         }
@@ -277,10 +263,6 @@
     "v1GenerateResponse": {
       "type": "object",
       "properties": {
-        "png": {
-          "type": "string",
-          "format": "byte"
-        },
         "url": {
           "type": "string"
         }
@@ -319,18 +301,6 @@
             "type": "object",
             "$ref": "#/definitions/v1Attendance"
           }
-        }
-      }
-    },
-    "v1TodayResponse": {
-      "type": "object",
-      "properties": {
-        "png": {
-          "type": "string",
-          "format": "byte"
-        },
-        "url": {
-          "type": "string"
         }
       }
     }

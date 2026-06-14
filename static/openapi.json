@@ -147,7 +147,15 @@
       },
       "v1Attendance": {
         "properties": {
-          "scannedAt": {
+          "checkInAt": {
+            "format": "int64",
+            "type": "string"
+          },
+          "checkOutAt": {
+            "format": "int64",
+            "type": "string"
+          },
+          "workday": {
             "format": "int64",
             "type": "string"
           }
@@ -219,10 +227,6 @@
       },
       "v1GenerateResponse": {
         "properties": {
-          "png": {
-            "format": "byte",
-            "type": "string"
-          },
           "url": {
             "type": "string"
           }
@@ -499,18 +503,6 @@
       "v1ResetPasswordResponse": {
         "type": "object"
       },
-      "v1TodayResponse": {
-        "properties": {
-          "png": {
-            "format": "byte",
-            "type": "string"
-          },
-          "url": {
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
       "v1UpdateLeaveResponse": {
         "type": "object"
       },
@@ -726,41 +718,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/v1GetCurrentResponse"
-                }
-              }
-            },
-            "description": "A successful response."
-          },
-          "default": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/rpcStatus"
-                }
-              }
-            },
-            "description": "An unexpected error response."
-          }
-        },
-        "tags": [
-          "AttendanceService"
-        ]
-      }
-    },
-    "/attendance/today": {
-      "post": {
-        "operationId": "AttendanceService_Today",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/authHeader"
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/v1TodayResponse"
                 }
               }
             },

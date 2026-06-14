@@ -7,7 +7,9 @@ import "google/api/annotations.proto";
 option go_package = "github.com/hyoureii/hrbackend/gen/attendance/v1;attendance";
 
 message Attendance {
-  int64 scanned_at = 1 [(buf.validate.field).required = true];
+  int64 workday = 1;
+  int64 check_in_at = 2;
+  int64 check_out_at = 3;
 }
 
 message CheckInRequest {
@@ -22,14 +24,7 @@ message CheckOutResponse {}
 
 message GenerateRequest {}
 message GenerateResponse {
-  bytes png = 1;
-  string url = 2;
-}
-
-message TodayRequest {}
-message TodayResponse {
-  bytes png = 1;
-  string url = 2;
+  string url = 1;
 }
 
 message GetAllAttendanceRequest {}
@@ -70,10 +65,6 @@ service AttendanceService {
 
   rpc Generate(GenerateRequest) returns (GenerateResponse) {
     option (google.api.http) = {post: "/attendance/generate"};
-  }
-
-  rpc Today(TodayRequest) returns (TodayResponse) {
-    option (google.api.http) = {post: "/attendance/today"};
   }
 
   rpc GetAllAttendance(GetAllAttendanceRequest) returns (GetAllAttendanceResponse) {
