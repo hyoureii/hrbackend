@@ -1,0 +1,25 @@
+name: Proto check
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install buf
+        uses: bufbuild/buf-setup-action@v1.50.0
+
+      - name: Generate from proto using remote plugins
+        run: buf generate --template buf.gen.remote.yaml
+
+      - name: Check generated code is up-to-date
+        run: |
+          if ! git diff --quiet gen/; then
+            echo "gen/ is out of sync with proto/. Run 'buf generate' and commit the result."
+            git diff gen/
+            exit 1
+          fi
