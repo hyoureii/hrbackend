@@ -11,6 +11,7 @@ import (
 
 	"github.com/hyoureii/hrbackend/gen/auth/v1"
 	"github.com/hyoureii/hrbackend/internal/lib"
+	"github.com/redis/go-redis/v9"
 )
 
 type contextKey = string
@@ -22,7 +23,7 @@ var publicRoutes = map[string]bool{
 	auth.AuthService_Refresh_FullMethodName: true,
 }
 
-func UseAuth() grpc.UnaryServerInterceptor {
+func UseAuth(rdb *redis.Client) grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
 		if publicRoutes[info.FullMethod] {
 			return handler(ctx, req)
@@ -43,6 +44,15 @@ func UseAuth() grpc.UnaryServerInterceptor {
 		claims, err := lib.ValidateJwt(tokenStr)
 		if err != nil {
 			return nil, status.Error(codes.Unauthenticated, err.Error())
+		}
+
+		hash := lib.HashToken(tokenStr)
+		blacklisted, err := rdb.Exists(ctx, "blacklist:"+hash).Result()
+		if err != nil {
+			return nil, status.Error(codes.Internal, "Internal error")
+		}
+		if blacklisted > 0 {
+			return nil, status.Error(codes.Unauthenticated, "Token revoked")
 		}
 
 		ctx = metadata.NewIncomingContext(context.WithValue(ctx, ClaimsKey, claims), meta)

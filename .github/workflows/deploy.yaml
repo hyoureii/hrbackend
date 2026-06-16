@@ -38,10 +38,10 @@ jobs:
           docker compose -f docker-compose.prod.yaml pull && \
           docker compose -f docker-compose.prod.yaml up -d --remove-orphans'
 
-      - name: Run migrations and seed
-        run: |
-          ssh -i ~/.ssh/id_ed25519 \
-          ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
-          'cd /app && \
-          docker compose -f docker-compose.prod.yaml exec -T app /migrate push && \
-          docker compose -f docker-compose.prod.yaml exec -T app /seed'
+      # - name: Run migrations and seed
+      #   run: |
+      #     ssh -i ~/.ssh/id_ed25519 \
+      #     ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
+      #     'cd /app && \
+      #     docker compose -f docker-compose.prod.yaml exec -T app /migrate push && \
+      #     docker compose -f docker-compose.prod.yaml exec -T app /seed'
