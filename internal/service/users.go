@@ -187,22 +187,44 @@ func (s UsersServiceServer) Activate(c context.Context, r *users.ActivateRequest
 }
 
 func (s UsersServiceServer) Update(c context.Context, r *users.UpdateRequest) (*users.UpdateResponse, error) {
-	roleId, err := getRoleID(c, r.Data.Role, s.db)
-	if err != nil {
-		return nil, err
+	claims := c.Value(middleware.ClaimsKey).(*lib.AuthClaims)
+
+	canSetRole := (lib.HasPermission(claims.Perms, "manageUsers") || lib.HasPermission(claims.Perms, "manageEmployee"))
+	if claims.Subject != r.Id && !canSetRole {
+		return nil, status.Error(codes.PermissionDenied, "Permission required")
 	}
-	_, err = gorm.G[models.User](s.db).Where("id = ?", r.Id).Select("email", "first_name", "last_name", "avatar_url", "role_id").Updates(c, models.User{
-		Email:     r.Data.Email,
-		FirstName: r.Data.FirstName,
-		LastName:  r.Data.LastName,
-		AvatarURL: r.Data.AvatarUrl,
-		RoleID:    roleId,
-	})
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, status.Error(codes.NotFound, "User not found")
+
+	if canSetRole {
+		roleId, err := getRoleID(c, r.Data.Role, s.db)
+		if err != nil {
+			return nil, err
 		}
-		return nil, err
+		_, err = gorm.G[models.User](s.db).Where("id = ?", r.Id).Updates(c, models.User{
+			Email:     r.Data.Email,
+			FirstName: r.Data.FirstName,
+			LastName:  r.Data.LastName,
+			AvatarURL: r.Data.AvatarUrl,
+			RoleID:    roleId,
+		})
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, status.Error(codes.NotFound, "User not found")
+			}
+			return nil, err
+		}
+	} else {
+		_, err := gorm.G[models.User](s.db).Where("id = ?", r.Id).Updates(c, models.User{
+			Email:     r.Data.Email,
+			FirstName: r.Data.FirstName,
+			LastName:  r.Data.LastName,
+			AvatarURL: r.Data.AvatarUrl,
+		})
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, status.Error(codes.NotFound, "User not found")
+			}
+			return nil, err
+		}
 	}
 
 	return &users.UpdateResponse{}, nil

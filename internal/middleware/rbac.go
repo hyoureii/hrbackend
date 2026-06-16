@@ -3,9 +3,10 @@ package middleware
 import (
 	"context"
 
-	attendance "github.com/hyoureii/hrbackend/gen/attendance/v1"
-	request "github.com/hyoureii/hrbackend/gen/request/v1"
-	users "github.com/hyoureii/hrbackend/gen/users/v1"
+	"github.com/hyoureii/hrbackend/gen/attendance/v1"
+	"github.com/hyoureii/hrbackend/gen/auth/v1"
+	"github.com/hyoureii/hrbackend/gen/request/v1"
+	"github.com/hyoureii/hrbackend/gen/users/v1"
 	"github.com/hyoureii/hrbackend/internal/lib"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -13,10 +14,11 @@ import (
 )
 
 var protectedEndpoints = map[string][]string{
+	auth.AuthService_ResetPassword_FullMethodName: {"manageUsers"},
+
 	users.UsersService_Register_FullMethodName:    {"manageUsers", "manageEmployee"},
 	users.UsersService_GetAllUsers_FullMethodName: {"manageUsers", "manageEmployee"},
 	users.UsersService_GetUserById_FullMethodName: {"manageUsers", "manageEmployee"},
-	users.UsersService_Update_FullMethodName:      {"manageUsers", "manageEmployee"},
 	users.UsersService_Delete_FullMethodName:      {"manageUsers", "manageEmployee"},
 	users.UsersService_Activate_FullMethodName:    {"manageUsers", "manageEmployee"},
 	users.UsersService_Deactivate_FullMethodName:  {"manageUsers", "manageEmployee"},
