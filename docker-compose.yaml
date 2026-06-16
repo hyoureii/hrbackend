@@ -24,5 +24,21 @@ services:
     networks:
       - hrbackend
 
+  s3:
+    image: dxflrs/garage:v2.3.0
+    command: /garage server --single-node --default-bucket
+    environment:
+      GARAGE_DEFAULT_SECRET_KEY: ${GARAGE_S3_SECRET}
+      GARAGE_DEFAULT_ACCESS_KEY: ${GARAGE_S3_ACCESS}
+      GARAGE_DEFAULT_BUCKET: ${GARAGE_S3_BUCKET}
+      GARAGE_RPC_SECRET: ${GARAGE_RPC_SECRET}
+    ports:
+      - "${GARAGE_S3_PORT}:3900"
+    volumes:
+      - ./garage.toml:/etc/garage.toml
+      - ./data/garage:/var/lib/garage
+    networks:
+      - hrbackend
+
 networks:
   hrbackend:

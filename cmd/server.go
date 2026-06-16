@@ -15,12 +15,15 @@ import (
 	"time"
 
 	"buf.build/go/protovalidate"
+	awsConfig "github.com/aws/aws-sdk-go-v2/config"
+	awsCredentials "github.com/aws/aws-sdk-go-v2/credentials"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/logging"
 	useValidate "github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/protovalidate"
 	"github.com/hyoureii/hrbackend/gen/attendance/v1"
 	"github.com/hyoureii/hrbackend/gen/auth/v1"
-	dashboard "github.com/hyoureii/hrbackend/gen/dashboard/v1"
-	request "github.com/hyoureii/hrbackend/gen/request/v1"
+	"github.com/hyoureii/hrbackend/gen/dashboard/v1"
+	"github.com/hyoureii/hrbackend/gen/request/v1"
 	"github.com/hyoureii/hrbackend/gen/users/v1"
 	"github.com/hyoureii/hrbackend/internal/config"
 	"github.com/hyoureii/hrbackend/internal/middleware"
@@ -35,10 +38,16 @@ import (
 	"gorm.io/gorm"
 )
 
+type S3 struct {
+	Client *s3.Client
+	Bucket string
+}
+
 type Server struct {
 	logger   *slog.Logger
 	db       *gorm.DB
 	rdb      *redis.Client
+	s3       S3
 	grpcAddr string
 	httpAddr string
 }
@@ -54,13 +63,32 @@ func NewServer(logger *slog.Logger, conf *config.Config) (*Server, error) {
 		Username: conf.RedisUser,
 	})
 	if rdb == nil {
-		return nil, err
+		return nil, errors.New("Failed to initialize redis")
+	}
+	
+	awsCfg, err := awsConfig.LoadDefaultConfig(
+		context.Background(),
+		awsConfig.WithCredentialsProvider(
+			awsCredentials.NewStaticCredentialsProvider(conf.S3.AccessKey, conf.S3.SecretKey, ""),
+		),
+	)
+	s3 := s3.NewFromConfig(awsCfg, func(o *s3.Options) {
+		o.BaseEndpoint = &conf.S3.Addr
+		o.Region = conf.S3.Region
+		o.UsePathStyle = true
+	})
+	if s3 == nil {
+		return nil, errors.New("Failed to initialize s3 storage")
 	}
 
 	return &Server{
 		logger:   logger,
 		db:       db,
 		rdb:      rdb,
+		s3:       S3{
+			Client: s3,
+			Bucket: conf.S3.Bucket,
+		},
 		grpcAddr: `:` + conf.GrpcPort,
 		httpAddr: `:` + conf.HttpGatewayPort,
 	}, nil
@@ -113,6 +141,10 @@ func (s *Server) Run(c context.Context, shutdownTimeout time.Duration) error {
 	handleStatic(gatewayMux, "/docs", "text/html", static.ScalarHtml)
 	handleStatic(gatewayMux, "/scalar.js", "application/javascript", static.ScalarJS)
 	handleStatic(gatewayMux, "/openapi.json", "application/json", static.OpenApiSpec)
+
+	ah := service.NewAvatarHandler(s.s3.Client, s.s3.Bucket)
+	gatewayMux.HandlePath("POST", "/avatars/upload", ah.Upload)
+	gatewayMux.HandlePath("GET", "/avatars/{filename}", ah.Serve)
 
 	qrMux := http.NewServeMux()
 	qrMux.HandleFunc("/qr/{id}", func(w http.ResponseWriter, r *http.Request) {
