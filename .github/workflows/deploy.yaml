@@ -27,6 +27,7 @@ jobs:
           docker-compose.prod.yaml \
           traefik.yaml \
           redis.conf \
+          garage.toml \
           ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/app/
 
       - name: Pull image & restart container
