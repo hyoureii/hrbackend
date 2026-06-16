@@ -67,7 +67,7 @@ func (h *AvatarHandler) Upload(w http.ResponseWriter, r *http.Request, _ map[str
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, `{"url":"/api/v1/avatars/%s%s"}`, uuid, ext)
+	fmt.Fprintf(w, `{"url":"https://hr.hyourei.xyz/api/v1/avatars/%s%s"}`, uuid, ext)
 }
 
 func (h *AvatarHandler) Serve(w http.ResponseWriter, r *http.Request, params map[string]string) {
