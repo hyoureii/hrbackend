@@ -69,7 +69,11 @@ func (s TripServiceServer) NewTrip(c context.Context, r *request.NewTripRequest)
 }
 
 func (s TripServiceServer) GetAllTrips(c context.Context, r *request.GetAllTripsRequest) (*request.GetAllTripsResponse, error) {
-	q := gorm.G[models.Trip](s.db).Joins(clause.LeftJoin.Association("Requester"), nil)
+	q := gorm.G[models.Trip](s.db).
+		Joins(clause.LeftJoin.Association("Requester"), nil).
+		Joins(clause.LeftJoin.Association("Requester.Role"), nil).
+		Joins(clause.LeftJoin.Association("Approver"), nil).
+		Joins(clause.LeftJoin.Association("Approver.Role"), nil)
 
 	if r.ByUserId != nil && *r.ByUserId != "" {
 		q = q.Where("trips.requester_id = ?", *r.ByUserId)
@@ -96,6 +100,9 @@ func (s TripServiceServer) GetCurrentTrips(c context.Context, r *request.GetCurr
 
 	trips, err := gorm.G[models.Trip](s.db).
 		Joins(clause.LeftJoin.Association("Requester"), nil).
+		Joins(clause.LeftJoin.Association("Requester.Role"), nil).
+		Joins(clause.LeftJoin.Association("Approver"), nil).
+		Joins(clause.LeftJoin.Association("Approver.Role"), nil).
 		Where("trips.requester_id = ?", claims.Subject).
 		Find(c)
 	if err != nil {
@@ -139,6 +146,9 @@ func (s TripServiceServer) GetAllPendingTrips(c context.Context, r *request.GetA
 
 	trips, err := gorm.G[models.Trip](s.db).
 		Joins(clause.LeftJoin.Association("Requester"), nil).
+		Joins(clause.LeftJoin.Association("Requester.Role"), nil).
+		Joins(clause.LeftJoin.Association("Approver"), nil).
+		Joins(clause.LeftJoin.Association("Approver.Role"), nil).
 		Where("trips.status = ? AND trips.requester_id IN ?", models.Pending, userIDs).
 		Find(c)
 	if err != nil {
@@ -156,6 +166,9 @@ func (s TripServiceServer) GetAllPendingTrips(c context.Context, r *request.GetA
 func (s TripServiceServer) GetTripById(c context.Context, r *request.GetTripByIdRequest) (*request.GetTripByIdResponse, error) {
 	trip, err := gorm.G[models.Trip](s.db).
 		Joins(clause.LeftJoin.Association("Requester"), nil).
+		Joins(clause.LeftJoin.Association("Requester.Role"), nil).
+		Joins(clause.LeftJoin.Association("Approver"), nil).
+		Joins(clause.LeftJoin.Association("Approver.Role"), nil).
 		Where("trips.id = ?", r.Id).
 		First(c)
 	if err != nil {
@@ -299,11 +312,13 @@ func (s TripServiceServer) RejectTrip(c context.Context, r *request.RejectTripRe
 		return nil, status.Error(codes.PermissionDenied, "You cannot manage requests from this role")
 	}
 
-	_, err = gorm.G[models.Trip](s.db).Where("id = ?", r.Id).Update(c, "status", models.Rejected)
-	if err != nil {
-		return nil, err
-	}
-	_, err = gorm.G[models.Trip](s.db).Where("id = ?", r.Id).Update(c, "approver_id", claims.Subject)
+	_, err = gorm.G[models.Trip](s.db).Where("id = ?", r.Id).Updates(c, models.Trip{
+		Request: models.Request{
+			Status:       models.Rejected,
+			ApproverID:   claims.Subject,
+			RejectReason: r.GetReason(),
+		},
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -319,9 +334,10 @@ func tripToProto(l models.Trip) *request.Request {
 			EndDate:     l.EndDate,
 			Type:        string(l.Type),
 		},
-		Id:         l.ID,
-		Status:     string(l.Status),
-		ApproverId: l.ApproverID,
-		RequesterId: l.RequesterID,
+		Id:           l.ID,
+		Status:       string(l.Status),
+		Approver:     lib.UserDataToProto(l.Approver),
+		RejectReason: l.RejectReason,
+		Requester:    lib.UserDataToProto(l.Requester),
 	}
 }

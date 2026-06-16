@@ -480,6 +480,9 @@
           "id": {
             "type": "string"
           },
+          "rejectReason": {
+            "type": "string"
+          },
           "requesterId": {
             "type": "string"
           },

@@ -264,25 +264,6 @@
     }
   },
   "definitions": {
-    "RequestData": {
-      "type": "object",
-      "properties": {
-        "description": {
-          "type": "string"
-        },
-        "startDate": {
-          "type": "string",
-          "format": "int64"
-        },
-        "endDate": {
-          "type": "string",
-          "format": "int64"
-        },
-        "type": {
-          "type": "string"
-        }
-      }
-    },
     "TripServiceRejectTripBody": {
       "type": "object",
       "properties": {
@@ -295,7 +276,7 @@
       "type": "object",
       "properties": {
         "request": {
-          "$ref": "#/definitions/RequestData"
+          "$ref": "#/definitions/v1RequestData"
         }
       }
     },
@@ -378,7 +359,7 @@
       "type": "object",
       "properties": {
         "request": {
-          "$ref": "#/definitions/RequestData"
+          "$ref": "#/definitions/v1RequestData"
         }
       }
     },
@@ -395,21 +376,63 @@
           "type": "string"
         },
         "data": {
-          "$ref": "#/definitions/RequestData"
+          "$ref": "#/definitions/v1RequestData"
         },
         "status": {
           "type": "string"
         },
-        "approverId": {
+        "approver": {
+          "$ref": "#/definitions/v1UserData"
+        },
+        "rejectReason": {
           "type": "string"
         },
-        "requesterId": {
+        "requester": {
+          "$ref": "#/definitions/v1UserData"
+        }
+      }
+    },
+    "v1RequestData": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "startDate": {
+          "type": "string",
+          "format": "int64"
+        },
+        "endDate": {
+          "type": "string",
+          "format": "int64"
+        },
+        "type": {
           "type": "string"
         }
       }
     },
     "v1UpdateTripResponse": {
       "type": "object"
+    },
+    "v1UserData": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "firstName": {
+          "type": "string"
+        },
+        "lastName": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string"
+        },
+        "avatarUrl": {
+          "type": "string"
+        }
+      }
     }
   }
 }
