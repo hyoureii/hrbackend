@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"math/rand/v2"
 	"time"
 
 	"github.com/google/uuid"
@@ -47,10 +48,10 @@ func (s AttendanceServiceServer) CheckIn(c context.Context, r *attendance.CheckI
 	}
 
 	now := time.Now()
-	hour := now.Hour()
-	if hour < 8 || hour >= 9 {
-		return nil, status.Error(codes.FailedPrecondition, "outside check-in time")
-	}
+	// hour := now.Hour()
+	// if hour < 8 || hour >= 9 {
+	// 	return nil, status.Error(codes.FailedPrecondition, "outside check-in time")
+	// }
 
 	nonceKey := "nonce:" + attClaims.ID + `@` + attClaims.Subject 
 	exists, err := s.rdb.Exists(c, nonceKey).Result()
@@ -106,10 +107,10 @@ func (s AttendanceServiceServer) CheckOut(c context.Context, r *attendance.Check
 	}
 
 	now := time.Now()
-	hour := now.Hour()
-	if hour < 16 || hour >= 17 {
-		return nil, status.Error(codes.FailedPrecondition, "outside check-out time")
-	}
+	// hour := now.Hour()
+	// if hour < 16 || hour >= 17 {
+	// 	return nil, status.Error(codes.FailedPrecondition, "outside check-out time")
+	// }
 
 	startOfDay := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
 	endOfDay := startOfDay.Add(24 * time.Hour)
@@ -156,18 +157,25 @@ func (s AttendanceServiceServer) CheckOut(c context.Context, r *attendance.Check
 
 func (s AttendanceServiceServer) Generate(c context.Context, r *attendance.GenerateRequest) (*attendance.GenerateResponse, error) {
 	now := time.Now()
-	hour := now.Hour()
+	// hour := now.Hour()
 	expDur := time.Minute * 5
 
 	var purpose models.QrType
-	switch {
-	case hour >= 8 && hour < 9:
+	if randomparatolol := rand.N(100); randomparatolol > 50 {
+		println(randomparatolol)
 		purpose = models.CheckIn
-	case hour >= 16 && hour < 17:
+	} else {
+		println(randomparatolol)
 		purpose = models.CheckOut
-	default:
-		return nil, status.Error(codes.FailedPrecondition, "Outside check in/out time")
 	}
+	// switch {
+	// case hour >= 8 && hour < 9:
+	// 	purpose = models.CheckIn
+	// case hour >= 16 && hour < 17:
+	// 	purpose = models.CheckOut
+	// default:
+	// 	return nil, status.Error(codes.FailedPrecondition, "Outside check in/out time")
+	// }
 
 	startOfDay := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
 	endOfDay := startOfDay.Add(24 * time.Hour)
