@@ -61,7 +61,12 @@ func (s AuthServiceServer) Login(c context.Context, r *auth.LoginRequest) (*auth
 		return nil, err
 	}
 
-	t, err := rotateRefreshToken(c, s.db, user.ID, user.Role.Name, perms, false)
+	jti, err := uuid.NewRandom()
+	if err != nil {
+		return nil, err
+	}
+
+	t, err := rotateRefreshToken(c, s.db, user.ID, user.Role.Name, perms, false, jti.String())
 	if err != nil {
 		return nil, err
 	}
@@ -80,6 +85,11 @@ func (s AuthServiceServer) Refresh(c context.Context, r *auth.RefreshRequest) (*
 		return nil, status.Error(codes.Unauthenticated, "Invalid refresh token")
 	}
 
+	jti := claims.ID
+	if jti == "" {
+		return nil, status.Error(codes.Unauthenticated, "Invalid refresh token")
+	}
+
 	user, err := gorm.G[models.User](s.db).Joins(clause.LeftJoin.Association("Role"), nil).Where("users.id = ?", claims.Subject).First(c)
 	if err != nil {
 		return nil, err
@@ -90,7 +100,7 @@ func (s AuthServiceServer) Refresh(c context.Context, r *auth.RefreshRequest) (*
 		return nil, err
 	}
 
-	t, err := rotateRefreshToken(c, s.db, claims.Subject, user.Role.Name, perms, true)
+	t, err := rotateRefreshToken(c, s.db, claims.Subject, user.Role.Name, perms, true, jti)
 	if err != nil {
 		return nil, err
 	}
@@ -115,18 +125,9 @@ func (s AuthServiceServer) Logout(c context.Context, r *auth.LogoutRequest) (*au
 		}
 	}
 
-	token, err := gorm.G[models.RefreshToken](s.db).Where("user_id = ?", claims.Subject).Find(c)
+	_, err := gorm.G[models.RefreshToken](s.db).Where("jti = ?", claims.ID).Delete(c)
 	if err != nil {
 		return nil, err
-	}
-
-	if len(token) != 0 {
-		for _, row := range token {
-			_, err := gorm.G[models.RefreshToken](s.db).Where("id = ?", row.ID).Delete(c)
-			if err != nil {
-				return nil, err
-			}
-		}
 	}
 
 	return &auth.LogoutResponse{}, nil
@@ -194,44 +195,32 @@ func (s AuthServiceServer) ResetPassword(c context.Context, r *auth.ResetPasswor
 	return &auth.ResetPasswordResponse{}, nil
 }
 
-func rotateRefreshToken(c context.Context, db *gorm.DB, userId string, role string, perms []string, refreshing bool) (*tokenResponse, error) {
+func rotateRefreshToken(c context.Context, db *gorm.DB, userId string, role string, perms []string, refreshing bool, jti string) (*tokenResponse, error) {
 	accessExp := time.Now().Add(time.Minute * 5)
 	refreshExp := time.Now().Add(time.Hour * 24 * 7)
 
-	refreshToken, err := lib.GenerateAccessRefresh(lib.ClaimRefresh, userId, role, perms, refreshExp)
-	if err != nil {
-		return nil, err
-	}
-	hashStr := lib.HashToken(refreshToken)
-	rows, err := gorm.G[models.RefreshToken](db).Where("user_id = ?", userId).Find(c)
-	if err != nil {
-		return nil, err
-	}
 	if refreshing {
-		if len(rows) <= 0 {
-			return nil, status.Error(codes.Unauthenticated, "Refresh token invalid")
-		}
-		latest := rows[0]
-		for _, token := range rows {
-			if time.Unix(token.ExpiredAt, 0).After(time.Unix(latest.ExpiredAt, 0)) {
-				latest = token
+		latest, err := gorm.G[models.RefreshToken](db).Where("jti = ?", jti).First(c)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, status.Error(codes.Unauthenticated, "Refresh token invalid")
 			}
+			return nil, err
 		}
 		if time.Unix(latest.ExpiredAt, 0).Before(time.Now()) {
 			return nil, status.Error(codes.Unauthenticated, "Refresh token expired")
 		}
-	}
-	// NOTE: right now user can only have 1 refresh token on db,
-	// maybe support for having multiple sessions(thus multiple refresh tokens)
-	// will be added in the future
-	if len(rows) != 0 {
-		for _, row := range rows {
-			_, err := gorm.G[models.RefreshToken](db).Where("id = ?", row.ID).Delete(c)
-			if err != nil {
-				return nil, err
-			}
+		_, err = gorm.G[models.RefreshToken](db).Where("jti = ?", jti).Delete(c)
+		if err != nil {
+			return nil, err
 		}
 	}
+
+	refreshToken, err := lib.GenerateAccessRefresh(lib.ClaimRefresh, userId, role, perms, refreshExp, jti)
+	if err != nil {
+		return nil, err
+	}
+	hashStr := lib.HashToken(refreshToken)
 
 	id, err := uuid.NewRandom()
 	if err != nil {
@@ -242,11 +231,12 @@ func rotateRefreshToken(c context.Context, db *gorm.DB, userId string, role stri
 		TokenHash: hashStr,
 		ExpiredAt: refreshExp.Unix(),
 		UserID:    userId,
+		Jti:       jti,
 	})
 	if err != nil {
 		return nil, err
 	}
-	accessToken, err := lib.GenerateAccessRefresh(lib.ClaimAccess, userId, role, perms, accessExp)
+	accessToken, err := lib.GenerateAccessRefresh(lib.ClaimAccess, userId, role, perms, accessExp, jti)
 	if err != nil {
 		return nil, err
 	}

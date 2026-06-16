@@ -18,4 +18,5 @@ type RefreshToken struct {
 	ExpiredAt int64  `gorm:"not null"`
 	UserID    string `gorm:"type:uuid;not null"`
 	User      User   `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	Jti       string `gorm:"type:uuid;not null;unique"`
 }
