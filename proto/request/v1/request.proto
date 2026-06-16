@@ -3,6 +3,7 @@ package request.v1;
 
 import "buf/validate/validate.proto";
 import "google/api/annotations.proto";
+import "users/v1/users.proto";
 
 option go_package = "github.com/hyoureii/hrbackend/gen/request/v1;request";
 
@@ -16,6 +17,7 @@ message Request {
   string id = 1;
   Data data = 2;
   string status = 3;
-  string approver_id = 4;
-  string requester_id = 5;
+  users.v1.User.Data approver = 4;
+  string reject_reason = 5;
+  users.v1.User.Data requester = 6;
 }

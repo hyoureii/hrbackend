@@ -8,6 +8,7 @@ package request
 
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
+	v1 "github.com/hyoureii/hrbackend/gen/users/v1"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -28,8 +29,9 @@ type Request struct {
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	Data          *Request_Data          `protobuf:"bytes,2,opt,name=data,proto3" json:"data,omitempty"`
 	Status        string                 `protobuf:"bytes,3,opt,name=status,proto3" json:"status,omitempty"`
-	ApproverId    string                 `protobuf:"bytes,4,opt,name=approver_id,json=approverId,proto3" json:"approver_id,omitempty"`
-	RequesterId   string                 `protobuf:"bytes,5,opt,name=requester_id,json=requesterId,proto3" json:"requester_id,omitempty"`
+	Approver      *v1.User_Data          `protobuf:"bytes,4,opt,name=approver,proto3" json:"approver,omitempty"`
+	RejectReason  string                 `protobuf:"bytes,5,opt,name=reject_reason,json=rejectReason,proto3" json:"reject_reason,omitempty"`
+	Requester     *v1.User_Data          `protobuf:"bytes,6,opt,name=requester,proto3" json:"requester,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -85,18 +87,25 @@ func (x *Request) GetStatus() string {
 	return ""
 }
 
-func (x *Request) GetApproverId() string {
+func (x *Request) GetApprover() *v1.User_Data {
 	if x != nil {
-		return x.ApproverId
+		return x.Approver
+	}
+	return nil
+}
+
+func (x *Request) GetRejectReason() string {
+	if x != nil {
+		return x.RejectReason
 	}
 	return ""
 }
 
-func (x *Request) GetRequesterId() string {
+func (x *Request) GetRequester() *v1.User_Data {
 	if x != nil {
-		return x.RequesterId
+		return x.Requester
 	}
-	return ""
+	return nil
 }
 
 type Request_Data struct {
@@ -172,14 +181,14 @@ var File_request_v1_request_proto protoreflect.FileDescriptor
 const file_request_v1_request_proto_rawDesc = "" +
 	"\n" +
 	"\x18request/v1/request.proto\x12\n" +
-	"request.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\"\xbc\x02\n" +
+	"request.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x14users/v1/users.proto\"\x81\x03\n" +
 	"\aRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12,\n" +
 	"\x04data\x18\x02 \x01(\v2\x18.request.v1.Request.DataR\x04data\x12\x16\n" +
-	"\x06status\x18\x03 \x01(\tR\x06status\x12\x1f\n" +
-	"\vapprover_id\x18\x04 \x01(\tR\n" +
-	"approverId\x12!\n" +
-	"\frequester_id\x18\x05 \x01(\tR\vrequesterId\x1a\x96\x01\n" +
+	"\x06status\x18\x03 \x01(\tR\x06status\x12/\n" +
+	"\bapprover\x18\x04 \x01(\v2\x13.users.v1.User.DataR\bapprover\x12#\n" +
+	"\rreject_reason\x18\x05 \x01(\tR\frejectReason\x121\n" +
+	"\trequester\x18\x06 \x01(\v2\x13.users.v1.User.DataR\trequester\x1a\x96\x01\n" +
 	"\x04Data\x12(\n" +
 	"\vdescription\x18\x01 \x01(\tB\x06\xbaH\x03\xc8\x01\x01R\vdescription\x12%\n" +
 	"\n" +
@@ -206,14 +215,17 @@ var file_request_v1_request_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_request_v1_request_proto_goTypes = []any{
 	(*Request)(nil),      // 0: request.v1.Request
 	(*Request_Data)(nil), // 1: request.v1.Request.Data
+	(*v1.User_Data)(nil), // 2: users.v1.User.Data
 }
 var file_request_v1_request_proto_depIdxs = []int32{
 	1, // 0: request.v1.Request.data:type_name -> request.v1.Request.Data
-	1, // [1:1] is the sub-list for method output_type
-	1, // [1:1] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	2, // 1: request.v1.Request.approver:type_name -> users.v1.User.Data
+	2, // 2: request.v1.Request.requester:type_name -> users.v1.User.Data
+	3, // [3:3] is the sub-list for method output_type
+	3, // [3:3] is the sub-list for method input_type
+	3, // [3:3] is the sub-list for extension type_name
+	3, // [3:3] is the sub-list for extension extendee
+	0, // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_request_v1_request_proto_init() }

@@ -69,7 +69,11 @@ func (s LeaveServiceServer) NewLeave(c context.Context, r *request.NewLeaveReque
 }
 
 func (s LeaveServiceServer) GetAllLeaves(c context.Context, r *request.GetAllLeavesRequest) (*request.GetAllLeavesResponse, error) {
-	q := gorm.G[models.Leave](s.db).Joins(clause.LeftJoin.Association("Requester"), nil)
+	q := gorm.G[models.Leave](s.db).
+		Joins(clause.LeftJoin.Association("Requester"), nil).
+		Joins(clause.LeftJoin.Association("Requester.Role"), nil).
+		Joins(clause.LeftJoin.Association("Approver"), nil).
+		Joins(clause.LeftJoin.Association("Approver.Role"), nil)
 
 	if r.ByUserId != nil && *r.ByUserId != "" {
 		q = q.Where("leaves.requester_id = ?", *r.ByUserId)
@@ -96,6 +100,9 @@ func (s LeaveServiceServer) GetCurrentLeaves(c context.Context, r *request.GetCu
 
 	leaves, err := gorm.G[models.Leave](s.db).
 		Joins(clause.LeftJoin.Association("Requester"), nil).
+		Joins(clause.LeftJoin.Association("Requester.Role"), nil).
+		Joins(clause.LeftJoin.Association("Approver"), nil).
+		Joins(clause.LeftJoin.Association("Approver.Role"), nil).
 		Where("leaves.requester_id = ?", claims.Subject).
 		Find(c)
 	if err != nil {
@@ -139,6 +146,9 @@ func (s LeaveServiceServer) GetAllPendingLeaves(c context.Context, r *request.Ge
 
 	leaves, err := gorm.G[models.Leave](s.db).
 		Joins(clause.LeftJoin.Association("Requester"), nil).
+		Joins(clause.LeftJoin.Association("Requester.Role"), nil).
+		Joins(clause.LeftJoin.Association("Approver"), nil).
+		Joins(clause.LeftJoin.Association("Approver.Role"), nil).
 		Where("leaves.status = ? AND leaves.requester_id IN ?", models.Pending, userIDs).
 		Find(c)
 	if err != nil {
@@ -156,6 +166,9 @@ func (s LeaveServiceServer) GetAllPendingLeaves(c context.Context, r *request.Ge
 func (s LeaveServiceServer) GetLeaveById(c context.Context, r *request.GetLeaveByIdRequest) (*request.GetLeaveByIdResponse, error) {
 	leave, err := gorm.G[models.Leave](s.db).
 		Joins(clause.LeftJoin.Association("Requester"), nil).
+		Joins(clause.LeftJoin.Association("Requester.Role"), nil).
+		Joins(clause.LeftJoin.Association("Approver"), nil).
+		Joins(clause.LeftJoin.Association("Approver.Role"), nil).
 		Where("leaves.id = ?", r.Id).
 		First(c)
 	if err != nil {
@@ -299,11 +312,13 @@ func (s LeaveServiceServer) RejectLeave(c context.Context, r *request.RejectLeav
 		return nil, status.Error(codes.PermissionDenied, "You cannot manage requests from this role")
 	}
 
-	_, err = gorm.G[models.Leave](s.db).Where("id = ?", r.Id).Update(c, "status", models.Rejected)
-	if err != nil {
-		return nil, err
-	}
-	_, err = gorm.G[models.Leave](s.db).Where("id = ?", r.Id).Update(c, "approver_id", claims.Subject)
+	_, err = gorm.G[models.Leave](s.db).Where("id = ?", r.Id).Updates(c, models.Leave{
+		Request: models.Request{
+			Status:       models.Rejected,
+			ApproverID:   claims.Subject,
+			RejectReason: r.GetReason(),
+		},
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -319,9 +334,10 @@ func leaveToProto(l models.Leave) *request.Request {
 			EndDate:     l.EndDate,
 			Type:        string(l.Type),
 		},
-		Id:         l.ID,
-		Status:     string(l.Status),
-		ApproverId: l.ApproverID,
-		RequesterId: l.RequesterID,
+		Id:           l.ID,
+		Status:       string(l.Status),
+		Approver:     lib.UserDataToProto(l.Approver),
+		RejectReason: l.RejectReason,
+		Requester:    lib.UserDataToProto(l.Requester),
 	}
 }
