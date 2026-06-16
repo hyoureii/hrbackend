@@ -81,7 +81,7 @@ services:
       JWT_SECRET: ${JWT_SECRET}
     labels:
       - traefik.enable=true
-      - traefik.http.routers.gateway-r.rule=Host(`hr.hyourei.xyz`) && PathPrefix(`/api`)
+      - traefik.http.routers.gateway-r.rule=Host(`hr.hyourei.xyz`) && (PathPrefix(`/api`) || PathPrefix(`/qr`))
       - traefik.http.routers.gateway-r.entrypoints=websecure
       - traefik.http.routers.gateway-r.service=gateway-s
       - traefik.http.routers.gateway-r.tls=true
