@@ -45,12 +45,13 @@ func HashToken(token string) string {
 	return hex.EncodeToString(hash[:])
 }
 
-func GenerateAccessRefresh(scope AuthClaimScope, userId string, role string, perms []string, exp time.Time) (string, error) {
+func GenerateAccessRefresh(scope AuthClaimScope, userId string, role string, perms []string, exp time.Time, jti string) (string, error) {
 	claims := &AuthClaims{
 		Scope: scope,
 		Perms: perms,
 		Role:  role,
 	}
+	claims.ID = jti
 	claims.Subject = userId
 	claims.ExpiresAt = jwt.NewNumericDate(exp)
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
