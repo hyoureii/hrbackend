@@ -37,6 +37,21 @@ services:
     networks:
       - hrbackend
 
+  s3:
+    image: dxflrs/garage:v2.3.0
+    restart: unless-stopped
+    command: /garage server --single-node --default-bucket
+    environment:
+      GARAGE_DEFAULT_SECRET_KEY: ${GARAGE_S3_SECRET}
+      GARAGE_DEFAULT_ACCESS_KEY: ${GARAGE_S3_ACCESS}
+      GARAGE_DEFAULT_BUCKET: ${GARAGE_S3_BUCKET}
+      GARAGE_RPC_SECRET: ${GARAGE_RPC_SECRET}
+    volumes:
+      - ./garage.toml:/etc/garage.toml
+      - ./data/garage:/var/lib/garage
+    networks:
+      - hrbackend
+
   app:
     image: ghcr.io/hyoureii/hrbackend:latest
     restart: unless-stopped
@@ -57,6 +72,12 @@ services:
       REDIS_USER: ${REDIS_USER}
       REDIS_PASSWORD: ${REDIS_PASSWORD}
       REDIS_PORT: "6379"
+      GARAGE_S3_HOST: s3
+      GARAGE_S3_PORT: "3900"
+      GARAGE_S3_SECRET: ${GARAGE_S3_SECRET}
+      GARAGE_S3_ACCESS: ${GARAGE_S3_ACCESS}
+      GARAGE_S3_BUCKET: ${GARAGE_S3_BUCKET}
+      GARAGE_S3_REGION: ${GARAGE_S3_REGION}
       JWT_SECRET: ${JWT_SECRET}
     labels:
       - traefik.enable=true

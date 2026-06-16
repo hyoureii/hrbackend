@@ -8,8 +8,8 @@ To-do :
 - [X] Write go implementations
 - [X] If possible do typesafety checks/validation
 - [X] Figure out what im gonna do with db
-- [ ] Figure out what im gonna do with file storage (probably S3)
-    - [ ] Implement user avatar storing in file storage
+- [X] Figure out what im gonna do with file storage (probably S3)
+    - [X] Implement user avatar storing in file storage
 - [X] Setup db and its dependencies (ORM, etc.)
 - [X] Get auth working (probably be using JWT)
 - [ ] Add query params for a bunch of filtering
