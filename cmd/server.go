@@ -104,13 +104,13 @@ func (s *Server) Run(c context.Context, shutdownTimeout time.Duration) error {
 		grpc.ChainUnaryInterceptor(
 			logging.UnaryServerInterceptor(interceptorLogger(s.logger)),
 			middleware.UseValidateRequest(),
-			middleware.UseAuth(),
+			middleware.UseAuth(s.rdb),
 			middleware.UseRBAC(),
 			useValidate.UnaryServerInterceptor(validator),
 		),
 	)
 
-	auth.RegisterAuthServiceServer(grpcServer, service.NewAuthServiceServer(s.db))
+	auth.RegisterAuthServiceServer(grpcServer, service.NewAuthServiceServer(s.db, s.rdb))
 	users.RegisterUsersServiceServer(grpcServer, service.NewUsersServiceServer(s.db))
 	attendance.RegisterAttendanceServiceServer(grpcServer, service.NewAttendanceServiceServer(s.db, s.rdb))
 	request.RegisterLeaveServiceServer(grpcServer, service.NewLeaveServiceServer(s.db))

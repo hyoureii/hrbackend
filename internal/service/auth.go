@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -10,7 +11,9 @@ import (
 	"github.com/hyoureii/hrbackend/internal/lib"
 	"github.com/hyoureii/hrbackend/internal/middleware"
 	"github.com/hyoureii/hrbackend/models"
+	"github.com/redis/go-redis/v9"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -23,12 +26,13 @@ type tokenResponse struct {
 }
 
 type AuthServiceServer struct {
-	db *gorm.DB
+	db  *gorm.DB
+	rdb *redis.Client
 	auth.UnimplementedAuthServiceServer
 }
 
-func NewAuthServiceServer(db *gorm.DB) *AuthServiceServer {
-	return &AuthServiceServer{db: db}
+func NewAuthServiceServer(db *gorm.DB, rdb *redis.Client) *AuthServiceServer {
+	return &AuthServiceServer{db: db, rdb: rdb}
 }
 
 func (s AuthServiceServer) Login(c context.Context, r *auth.LoginRequest) (*auth.LoginResponse, error) {
@@ -99,6 +103,18 @@ func (s AuthServiceServer) Refresh(c context.Context, r *auth.RefreshRequest) (*
 
 func (s AuthServiceServer) Logout(c context.Context, r *auth.LogoutRequest) (*auth.LogoutResponse, error) {
 	claims := c.Value(middleware.ClaimsKey).(*lib.AuthClaims)
+
+	meta, _ := metadata.FromIncomingContext(c)
+	tokens := meta.Get("authorization")
+	if len(tokens) > 0 {
+		tokenStr := strings.TrimPrefix(tokens[0], "Bearer ")
+		hash := lib.HashToken(tokenStr)
+		ttl := time.Until(claims.ExpiresAt.Time) + (time.Second * 10)
+		if ttl > 0 {
+			s.rdb.Set(c, "blacklist:"+hash, "1", ttl)
+		}
+	}
+
 	token, err := gorm.G[models.RefreshToken](s.db).Where("user_id = ?", claims.Subject).Find(c)
 	if err != nil {
 		return nil, err
